@@ -1,0 +1,22 @@
+﻿<Window x:Class="WpfControlsDemo.SaveWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="SaveWindow" Height="288" Width="313" ResizeMode="CanMinimize">
+    <Grid>
+        <Grid Margin="-1,1,1,-1">
+            <Label Height="28" HorizontalAlignment="Left" Margin="22,22,0,0" Name="label1" VerticalAlignment="Top" Width="73">File Name:</Label>
+            <TextBox Height="23" Margin="96.694,24,18,0" Name="txtFileName" VerticalAlignment="Top" />
+            <GroupBox Header="Save Type" Margin="22,61,18,75" Name="groupBox1">
+                <Canvas Grid.Column="0" Grid.Row="3">
+                    <RadioButton Canvas.Left="15" Canvas.Top="10" Checked="rbJPG_Checked" Height="16" Name="rbJPG" Width="60">JPG</RadioButton>
+                    <RadioButton Canvas.Left="85" Canvas.Top="10" Checked="rbBMP_Checked" Height="16" Name="rbBMP" Width="60">BMP</RadioButton>
+                    <RadioButton Canvas.Left="155" Canvas.Top="10" Checked="rbPNG_Checked" Height="16" Name="rbPNG" Width="60">PNG</RadioButton>
+                    <RadioButton Canvas.Left="15" Canvas.Top="35" Checked="rbTIFF_Checked" Height="16" Name="rbTIFF" Width="60">TIFF</RadioButton>
+                    <RadioButton Canvas.Left="85" Canvas.Top="35" Checked="rbPDF_Checked" Height="16" Name="rbPDF" Width="60">PDF</RadioButton>
+                    <CheckBox Canvas.Left="15" Canvas.Top="60" Height="16" HorizontalAlignment="Right" Name="chkMultiPage" VerticalAlignment="Top" Width="100">Multi-Page</CheckBox>
+                </Canvas>
+            </GroupBox>
+            <Label Height="28" Margin="80,0,78,22" MouseDown="lbSave_MouseDown" MouseEnter="lbSave_MouseEnter" MouseLeave="lbSave_MouseLeave" Name="lbSave" VerticalAlignment="Bottom" Width="102" />
+        </Grid>
+    </Grid>
+</Window>

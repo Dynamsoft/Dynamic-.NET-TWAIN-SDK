@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "BarcodeGenerator", "BarcodeGenerator\BarcodeGenerator_VS2005.vbproj", "{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}.Debug|x86.ActiveCfg = Debug|x86
+		{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}.Debug|x86.Build.0 = Debug|x86
+		{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}.Release|x86.ActiveCfg = Release|x86
+		{998B8784-FC92-4DE7-8A53-FFAF9F56AFDB}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
