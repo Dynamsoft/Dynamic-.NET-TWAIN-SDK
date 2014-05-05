@@ -36,7 +36,7 @@ Highlights
 Sample Code
 -----------
 
-[Barcode Generator][3]
+[Barcode Generator][3] & [Barcode Reader][8]
 
 * Add ```DynamicBarcode.dll``` to BarcodeGenerator\Redistributable\BarcodeResources
 
@@ -58,3 +58,4 @@ Sample Code
 [5]:http://www.dynamsoft.com/Downloads/OCR-Language-Package.aspx
 [6]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/PDFRasterizerDemo
 [7]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/WebcamDemoCode
+[8]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/BarcodeReaderCode
