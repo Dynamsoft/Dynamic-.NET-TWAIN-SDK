@@ -33,6 +33,8 @@ Highlights
 * Supports image editing features including Rotate, Flip, Mirror, Crop, and Erase.
 * Save and upload images to a local disk, FTP site, web server or database.
 
+[More][9]
+
 Sample Code
 -----------
 
@@ -59,3 +61,4 @@ Sample Code
 [6]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/PDFRasterizerDemo
 [7]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/WebcamDemoCode
 [8]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/BarcodeReaderCode
+[9]:http://www.dynamsoft.com/Products/.Net-TWAIN-Scanner-Features.aspx
