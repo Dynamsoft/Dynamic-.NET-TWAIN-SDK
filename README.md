@@ -5,20 +5,18 @@ version 5.4.1
 Introduction
 -----------
 
-[Dynamic .NET TWAIN][1] is a document imaging SDK based on the 2.0/4.0 version of the Microsoft .NET Framework.
-Optimized for use in C# and VB .NET, it provides rich APIs for scanner and webcam software development.
+[Dynamic .NET TWAIN][1] is a .NET document imaging SDK based on the TWAIN and DirectShow standards. It provides rich APIs for scanner and webcam software development.
 
-Use the SDK 
+Use the SDK
 -----------
 
 * Install the Dynamic .NET TWAIN SDK from the [download site][2]
-* Launch Visual Studio to open your project
+* Launch Visual Studio, and create a new .NET project
 * Right-click References > Add Reference ```DynamicDotNetTWAIN.dll```
 
 Documentation
 --------------
-
-Visit: http://www.dynamsoft.com/help/TWAIN/.Net-TWAIN-Scanner/html/AllMembers_T_Dynamsoft_DotNet_TWAIN_DynamicDotNetTwain.htm.
+ http://www.dynamsoft.com/help/TWAIN/.Net-TWAIN-Scanner/html/AllMembers_T_Dynamsoft_DotNet_TWAIN_DynamicDotNetTwain.htm.
 
 Highlights
 -----------
@@ -37,32 +35,12 @@ Highlights
 
 [More][9]
 
-Sample Code
+Samples
 -----------
-
-[Barcode Generator][3] & [Barcode Reader][8]
-
-* Add ```DynamicBarcode.dll``` to BarcodeGenerator\Redistributable\BarcodeResources
-
-[OCR][4]
-* Download [OCR SDK Language Packages][5]
-* Move language packages to OCRDemo\Redistributable\tessdata
-* Add ```DynamicOCR.dll``` to OCRDemo\Redistributable\OCRResources
-
-[PDF Rasterizer][6]
-* Add ```DynamicPdf.dll``` to PDFRasterizer\Redistributable\PDFResources
-
-[Webcam][7]
-* The sample demonstrates how to capture images from Webcam with C# or VB.NET
+http://www.dynamsoft.com/Downloads/.Net-TWAIN-Sample-Download.aspx
 
 [1]:http://www.dynamsoft.com/Products/.Net-TWAIN-Scanner.aspx
 [2]:https://www.dynamsoft.com/Secure/Register_ClientInfo.aspx?productName=NetTWAIN&from=FromDownload
-[3]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/BarcodeGeneratorDemo
-[4]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/OCRDemo
-[5]:http://www.dynamsoft.com/Downloads/OCR-Language-Package.aspx
-[6]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/PDFRasterizerDemo
-[7]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/WebcamDemoCode
-[8]:https://github.com/DynamsoftRD/Dynamic-.NET-TWAIN-SDK/tree/master/src/BarcodeReaderCode
 [9]:http://www.dynamsoft.com/Products/.Net-TWAIN-Scanner-Features.aspx
 [10]:http://www.dynamsoft.com/Products/.net-barcode-detection-decode-sdk.aspx
 [11]:http://www.dynamsoft.com/Products/.net-ocr-component.aspx
