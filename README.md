@@ -7,7 +7,7 @@ Introduction
 
 [Dynamic .NET TWAIN][1] is a .NET document imaging SDK based on the TWAIN and DirectShow standards. It provides rich APIs for scanner and webcam software development.
 
-Use the SDK
+Download
 -----------
 
 * Install the Dynamic .NET TWAIN SDK from the [download site][2]
