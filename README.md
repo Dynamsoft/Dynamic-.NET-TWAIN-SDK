@@ -1,6 +1,6 @@
 Dynamic .NET TWAIN SDK
 =========
-version 5.4.1
+version 6.0
 
 Introduction
 -----------
