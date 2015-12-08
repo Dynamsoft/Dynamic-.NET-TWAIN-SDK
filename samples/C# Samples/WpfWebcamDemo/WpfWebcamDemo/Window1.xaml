@@ -1,0 +1,26 @@
+﻿<Window         
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Wpf="clr-namespace:Dynamsoft.DotNet.TWAIN.Wpf;assembly=DynamicDotNetTWAIN.Wpf" x:Class="WpfWebcamDemo.Window1"
+        Title="WebcamDemo" Height="437.075" Width="898.123">
+<Grid>
+        <Border Name="border2" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="295" Margin="251,58,0,0" VerticalAlignment="Top" Width="275">
+            <Wpf:DynamicDotNetTwain  Name="dynamicDotNetTwain1" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="275" Height="295" />
+        </Border>
+        <Button Name="btnCaptureImage" Content="Capture Image" HorizontalAlignment="Left" Margin="36,239,0,0" VerticalAlignment="Top" Width="136" Click="btnCaptureImage_Click"/>
+        <CheckBox Name="chkContainer" Content="Set Video Container" HorizontalAlignment="Left" Margin="36,166,0,0" VerticalAlignment="Top"/>
+        <ComboBox Name="cbxSources" HorizontalAlignment="Left" Margin="36,63,0,0" VerticalAlignment="Top" Width="136" RenderTransformOrigin="-0.134,0.114"/>
+        <Button Name="btnRemoveAllImage" Content="Remove All Images" HorizontalAlignment="Left" Margin="36,282,0,0" VerticalAlignment="Top" Width="136" Click="btnRemoveAllImage_Click"/>
+        <Label Content="WebCam Source:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="36,24,0,0"/>
+        <Label Content="Rotate:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="36,90,0,0" RenderTransformOrigin="0.111,0.529"/>
+        <Label Content="ImageContainer:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="251,24,0,0"/>
+        <Label Content="VideoContainer" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="567,24,0,0"/>
+
+        <Border Name="border1" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="295" Margin="567,58,0,0" VerticalAlignment="Top" Width="275">
+            <Image Name="image1" HorizontalAlignment="Left" Height="295" Margin="0,0,0,0" VerticalAlignment="Top" Width="275" Stretch="Fill"  />
+        </Border>
+        <CheckBox x:Name="chkFocus" Content="Focus On Area" HorizontalAlignment="Left" Margin="36,205,0,0" VerticalAlignment="Top"/>
+
+        <ComboBox x:Name="cbxRotateType" HorizontalAlignment="Left" Margin="36,121,0,0" VerticalAlignment="Top" Width="136" RenderTransformOrigin="-0.134,0.114"/>
+    </Grid>
+</Window>
