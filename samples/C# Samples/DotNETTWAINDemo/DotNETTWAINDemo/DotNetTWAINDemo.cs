@@ -57,7 +57,7 @@ namespace DotNet_TWAIN_Demo
             DrawBackground();
 
             Initialization();
-            this.dynamicDotNetTwain.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            this.dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
         }
 
         private void InitializeComponentForCustomControl()
@@ -267,10 +267,10 @@ namespace DotNet_TWAIN_Demo
             {
                 strAddOnDllFolder = strAddOnDllFolder.Substring(0, strAddOnDllFolder.IndexOf(@"\", pos));
                 strOCRTessDataFolder = strAddOnDllFolder + @"\Samples\Bin\";
-                strAddOnDllFolder = strAddOnDllFolder+ @"\Redistributable\";
-                strPDFDllFolder = strAddOnDllFolder + @"PDFResources\";
-                strBarcodeDllFolder = strAddOnDllFolder + @"BarcodeResources\";
-                strOCRDllFolder = strAddOnDllFolder + @"OCRResources\";
+                strAddOnDllFolder = strAddOnDllFolder+ @"\Redistributable\Resources\";
+                strPDFDllFolder = strAddOnDllFolder + @"PDF\";
+                strBarcodeDllFolder = strAddOnDllFolder + @"Barcode Generator\";
+                strOCRDllFolder = strAddOnDllFolder + @"OCR\";
             }
             else
             {
@@ -400,6 +400,7 @@ namespace DotNet_TWAIN_Demo
 
             //Read Barcode
             //this.cbxBarcodeFormat.DataSource = Enum.GetValues(typeof(Dynamsoft.Barcode.BarcodeFormat));
+            cbxBarcodeFormat.Items.Add("All");
             cbxBarcodeFormat.Items.Add("OneD");
             cbxBarcodeFormat.Items.Add("Code 39");
             cbxBarcodeFormat.Items.Add("Code 128");
@@ -959,6 +960,7 @@ namespace DotNet_TWAIN_Demo
         private void picboxOriginalSize_Click(object sender, EventArgs e)
         {
             dynamicDotNetTwain.IfFitWindow = false;
+            dynamicDotNetTwain.Zoom = 1;
             checkZoom();
         }
 
@@ -1420,7 +1422,10 @@ namespace DotNet_TWAIN_Demo
                         string strSuffix = strFileName.Substring(pos, strFileName.Length - pos).ToLower();
                         if (strSuffix.CompareTo(".pdf") == 0)
                         {
-                            this.dynamicDotNetTwain.ConvertPDFToImage(strFileName, 200);
+			                this.dynamicDotNetTwain.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
+                            this.dynamicDotNetTwain.SetPDFResolution(200);
+                            this.dynamicDotNetTwain.LoadImage(strFileName);
+                            //this.dynamicDotNetTwain.ConvertPDFToImage(strFileName, 200);
                             if (dynamicDotNetTwain.ErrorCode != Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed)
                             {
                                 MessageBox.Show(dynamicDotNetTwain.ErrorString, "Loading image error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1547,50 +1552,52 @@ namespace DotNet_TWAIN_Demo
             try
             {
                 BarcodeReader reader = new BarcodeReader();
-                reader.LicenseKeys = "91392547848AAF2410B494747EADA719";
+                reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB";
                 reader.ReaderOptions.MaxBarcodesToReadPerPage = iMaxBarcodesToRead;
                 switch (cbxBarcodeFormat.SelectedIndex)
                 {
                     case 0:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD;
                         break;
                     case 1:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD;
                         break;
                     case 2:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39;
                         break;
                     case 3:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128;
                         break;
                     case 4:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93;
                         break;
                     case 5:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR;
                         break;
                     case 6:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF;
                         break;
                     case 7:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13;
                         break;
                     case 8:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8;
                         break;
                     case 9:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A;
                         break;
                     case 10:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E;
                         break;
                     case 11:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417;
                         break;
                     case 12:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE;
                         break;
                     case 13:
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX;
+                        break;
+                    case 14:
                         reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25;
                         break;
                 }
@@ -1613,7 +1620,7 @@ namespace DotNet_TWAIN_Demo
                     string strResult = aryResult.Length + " total barcode found." + "\r\n";
                     for (int i = 0; i < aryResult.Length; i++)
                     {
-                        strResult += "Result " + (i + 1) + "\r\n  " + "Barcode Format: " + aryResult[i].BarcodeFormat + "    Barcode Text: " + aryResult[i].BarcodeText + "\r\n";
+                        strResult += String.Format("Result {0}\r\n Barcode Format: {1}    Barcode Text: {2}\r\n", (i + 1), aryResult[i].BarcodeFormat, aryResult[i].BarcodeText);
                     }
 
                     MessageBox.Show(strResult, "Barcodes Results");

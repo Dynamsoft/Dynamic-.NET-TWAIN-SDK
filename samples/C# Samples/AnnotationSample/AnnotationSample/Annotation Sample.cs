@@ -19,7 +19,7 @@ namespace AnnotationSample
         public Form1()
         {
             InitializeComponent();
-            this.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
             toolStripCbxPen.SelectedIndex = 0;
             toolStripCbxFont.SelectedIndex = 0;
 
@@ -34,7 +34,7 @@ namespace AnnotationSample
             if (pos != -1)
             {
                 imagePath = imagePath.Substring(0, imagePath.IndexOf(@"\", pos)) + @"\Samples\Bin\Images\AnnotationImage\Annotation Sample Image.png";
-                strDllFolder = strDllFolder.Substring(0, strDllFolder.IndexOf(@"\", pos)) + @"\Redistributable\PDFResources\";
+                strDllFolder = strDllFolder.Substring(0, strDllFolder.IndexOf(@"\", pos)) + @"\Redistributable\Resources\PDF\";
             }
             else
             {
@@ -72,7 +72,11 @@ namespace AnnotationSample
                         string strSuffix = strfilename.Substring(pos, strfilename.Length - pos).ToLower();
                         if (strSuffix.CompareTo(".pdf") == 0)
                         {
-                            this.dynamicDotNetTwain1.ConvertPDFToImage(strfilename, 200);
+                            this.dynamicDotNetTwain1.SetPDFResolution(200);
+                            this.dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
+                            if (!this.dynamicDotNetTwain1.LoadImage(strfilename))
+                                MessageBox.Show(dynamicDotNetTwain1.ErrorString, "Annotation Sample", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            
                             continue;
                         }
                     }
@@ -488,6 +492,20 @@ namespace AnnotationSample
             byte[] array = System.Text.Encoding.Default.GetBytes(e.KeyChar.ToString());
             if (!char.IsDigit(e.KeyChar) || array.LongLength == 2) e.Handled = true;
             if (e.KeyChar == '\b' || (!toolStripCbxFont.Text.Contains(".") && e.KeyChar == '.')) e.Handled = false;
+        }
+
+        private void saveAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dynamicDotNetTwain1.HowManyImagesInBuffer > 0)
+            {
+                this.dynamicDotNetTwain1.IfSaveAnnotations = true;
+                SaveFileDialog filedlg = new SaveFileDialog();
+                filedlg.Filter = "PDF File(*.pdf)| *.pdf";
+                if (filedlg.ShowDialog() == DialogResult.OK)
+                {
+                    this.dynamicDotNetTwain1.SaveAllAsPDF(filedlg.FileName);
+                }
+            }
         }
         
     }

@@ -36,7 +36,7 @@
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN.Wpf">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\For .NET 4.0\DynamicDotNetTWAIN.Wpf.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 4.0\For WPF\DynamicDotNetTWAIN.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

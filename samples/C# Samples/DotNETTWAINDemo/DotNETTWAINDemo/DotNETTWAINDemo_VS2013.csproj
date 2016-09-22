@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DotNet_TWAIN_Demo</RootNamespace>
-    <AssemblyName>Dot NET TWAIN Demo</AssemblyName>
+    <AssemblyName>DotNETTWAINDemo</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -86,10 +86,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN">
-      <HintPath>..\..\..\..\Redistributable\For .NET 4.0\DynamicDotNetTWAIN.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 4.0\For Winform\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
     <Reference Include="Dynamsoft.BarcodeReader">
-      <HintPath>..\..\..\..\Redistributable\BarcodeResources\For .NET 4.0\Dynamsoft.BarcodeReader.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Barcode Reader\For .NETFramework 4.0\Dynamsoft.BarcodeReader.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

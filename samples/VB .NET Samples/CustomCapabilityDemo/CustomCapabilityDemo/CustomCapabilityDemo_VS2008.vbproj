@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{28D450E8-9BA9-4C02-92C1-E2BD77C03041}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -75,7 +75,7 @@
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\For .NET 2.0\DynamicDotNetTWAIN.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 2.0\For Winform\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

@@ -9,7 +9,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>false</Prefer32Bit>
     <BaseIntermediateOutputPath>obj\obj_VS2012\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release_VS2012\</OutputPath>
@@ -21,7 +21,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <PlatformTarget>x86</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2012\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -68,7 +68,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2012\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -80,11 +80,12 @@
     <Prefer32Bit>false</Prefer32Bit>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2012\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN">
-      <HintPath>..\..\..\..\Redistributable\For .NET 4.0\DynamicDotNetTWAIN.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 4.0\For Winform\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

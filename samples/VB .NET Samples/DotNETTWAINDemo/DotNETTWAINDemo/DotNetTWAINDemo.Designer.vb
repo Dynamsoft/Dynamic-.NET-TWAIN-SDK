@@ -147,6 +147,7 @@ Partial Class DotNetTWAINDemo
         Me.lbSaveImageType = New System.Windows.Forms.Label
         Me.chkMultiPage = New System.Windows.Forms.CheckBox
         Me.rdbtnBMP = New System.Windows.Forms.RadioButton
+        Me.label25 = New System.Windows.Forms.Label
         CType(Me.picboxClose, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picboxMin, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picboxPrevious, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -1529,6 +1530,15 @@ Partial Class DotNetTWAINDemo
         Me.rdbtnBMP.Text = "BMP"
         Me.rdbtnBMP.UseVisualStyleBackColor = False
         '
+        'label25
+        '
+        Me.label25.AutoSize = False
+        Me.label25.Size = New System.Drawing.Size(894, 18)
+        Me.label25.Location = New System.Drawing.Point(2, 677)
+        Me.label25.Text = "Note: PDF Rasterizer add-on is used when loading PDF files.          @2016 Dynamsoft Corporation. All rights reserved."
+        Me.label25.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+
+        '
         'DotNetTWAINDemo
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
@@ -1576,6 +1586,7 @@ Partial Class DotNetTWAINDemo
         Me.Controls.Add(Me.picboxLast)
         Me.Controls.Add(Me.picboxFirst)
         Me.Controls.Add(Me.lbMoveBar)
+        Me.Controls.Add(Me.label25)
         Me.DoubleBuffered = True
         Me.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
@@ -1768,6 +1779,7 @@ Partial Class DotNetTWAINDemo
     Private WithEvents picboxLineA As System.Windows.Forms.PictureBox
     Private WithEvents panel1 As System.Windows.Forms.Panel
     Private WithEvents label24 As System.Windows.Forms.Label
+    Private WithEvents label25 As System.Windows.Forms.Label
     Private WithEvents lbCloseAnnotations As System.Windows.Forms.Label
 
 End Class

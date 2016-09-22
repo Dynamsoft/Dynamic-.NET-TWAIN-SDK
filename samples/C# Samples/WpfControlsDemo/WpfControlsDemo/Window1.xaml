@@ -111,7 +111,7 @@
         </Grid>
         
         <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,1,0,0" BorderBrush="#FFAEAEAE">
-            <TextBlock HorizontalAlignment="Stretch" Background="#FFE6E5EA" Text="Note: PDF Rasterizer add-on is used when loading PDF files.          @2015 Dynamsoft Corporation. All rights reserved." TextAlignment="Right"/>
+            <TextBlock HorizontalAlignment="Stretch" Background="#FFE6E5EA" Text="Note: PDF Rasterizer add-on is used when loading PDF files.          @2016 Dynamsoft Corporation. All rights reserved." TextAlignment="Right"/>
         </Border>
     
     </Grid>

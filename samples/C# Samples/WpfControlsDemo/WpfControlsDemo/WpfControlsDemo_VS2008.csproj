@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3EBACF31-1817-4629-B8DB-46E24BBE3B52}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -51,13 +51,13 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DynamicDotNetTwain.Wpf">
+    <Reference Include="DynamicDotNetTWAIN.Wpf">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\For .NET 2.0\DynamicDotNetTwain.Wpf.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 2.0\For WPF\DynamicDotNetTWAIN.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="Dynamsoft.BarcodeReader">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\BarcodeResources\For .NET 2.0\Dynamsoft.BarcodeReader.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Barcode Reader\For .NETFramework 2.0\Dynamsoft.BarcodeReader.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

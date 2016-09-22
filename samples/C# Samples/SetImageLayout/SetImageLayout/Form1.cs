@@ -24,6 +24,12 @@ namespace SetImageLayout
 		private System.Windows.Forms.TextBox edtFrameRight;
         private System.Windows.Forms.TextBox edtFrameBottom;
         private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain;
+        private Label label5;
+        private ComboBox cbxSources;
+        private Label lblFrameBottom;
+        private Label lblFrameTop;
+        private Label lblFrameRight;
+        private Label lblFrameLeft;
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
@@ -40,7 +46,25 @@ namespace SetImageLayout
 			// TODO: Add any constructor code after InitializeComponent call
 			//
             dynamicDotNetTwain.ScanInNewProcess = true;
-            this.dynamicDotNetTwain.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            this.dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
+            dynamicDotNetTwain.SupportedDeviceType = Dynamsoft.DotNet.TWAIN.Enums.EnumSupportedDeviceType.SDT_TWAIN;
+            if (dynamicDotNetTwain.SourceCount > 0)
+            {
+                for (short i = 0; i < dynamicDotNetTwain.SourceCount; i++)
+                {
+                    string strSourceName = dynamicDotNetTwain.SourceNameItems(i);
+                    if (strSourceName != null)
+                        cbxSources.Items.Add(strSourceName);
+                }
+                cbxSources.SelectedIndexChanged += cbxSources_SelectedIndexChanged;
+                cbxSources.SelectedIndex = 0;
+            }
+            else
+            {
+                MessageBox.Show(this, "There is no scanner detected!\n " +
+    "Please ensure that at least one (virtual) scanner is installed.", "Information");
+                return;
+            }
 		}
 
 		/// <summary>
@@ -66,6 +90,12 @@ namespace SetImageLayout
 		private void InitializeComponent()
 		{
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lblFrameBottom = new System.Windows.Forms.Label();
+            this.lblFrameTop = new System.Windows.Forms.Label();
+            this.lblFrameRight = new System.Windows.Forms.Label();
+            this.lblFrameLeft = new System.Windows.Forms.Label();
+            this.cbxSources = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.edtFrameRight = new System.Windows.Forms.TextBox();
             this.edtFrameTop = new System.Windows.Forms.TextBox();
             this.btnSetAndAcquire = new System.Windows.Forms.Button();
@@ -81,6 +111,12 @@ namespace SetImageLayout
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.lblFrameBottom);
+            this.groupBox1.Controls.Add(this.lblFrameTop);
+            this.groupBox1.Controls.Add(this.lblFrameRight);
+            this.groupBox1.Controls.Add(this.lblFrameLeft);
+            this.groupBox1.Controls.Add(this.cbxSources);
+            this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.edtFrameRight);
             this.groupBox1.Controls.Add(this.edtFrameTop);
             this.groupBox1.Controls.Add(this.btnSetAndAcquire);
@@ -92,44 +128,94 @@ namespace SetImageLayout
             this.groupBox1.Controls.Add(this.edtFrameBottom);
             this.groupBox1.Location = new System.Drawing.Point(8, 9);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(304, 129);
+            this.groupBox1.Size = new System.Drawing.Size(448, 168);
             this.groupBox1.TabIndex = 10;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Image Layout Information";
             // 
+            // lblFrameBottom
+            // 
+            this.lblFrameBottom.AutoSize = true;
+            this.lblFrameBottom.Location = new System.Drawing.Point(382, 103);
+            this.lblFrameBottom.Name = "lblFrameBottom";
+            this.lblFrameBottom.Size = new System.Drawing.Size(0, 13);
+            this.lblFrameBottom.TabIndex = 18;
+            // 
+            // lblFrameTop
+            // 
+            this.lblFrameTop.AutoSize = true;
+            this.lblFrameTop.Location = new System.Drawing.Point(382, 68);
+            this.lblFrameTop.Name = "lblFrameTop";
+            this.lblFrameTop.Size = new System.Drawing.Size(0, 13);
+            this.lblFrameTop.TabIndex = 17;
+            // 
+            // lblFrameRight
+            // 
+            this.lblFrameRight.AutoSize = true;
+            this.lblFrameRight.Location = new System.Drawing.Point(155, 103);
+            this.lblFrameRight.Name = "lblFrameRight";
+            this.lblFrameRight.Size = new System.Drawing.Size(0, 13);
+            this.lblFrameRight.TabIndex = 16;
+            // 
+            // lblFrameLeft
+            // 
+            this.lblFrameLeft.AutoSize = true;
+            this.lblFrameLeft.Location = new System.Drawing.Point(155, 69);
+            this.lblFrameLeft.Name = "lblFrameLeft";
+            this.lblFrameLeft.Size = new System.Drawing.Size(0, 13);
+            this.lblFrameLeft.TabIndex = 15;
+            // 
+            // cbxSources
+            // 
+            this.cbxSources.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxSources.FormattingEnabled = true;
+            this.cbxSources.Location = new System.Drawing.Point(167, 25);
+            this.cbxSources.Name = "cbxSources";
+            this.cbxSources.Size = new System.Drawing.Size(131, 21);
+            this.cbxSources.TabIndex = 14;
+            // 
+            // label5
+            // 
+            this.label5.Location = new System.Drawing.Point(49, 26);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(90, 16);
+            this.label5.TabIndex = 11;
+            this.label5.Text = "Select Scources:";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // edtFrameRight
             // 
-            this.edtFrameRight.Location = new System.Drawing.Point(96, 60);
+            this.edtFrameRight.Location = new System.Drawing.Point(91, 100);
             this.edtFrameRight.Name = "edtFrameRight";
             this.edtFrameRight.Size = new System.Drawing.Size(48, 20);
             this.edtFrameRight.TabIndex = 6;
             // 
             // edtFrameTop
             // 
-            this.edtFrameTop.Location = new System.Drawing.Point(240, 26);
+            this.edtFrameTop.Location = new System.Drawing.Point(313, 66);
             this.edtFrameTop.Name = "edtFrameTop";
             this.edtFrameTop.Size = new System.Drawing.Size(51, 20);
             this.edtFrameTop.TabIndex = 5;
             // 
             // btnSetAndAcquire
             // 
-            this.btnSetAndAcquire.Location = new System.Drawing.Point(26, 94);
+            this.btnSetAndAcquire.Location = new System.Drawing.Point(21, 134);
             this.btnSetAndAcquire.Name = "btnSetAndAcquire";
             this.btnSetAndAcquire.Size = new System.Drawing.Size(102, 25);
             this.btnSetAndAcquire.TabIndex = 8;
-            this.btnSetAndAcquire.Text = "Set and Acquire";
+            this.btnSetAndAcquire.Text = "Set And Acquire";
             this.btnSetAndAcquire.Click += new System.EventHandler(this.btnSetAndAcquire_Click);
             // 
             // edtFrameLeft
             // 
-            this.edtFrameLeft.Location = new System.Drawing.Point(96, 26);
+            this.edtFrameLeft.Location = new System.Drawing.Point(91, 66);
             this.edtFrameLeft.Name = "edtFrameLeft";
             this.edtFrameLeft.Size = new System.Drawing.Size(48, 20);
             this.edtFrameLeft.TabIndex = 0;
             // 
             // label4
             // 
-            this.label4.Location = new System.Drawing.Point(160, 60);
+            this.label4.Location = new System.Drawing.Point(218, 102);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(80, 18);
             this.label4.TabIndex = 3;
@@ -138,7 +224,7 @@ namespace SetImageLayout
             // 
             // label3
             // 
-            this.label3.Location = new System.Drawing.Point(16, 60);
+            this.label3.Location = new System.Drawing.Point(11, 100);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(72, 18);
             this.label3.TabIndex = 2;
@@ -147,7 +233,7 @@ namespace SetImageLayout
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(24, 26);
+            this.label2.Location = new System.Drawing.Point(19, 66);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(64, 17);
             this.label2.TabIndex = 10;
@@ -156,7 +242,7 @@ namespace SetImageLayout
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(176, 26);
+            this.label1.Location = new System.Drawing.Point(234, 67);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(64, 17);
             this.label1.TabIndex = 0;
@@ -165,9 +251,9 @@ namespace SetImageLayout
             // 
             // edtFrameBottom
             // 
-            this.edtFrameBottom.Location = new System.Drawing.Point(240, 60);
+            this.edtFrameBottom.Location = new System.Drawing.Point(313, 100);
             this.edtFrameBottom.Name = "edtFrameBottom";
-            this.edtFrameBottom.Size = new System.Drawing.Size(48, 20);
+            this.edtFrameBottom.Size = new System.Drawing.Size(51, 20);
             this.edtFrameBottom.TabIndex = 7;
             // 
             // dynamicDotNetTwain
@@ -176,9 +262,10 @@ namespace SetImageLayout
             this.dynamicDotNetTwain.AnnotationPen = null;
             this.dynamicDotNetTwain.AnnotationTextColor = System.Drawing.Color.Black;
             this.dynamicDotNetTwain.AnnotationTextFont = null;
+            this.dynamicDotNetTwain.IfShowCancelDialogWhenImageTransfer = false;
             this.dynamicDotNetTwain.IfShowPrintUI = false;
             this.dynamicDotNetTwain.IfThrowException = false;
-            this.dynamicDotNetTwain.Location = new System.Drawing.Point(8, 143);
+            this.dynamicDotNetTwain.Location = new System.Drawing.Point(8, 183);
             this.dynamicDotNetTwain.LogLevel = ((short)(0));
             this.dynamicDotNetTwain.Name = "dynamicDotNetTwain";
             this.dynamicDotNetTwain.PDFMarginBottom = ((uint)(0u));
@@ -186,13 +273,14 @@ namespace SetImageLayout
             this.dynamicDotNetTwain.PDFMarginRight = ((uint)(0u));
             this.dynamicDotNetTwain.PDFMarginTop = ((uint)(0u));
             this.dynamicDotNetTwain.PDFXConformance = ((uint)(0u));
-            this.dynamicDotNetTwain.Size = new System.Drawing.Size(304, 286);
+            this.dynamicDotNetTwain.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dynamicDotNetTwain.Size = new System.Drawing.Size(448, 286);
             this.dynamicDotNetTwain.TabIndex = 11;
             // 
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(322, 436);
+            this.ClientSize = new System.Drawing.Size(468, 481);
             this.Controls.Add(this.dynamicDotNetTwain);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -251,22 +339,51 @@ namespace SetImageLayout
                 MessageBox.Show("Input Value Error: don't make left equal to right, or top equal to bottom.", "Error");
                 return;
             }
-
-            if (dynamicDotNetTwain.SelectSource())
+            if (fFrameLeft < fDefaultFrameLeft || fFrameTop < fDefaultFrameTop || fFrameRight > fDefaultFrameRight || fFrameBottom > fDefaultFrameBottom)
             {
-                dynamicDotNetTwain.OpenSource();			//make dynamicDotNetTwain ready for capability negotiation
-
-                if (dynamicDotNetTwain.SetImageLayout(fFrameLeft, fFrameTop, fFrameRight, fFrameBottom) == false)
-                    MessageBox.Show(dynamicDotNetTwain.ErrorString, "Error");
+                DialogResult drImageLayout = MessageBox.Show("Input values are out of rangles,do you want to continue?", "Warning", MessageBoxButtons.YesNo);
+                if (drImageLayout == System.Windows.Forms.DialogResult.Yes)
+                {
+                }
                 else
                 {
-                    dynamicDotNetTwain.IfShowUI = false;
-                    dynamicDotNetTwain.IfDisableSourceAfterAcquire = true;
-                    dynamicDotNetTwain.EnableSource();
+                    return;
                 }
             }
+            if (dynamicDotNetTwain.SetImageLayout(fFrameLeft, fFrameTop, fFrameRight, fFrameBottom) == false)
+                MessageBox.Show(dynamicDotNetTwain.ErrorString, "Error");
+            else
+            {
+                dynamicDotNetTwain.IfShowUI = false;
+                dynamicDotNetTwain.IfDisableSourceAfterAcquire = true;
+                dynamicDotNetTwain.EnableSource();
+            }
 		}
-		
+
+        float fDefaultFrameLeft, fDefaultFrameTop, fDefaultFrameRight, fDefaultFrameBottom;
+        private void cbxSources_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (((ComboBox)sender).SelectedIndex >= 0 && ((ComboBox)sender).SelectedIndex < dynamicDotNetTwain.SourceCount)
+            {
+                dynamicDotNetTwain.SelectSourceByIndex(cbxSources.SelectedIndex);
+                dynamicDotNetTwain.OpenSource();
+                dynamicDotNetTwain.ResetImageLayout();
+                dynamicDotNetTwain.GetImageLayout(out fDefaultFrameLeft ,out fDefaultFrameTop ,out fDefaultFrameRight ,out fDefaultFrameBottom );
+                fDefaultFrameLeft = (float)((int)(fDefaultFrameLeft *10))/10;
+                fDefaultFrameTop = (float)((int)(fDefaultFrameTop * 10)) / 10;
+                fDefaultFrameRight = (float)((int)(fDefaultFrameRight * 10)) / 10;
+                fDefaultFrameBottom = (float)((int)(fDefaultFrameBottom * 10)) / 10;
+                edtFrameLeft.Text = fDefaultFrameLeft.ToString();
+                edtFrameTop.Text = fDefaultFrameTop.ToString();
+                edtFrameRight.Text = fDefaultFrameRight.ToString();
+                edtFrameBottom.Text = fDefaultFrameBottom.ToString();
+                lblFrameLeft.Text = string.Format("(0 ~ " + fDefaultFrameRight.ToString()+")");
+                lblFrameTop.Text = string.Format("(0 ~ " + fDefaultFrameBottom.ToString() + ")");
+                lblFrameRight.Text = string.Format("(0 ~ " + fDefaultFrameRight.ToString()+")");
+                lblFrameBottom.Text = string.Format("(0 ~ " + fDefaultFrameBottom.ToString()+")");
+            }
+        }
+	
 	}
 }
 

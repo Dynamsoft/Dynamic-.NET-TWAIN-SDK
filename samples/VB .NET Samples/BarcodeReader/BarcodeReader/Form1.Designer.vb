@@ -86,6 +86,7 @@ Partial Class Form1
         Me.TextBox1.Multiline = True
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.ReadOnly = True
+        Me.TextBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.TextBox1.Size = New System.Drawing.Size(458, 98)
         Me.TextBox1.TabIndex = 3
         '

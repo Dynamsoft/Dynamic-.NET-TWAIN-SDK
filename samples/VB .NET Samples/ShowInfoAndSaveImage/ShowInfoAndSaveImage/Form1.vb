@@ -15,9 +15,10 @@ Friend Class Form1
 
         'This call is required by the Windows Form Designer.
         InitializeComponent()
-        dynamicDotNetTwain.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+        dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         'Add any initialization after the InitializeComponent() call
         dynamicDotNetTwain.ScanInNewProcess = True
+        dynamicDotNetTwain.SetViewMode(1, 1)
     End Sub
 
 
@@ -273,12 +274,12 @@ Friend Class Form1
         Me.lblFileSize.Cursor = System.Windows.Forms.Cursors.Default
         Me.lblFileSize.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblFileSize.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.lblFileSize.Location = New System.Drawing.Point(88, 68)
+        Me.lblFileSize.Location = New System.Drawing.Point(40, 68)
         Me.lblFileSize.Name = "lblFileSize"
         Me.lblFileSize.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.lblFileSize.Size = New System.Drawing.Size(50, 16)
+        Me.lblFileSize.Size = New System.Drawing.Size(120, 16)
         Me.lblFileSize.TabIndex = 31
-        Me.lblFileSize.Text = "File Size:"
+        Me.lblFileSize.Text = "Current Image Size:"
         '
         'frmGetImagelayoutvalues
         '
@@ -976,8 +977,8 @@ Friend Class Form1
     End Sub
 
 
-    Private Sub dynamicDotNetTwain_OnMouseClick(ByVal sImageIndex As System.Int16) Handles dynamicDotNetTwain.OnMouseClick
-        dynamicDotNetTwain.CurrentImageIndexInBuffer = sImageIndex
+    Private Sub Clear()
+        dynamicDotNetTwain.RemoveAllImages()
 
         'The image information is valid only in OnPreTransfer and OnPostTransfer event
         txtImageXResolution.Text = ""
@@ -1079,5 +1080,9 @@ Friend Class Form1
 
     Private Sub dynamicDotNetTwain_OnTopImageInTheViewChanged(ByVal sImageIndex As System.Int16) Handles dynamicDotNetTwain.OnTopImageInTheViewChanged
         ShowImageInfo()
+    End Sub
+
+    Private Sub dynamicDotNetTwain_OnPreAllTransfers() Handles dynamicDotNetTwain.OnPreAllTransfers
+        Clear()
     End Sub
 End Class

@@ -67,6 +67,7 @@ Partial Class Form1
         Me.PropertyGrid1 = New System.Windows.Forms.PropertyGrid
         Me.dlgColor = New System.Windows.Forms.ColorDialog
         Me.label1 = New System.Windows.Forms.Label
+        Me.SaveAllToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem
         Me.menuStrip.SuspendLayout()
         Me.toolStrip.SuspendLayout()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -85,7 +86,7 @@ Partial Class Form1
         '
         'FileToolStripMenuItem
         '
-        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OpenToolStripMenuItem, Me.SaveToolStripMenuItem, Me.PrintToolStripMenuItem, Me.ExitToolStripMenuItem})
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OpenToolStripMenuItem, Me.SaveToolStripMenuItem, Me.SaveAllToolStripMenuItem, Me.PrintToolStripMenuItem, Me.ExitToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "&File"
@@ -93,25 +94,25 @@ Partial Class Form1
         'OpenToolStripMenuItem
         '
         Me.OpenToolStripMenuItem.Name = "OpenToolStripMenuItem"
-        Me.OpenToolStripMenuItem.Size = New System.Drawing.Size(112, 22)
+        Me.OpenToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
         Me.OpenToolStripMenuItem.Text = "&Open..."
         '
         'SaveToolStripMenuItem
         '
         Me.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem"
-        Me.SaveToolStripMenuItem.Size = New System.Drawing.Size(112, 22)
+        Me.SaveToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
         Me.SaveToolStripMenuItem.Text = "&Save..."
         '
         'PrintToolStripMenuItem
         '
         Me.PrintToolStripMenuItem.Name = "PrintToolStripMenuItem"
-        Me.PrintToolStripMenuItem.Size = New System.Drawing.Size(112, 22)
+        Me.PrintToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
         Me.PrintToolStripMenuItem.Text = "&Print..."
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(112, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
         Me.ExitToolStripMenuItem.Text = "&Exit"
         '
         'AnnotationToolStripMenuItem
@@ -420,6 +421,12 @@ Partial Class Form1
         Me.label1.Text = "Note: PDF Rasterizer add-on is used when loading PDF files."
         Me.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
+        'SaveAllToolStripMenuItem
+        '
+        Me.SaveAllToolStripMenuItem.Name = "SaveAllToolStripMenuItem"
+        Me.SaveAllToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.SaveAllToolStripMenuItem.Text = "&Save All..."
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -489,5 +496,6 @@ Partial Class Form1
     Private WithEvents toolStripBtnBringToFront As System.Windows.Forms.ToolStripButton
     Friend WithEvents dlgColor As System.Windows.Forms.ColorDialog
     Private WithEvents label1 As System.Windows.Forms.Label
+    Friend WithEvents SaveAllToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
 
 End Class

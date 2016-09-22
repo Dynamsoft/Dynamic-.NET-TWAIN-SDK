@@ -9,10 +9,16 @@ Public Class Form1
     Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         Me.Icon = New Icon(GetType(Form), "wfc.ico")
-        Me.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+        Me.picMode1.Image = Global.PSDWBS.My.Resources.Mode1_Selected
+        Me.picMode2.Image = Global.PSDWBS.My.Resources.Mode2
+        Me.picFAQMode1.Image = Global.PSDWBS.My.Resources.Resources.faq
+        Me.picFAQMode2.Image = Global.PSDWBS.My.Resources.Resources.faq
+        Me.BackgroundImage = Global.PSDWBS.My.Resources.Resources.main_bg
+        Me.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         Me.dynamicDotNetTwain1.Visible = False
         Me.cmbBarcodeFormat.DropDownStyle = ComboBoxStyle.DropDownList
         'Me.cmbBarcodeFormat.DataSource = [Enum].GetValues(GetType(BarcodeFormat))
+        cmbBarcodeFormat.Items.Add("All")
         cmbBarcodeFormat.Items.Add("OneD")
         cmbBarcodeFormat.Items.Add("Code 39")
         cmbBarcodeFormat.Items.Add("Code 128")
@@ -79,51 +85,57 @@ Public Class Form1
             Me.picMode1.Image = Global.PSDWBS.My.Resources.Resources.Mode1_Selected
             Me.picMode2.Image = Global.PSDWBS.My.Resources.Resources.Mode2
         Else
-            Me.picMode1.Image = Global.PSDWBS.My.Resources.Resources.Mode2
+            Me.picMode1.Image = Global.PSDWBS.My.Resources.Resources.Mode1
             Me.picMode2.Image = Global.PSDWBS.My.Resources.Resources.Mode2_Selected
         End If
     End Sub
 
     Dim m_listBarcodeType As List(Of String)
-
+    Dim strBarcodeFormat As String
     Private Sub SaveFileByBarcodeText()
         m_listBarcodeType = New List(Of String)
         Dim listImageIndex As New List(Of IndexList)
         Dim listIndex As New IndexList
         listImageIndex.Add(listIndex)  'use to save no barcode files
         Dim reader As BarcodeReader = New BarcodeReader
-        reader.LicenseKeys = "91392547848AAF2410B494747EADA719"
+        reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB"
         Try
             Select Case cmbBarcodeFormat.SelectedIndex
                 Case 0
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
+
                 Case 1
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
                 Case 2
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
                 Case 3
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
                 Case 4
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
                 Case 5
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
                 Case 6
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
                 Case 7
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
                 Case 8
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
                 Case 9
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
                 Case 10
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
                 Case 11
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
                 Case 12
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
                 Case 13
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                Case 14
                     reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25
             End Select
+            strBarcodeFormat = reader.ReaderOptions.BarcodeFormats.ToString()
+            If cmbBarcodeFormat.SelectedIndex = 0 Then
+                strBarcodeFormat = "All"
+            End If
             Dim i As Integer
             For i = 0 To Me.dynamicDotNetTwain1.HowManyImagesInBuffer - 1
                 'Dim aryResult As Barcode.Result()
@@ -192,7 +204,7 @@ Public Class Form1
         Return bRet
     End Function
 
-
+    Dim bHasBarcodeOnFirstImage As Boolean = False
     Private Sub SaveImages(ByVal listImageIndex As List(Of IndexList))
         Dim index As Integer
         index = 0
@@ -202,7 +214,44 @@ Public Class Form1
             Dim list As IndexList
             For Each list In listImageIndex
                 If (list.Count <> 0) Then
-                    Me.dynamicDotNetTwain1.SaveAsMultiPagePDF(objFolderBrowserDialog.SelectedPath.Trim() + "\" + index.ToString() + ".pdf", list)
+                    Dim strTempPDFName As String
+                    If radMode1.Checked = True Then
+                        If index = 0 And bHasBarcodeOnFirstImage = False Then
+                            strTempPDFName = String.Format(objFolderBrowserDialog.SelectedPath.Trim() & "\\" & strBarcodeFormat.ToString() & "-BeginWithNoBarcode.pdf")
+                            Dim i As Integer = 2
+                            While System.IO.File.Exists(strTempPDFName)
+                                strTempPDFName = String.Format(objFolderBrowserDialog.SelectedPath.Trim() & "\\" & strBarcodeFormat.ToString() & "-BeginWithNoBarcode({0}).pdf", i)
+                                i = i + 1
+                            End While
+                            Me.dynamicDotNetTwain1.SaveAsMultiPagePDF(strTempPDFName, list)
+                        Else
+                            If index = 0 And bHasBarcodeOnFirstImage = True Then
+                                index = 1
+                            End If
+                            If Not m_listBarcodeType Is Nothing Then
+                                strTempPDFName = m_listBarcodeType(index - 1)
+                                strTempPDFName = Me.SetPDFFileName(objFolderBrowserDialog.SelectedPath.Trim(), strBarcodeFormat.ToString(), m_listBarcodeType(index - 1))
+                                strTempPDFName = String.Format(objFolderBrowserDialog.SelectedPath.Trim() & "\\" & strTempPDFName)
+                                Me.dynamicDotNetTwain1.SaveAsMultiPagePDF(strTempPDFName, list)
+                            End If
+                        End If
+                    Else
+                        If index = 0 Then
+                            strTempPDFName = String.Format(objFolderBrowserDialog.SelectedPath.Trim() & "\\" & strBarcodeFormat.ToString() & "-None.pdf")
+                            Dim i As Integer = 2
+                            While System.IO.File.Exists(strTempPDFName)
+                                strTempPDFName = String.Format(objFolderBrowserDialog.SelectedPath.Trim() & "\\" & strBarcodeFormat.ToString() & "-None({0}).pdf", i)
+                                i = i + 1
+                            End While
+                            Me.dynamicDotNetTwain1.SaveAsMultiPagePDF(strTempPDFName, list)
+                        Else
+                            strTempPDFName = m_listBarcodeType(index - 1)
+                            strTempPDFName = Me.SetPDFFileName(objFolderBrowserDialog.SelectedPath.Trim(), strBarcodeFormat.ToString(), m_listBarcodeType(index - 1))
+                            strTempPDFName = String.Format(objFolderBrowserDialog.SelectedPath.Trim() & "\\" & strTempPDFName)
+                            Me.dynamicDotNetTwain1.SaveAsMultiPagePDF(strTempPDFName, list)
+                        End If
+                    End If
+
                 End If
                 index = index + 1
             Next
@@ -214,39 +263,47 @@ Public Class Form1
     Private Sub SaveFileByBegainWithBarcode()
         Dim listImageIndex As New List(Of IndexList)
         Dim listIndex As IndexList
+        m_listBarcodeType = New List(Of String)
+        bHasBarcodeOnFirstImage = False
         Dim reader As BarcodeReader = New BarcodeReader
-        reader.LicenseKeys = "91392547848AAF2410B494747EADA719"
+        reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB"
         Try
             Select Case cmbBarcodeFormat.SelectedIndex
                 Case 0
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
+
                 Case 1
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
                 Case 2
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
                 Case 3
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
                 Case 4
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
                 Case 5
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
                 Case 6
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
                 Case 7
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
                 Case 8
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
                 Case 9
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
                 Case 10
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
                 Case 11
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
                 Case 12
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
                 Case 13
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                Case 14
                     reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25
             End Select
+            strBarcodeFormat = reader.ReaderOptions.BarcodeFormats.ToString()
+            If cmbBarcodeFormat.SelectedIndex = 0 Then
+                strBarcodeFormat = "All"
+            End If
             Dim i As Integer
             For i = 0 To Me.dynamicDotNetTwain1.HowManyImagesInBuffer - 1
                 If listIndex Is Nothing Then
@@ -257,11 +314,19 @@ Public Class Form1
                 'format = CType(System.Enum.Parse(GetType(BarcodeFormat), Val(cmbBarcodeFormat.SelectedValue)), BarcodeFormat)
                 Dim aryResult() As BarcodeResult
                 aryResult = reader.DecodeBitmap(dynamicDotNetTwain1.GetImage(i)) 'Please update the barcode format to yours
+                If i = 0 Then
+                    If Not aryResult Is Nothing Then
+                        If Not aryResult.Length = 0 Then
+                            bHasBarcodeOnFirstImage = True
+                        End If
+                    End If
+                End If
                 If aryResult Is Nothing Then
                     listIndex.Add(i) 'If no barcode found on the current image, add it to the image list for saving
                 ElseIf aryResult.Length = 0 Then
                     listIndex.Add(i) 'If no barcode found on the current image, add it to the image list for saving
                 Else
+                    m_listBarcodeType.Add(aryResult(0).BarcodeText)
                     If (Not listIndex Is Nothing And listIndex.Count > 0) Then
                         listImageIndex.Add(listIndex)
                         listIndex = Nothing
@@ -283,7 +348,7 @@ Public Class Form1
 
             SaveImages(listImageIndex)
         Catch ex As Exception
-
+            MessageBox.Show(ex.Message, "Decoding error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
         
     End Sub
@@ -325,4 +390,45 @@ Public Class Form1
             Me.dynamicDotNetTwain1.Visible = True
         End If
     End Sub
+
+    Private Function SetPDFFileName(FileFolder As String, strBarcodeType As String, strText As String) As String
+        Dim iCharindex As Integer = 0
+        Dim strBarcodeText As String = strText
+        Dim strFullPDFName As String
+        Dim strPDFName As String
+        Dim bHasillegalcharacter As Boolean = False
+        Dim bIsRepeatName As Boolean = False
+        For Each Text As Char In strBarcodeText
+            Dim bIsillegalcharacter As Boolean = False
+            For Each temp As Char In System.IO.Path.GetInvalidFileNameChars()
+                If Text = temp Then
+                    bHasillegalcharacter = True
+                    bIsillegalcharacter = True
+                End If
+            Next
+            If bIsillegalcharacter = True Then
+                strBarcodeText = strBarcodeText.Remove(iCharindex, 1)
+                iCharindex = iCharindex - 1
+            End If
+            iCharindex = iCharindex + 1
+        Next
+        strFullPDFName = String.Format(strBarcodeType & "-" & strBarcodeText)
+        Dim i As Integer = 2
+        Dim FilePath = String.Format(FileFolder & "\\" & strFullPDFName & ".pdf")
+        While (System.IO.File.Exists(FilePath))
+            bIsRepeatName = True
+            strFullPDFName = String.Format(strBarcodeType & "-" & strBarcodeText & "({0})", i)
+            FilePath = String.Format(FileFolder & "\\" & strFullPDFName & ".pdf")
+            i = i + 1
+        End While
+        If bHasillegalcharacter Then
+            Dim fSetFileNameForm As PSDWBS.Form2 = New Form2(FileFolder, strFullPDFName)
+            fSetFileNameForm.ShowDialog()
+            strPDFName = fSetFileNameForm.GetPDFFileName()
+        Else
+            strPDFName = strFullPDFName + ".pdf"
+        End If
+        Return strPDFName
+    End Function
+
 End Class

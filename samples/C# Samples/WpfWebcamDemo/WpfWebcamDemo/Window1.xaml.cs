@@ -21,33 +21,51 @@ namespace WpfWebcamDemo
     public partial class Window1 : Window
     {
         private int m_iRotate = 0;
+        private double m_dDesignWidth = 898.123;
         public Window1()
         {
             InitializeComponent();
-            this.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
             this.ResizeMode = System.Windows.ResizeMode.CanMinimize;
             this.dynamicDotNetTwain1.SupportedDeviceType = EnumSupportedDeviceType.SDT_WEBCAM;
             this.dynamicDotNetTwain1.IfShowUI = true;
             this.chkContainer.IsChecked = false;
-            this.cbxSources.SelectionChanged += cbxSources_SelectionChanged;  
+            this.cbxSources.SelectionChanged += cbxSources_SelectionChanged;
+            this.cbxSources.DropDownOpened += cbxSources_DropDownOpened;
             cbxSources.SelectedIndex = 0;
             this.Loaded += new RoutedEventHandler(Window_Loaded);
             for (int i = 0; i < 4; i++)
             {
                 int irotateType = 90 * i;
-                string sRotateType = irotateType.ToString()+"°"; 
+                string sRotateType = irotateType.ToString() + "°"; 
                 cbxRotateType.Items.Add(sRotateType);
             }
             cbxRotateType.SelectedIndex = 0;
-            this.cbxRotateType.DropDownClosed += cbxRotateType_DropDownClosed;
+            //this.cbxRotateType.DropDownClosed += cbxRotateType_DropDownClosed;
+            this.cbxRotateType.SelectionChanged += cbxRotateType_SelectionChanged;
         }
 
-        void cbxRotateType_DropDownClosed(object sender, EventArgs e)
+        void cbxSources_DropDownOpened(object sender, EventArgs e)
         {
-            m_iRotate = (m_iRotate + ((ComboBox)sender).SelectedIndex) % 4;
+            this.cbxSources.SelectionChanged -= cbxSources_SelectionChanged;
+            this.cbxSources.SelectedIndex = -1;
+            this.cbxSources.SelectionChanged += cbxSources_SelectionChanged;
+        }
+
+
+        void cbxRotateType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            m_iRotate = (((ComboBox)sender).SelectedIndex) % 4;
             dynamicDotNetTwain1.RotateVideo((EnumVideoRotateType)((ComboBox)sender).SelectedIndex);
             ResizeVideoWindow(m_iRotate);
         }
+
+        //void cbxRotateType_DropDownClosed(object sender, EventArgs e)
+        //{
+        //    m_iRotate = (((ComboBox)sender).SelectedIndex) % 4;
+        //    dynamicDotNetTwain1.RotateVideo((EnumVideoRotateType)((ComboBox)sender).SelectedIndex);
+        //    ResizeVideoWindow(m_iRotate);
+        //}
 
         private void btnCaptureImage_Click(object sender, RoutedEventArgs e)
         {
@@ -75,6 +93,7 @@ namespace WpfWebcamDemo
             {
                 this.chkContainer.Checked += chkContainer_CheckedChanged;
                 this.chkContainer.Unchecked += chkContainer_CheckedChanged;
+
                 this.chkContainer.IsChecked = true;
 
                 this.chkFocus.Checked += chkFocus_CheckedChanged;
@@ -91,6 +110,7 @@ namespace WpfWebcamDemo
                         cbxSources.SelectedIndex = 0;
                     }
                 }
+                
             }
             catch (Exception exp)
             {
@@ -102,13 +122,13 @@ namespace WpfWebcamDemo
         {
             if (chkFocus.IsChecked == true)
             {
-                this.chkContainer.IsChecked = true;
-                this.chkContainer.IsEnabled = false;
+                //this.chkContainer.IsChecked = true;
+                //this.chkContainer.IsEnabled = false;
                 this.image1.MouseLeftButtonDown += image1_MouseLeftButtonDown;
             }
             else
             {
-                this.chkContainer.IsEnabled = true;
+                //this.chkContainer.IsEnabled = true;
                 this.image1.MouseLeftButtonDown -= image1_MouseLeftButtonDown;
             }
         }
@@ -127,10 +147,19 @@ namespace WpfWebcamDemo
         {
             if (chkContainer.IsChecked == false)
             {
+                this.border1.Visibility = System.Windows.Visibility.Hidden;
+                this.image1.Visibility = System.Windows.Visibility.Hidden;
+                this.Width = m_dDesignWidth - this.border1.ActualWidth - 45;
+                this.chkFocus.IsChecked = false;
+                this.chkFocus.IsEnabled = false;
                 dynamicDotNetTwain1.SetVideoContainer(null);
             }
             else
             {
+                this.border1.Visibility = System.Windows.Visibility.Visible;
+                this.image1.Visibility = System.Windows.Visibility.Visible;
+                this.Width = m_dDesignWidth;
+                this.chkFocus.IsEnabled = true;
                 dynamicDotNetTwain1.SetVideoContainer(image1);
             }
             ResizeVideoWindow(m_iRotate);

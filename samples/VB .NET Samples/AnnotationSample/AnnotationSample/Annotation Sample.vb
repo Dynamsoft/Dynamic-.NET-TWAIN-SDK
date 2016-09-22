@@ -10,7 +10,8 @@ Public Class Form1
     Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         toolStripCbxPen.SelectedIndex = 0
         toolStripCbxFont.SelectedIndex = 0
-        DynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+
+        DynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         DynamicDotNetTwain1.AnnotationType = DWTAnnotationType.enumPointer
         DynamicDotNetTwain1.MaxImagesInBuffer = 1000
         DynamicDotNetTwain1.SetViewMode(1, 1)
@@ -23,7 +24,7 @@ Public Class Form1
         pos = imagePath.LastIndexOf("\Samples\")
         If (pos <> -1) Then
             imagePath = imagePath.Substring(0, imagePath.IndexOf("\", pos)) + "\Samples\Bin\Images\AnnotationImage\Annotation Sample Image.png"
-            strDllPath = strDllPath.Substring(0, strDllPath.IndexOf("\", pos)) + "\Redistributable\PDFResources\"
+            strDllPath = strDllPath.Substring(0, strDllPath.IndexOf("\", pos)) + "\Redistributable\Resources\PDF\"
         Else
             pos = strDllPath.LastIndexOf("\")
             strDllPath = strDllPath.Substring(0, strDllPath.IndexOf("\", pos)) + "\"
@@ -49,7 +50,11 @@ Public Class Form1
                     Dim strSuffix As String
                     strSuffix = strFilename.Substring(pos, strFilename.Length - pos).ToLower()
                     If (strSuffix.CompareTo(".pdf") = 0) Then
-                        DynamicDotNetTwain1.ConvertPDFToImage(strFilename, 200)
+                        DynamicDotNetTwain1.SetPDFResolution(200)
+                        DynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
+                        If Not DynamicDotNetTwain1.LoadImage(strFilename) Then
+                            MessageBox.Show(DynamicDotNetTwain1.ErrorString, "Annotation Sample", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        End If
                         Continue For
                     End If
                 End If
@@ -428,6 +433,17 @@ Public Class Form1
         End If
         If (e.KeyChar = Chr(8) Or (Not toolStripCbxFont.Text.Contains(".") And e.KeyChar = Chr(46))) Then
             e.Handled = False
+        End If
+    End Sub
+
+    Private Sub SaveAllToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SaveAllToolStripMenuItem.Click
+        If DynamicDotNetTwain1.HowManyImagesInBuffer > 0 Then
+            DynamicDotNetTwain1.IfSaveAnnotations = True
+            Dim filedlg As New SaveFileDialog
+            filedlg.Filter = "PDF File(*.pdf) | *.pdf"
+            If (filedlg.ShowDialog() = DialogResult.OK) Then
+                DynamicDotNetTwain1.SaveAllAsPDF(filedlg.FileName)
+            End If
         End If
     End Sub
 End Class

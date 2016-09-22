@@ -119,7 +119,7 @@ Partial Class ResampleForm
         '
         Me.cbxResampleType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cbxResampleType.FormattingEnabled = True
-        Me.cbxResampleType.Items.AddRange(New Object() {"Bicubic", "Bilinear", "Nearest Neighbour"})
+        Me.cbxResampleType.Items.AddRange(New Object() {"Bicubic", "Bilinear", "Nearest Neighbour", "Best Quality"})
         Me.cbxResampleType.Location = New System.Drawing.Point(118, 176)
         Me.cbxResampleType.Name = "cbxResampleType"
         Me.cbxResampleType.Size = New System.Drawing.Size(136, 21)

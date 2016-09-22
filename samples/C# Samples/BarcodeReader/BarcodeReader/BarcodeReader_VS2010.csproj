@@ -79,11 +79,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN">
-      <HintPath>..\..\..\..\Redistributable\For .NET 4.0\DynamicDotNetTWAIN.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 4.0\For Winform\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
     <Reference Include="Dynamsoft.BarcodeReader">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\BarcodeResources\For .NET 4.0\Dynamsoft.BarcodeReader.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Barcode Reader\For .NETFramework 4.0\Dynamsoft.BarcodeReader.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

@@ -74,28 +74,28 @@ namespace WpfControlsDemo
             int index = System.Reflection.Assembly.GetExecutingAssembly().Location.IndexOf("Samples");
             if (index != -1)
             {
-                //dynamicDotNetTwainThum.BarcodeDllPath = dynamicDotNetTwainDirectory + @"Redistributable\BarcodeResources\";
-                dynamicDotNetTwainThum.OCRDllPath = dynamicDotNetTwainDirectory + @"Redistributable\OCRResources\";
+                //dynamicDotNetTwainThum.BarcodeDllPath = dynamicDotNetTwainDirectory + @"Redistributable\Resources\BarcodeResources\";
+                dynamicDotNetTwainThum.OCRDllPath = dynamicDotNetTwainDirectory + @"Redistributable\Resources\OCR\";
                 dynamicDotNetTwainThum.OCRTessDataPath = dynamicDotNetTwainDirectory + @"Samples\Bin\";
-                dynamicDotNetTwainThum.PDFRasterizerDllPath = dynamicDotNetTwainDirectory + @"Redistributable\PDFResources\";      
+                dynamicDotNetTwainThum.PDFRasterizerDllPath = dynamicDotNetTwainDirectory + @"Redistributable\Resources\PDF\";      
             }
             else
             {
-                //dynamicDotNetTwainThum.BarcodeDllPath = dynamicDotNetTwainDirectory + @"Redistributable\BarcodeResources\";
-                dynamicDotNetTwainThum.OCRDllPath = dynamicDotNetTwainDirectory + @"Redistributable\OCRResources\";
+                //dynamicDotNetTwainThum.BarcodeDllPath = dynamicDotNetTwainDirectory + @"Redistributable\Resources\BarcodeResources\";
+                dynamicDotNetTwainThum.OCRDllPath = dynamicDotNetTwainDirectory + @"Redistributable\Resources\OCR\";
                 dynamicDotNetTwainThum.OCRTessDataPath = dynamicDotNetTwainDirectory + @"Redistributable\";
-                dynamicDotNetTwainThum.PDFRasterizerDllPath = dynamicDotNetTwainDirectory + @"Redistributable\PDFResources\";
+                dynamicDotNetTwainThum.PDFRasterizerDllPath = dynamicDotNetTwainDirectory + @"Redistributable\Resources\PDF\";
             }
             dynamicDotNetTwainThum.IfShowCancelDialogWhenBarcodeOrOCR = true;
             dynamicDotNetTwainThum.ScanInNewProcess = true;
             //dynamicDotNetTwainThum.MaxImagesInBuffer = 32;
-            dynamicDotNetTwainThum.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            dynamicDotNetTwainThum.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
 
             dynamicDotNetTwainView.MouseShape = false;
             dynamicDotNetTwainView.SetViewMode(-1, -1);
             dynamicDotNetTwainView.MaxImagesInBuffer = 1;
             dynamicDotNetTwainView.ScanInNewProcess = true;
-            dynamicDotNetTwainView.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            dynamicDotNetTwainView.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
         }       
 
         public static Dictionary<String, ImageBrush> icons = new Dictionary<string, ImageBrush>();
@@ -311,7 +311,10 @@ namespace WpfControlsDemo
                         string strSuffix = strFileName.Substring(pos, strFileName.Length - pos).ToLower();
                         if (strSuffix.CompareTo(".pdf") == 0)
                         {
-                            this.dynamicDotNetTwainThum.ConvertPDFToImage(strFileName, 200);
+                            this.dynamicDotNetTwainThum.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
+                            this.dynamicDotNetTwainThum.SetPDFResolution(200);
+                            this.dynamicDotNetTwainThum.LoadImage(strFileName);
+                            //this.dynamicDotNetTwainThum.ConvertPDFToImage(strFileName, 200);
                             continue;
                         }
                     }
@@ -329,16 +332,8 @@ namespace WpfControlsDemo
                 try
                 {
                     BarcodeReader reader = new BarcodeReader();
-                    reader.LicenseKeys = "91392547848AAF2410B494747EADA719";
-                    BitmapImage img = dynamicDotNetTwainThum.GetImage(this.dynamicDotNetTwainThum.CurrentImageIndexInBuffer);
-                    using (MemoryStream outStream = new MemoryStream())
-                    {
-                        BitmapEncoder enc = new BmpBitmapEncoder();
-                        enc.Frames.Add(BitmapFrame.Create(img));
-                        enc.Save(outStream);
-                        bmp = new System.Drawing.Bitmap(outStream);
-                    }
-                    BarcodeResult[] aryResult = reader.DecodeBitmap(bmp);
+                    reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB";
+                    BarcodeResult[] aryResult = reader.DecodeBitmap(this.dynamicDotNetTwainThum.GetBitmap(this.dynamicDotNetTwainThum.CurrentImageIndexInBuffer));
                     if (aryResult == null)
                     {
                         string strResult = "The barcode for selected format is not found." + "\r\n";
@@ -349,7 +344,7 @@ namespace WpfControlsDemo
                         string strResult = aryResult.Length + " total barcode found." + "\r\n";
                         for (int i = 0; i < aryResult.Length; i++)
                         {
-                            strResult += "Result " + (i + 1) + "\r\n  " + "Barcode Format: " + aryResult[i].BarcodeFormat + "    Barcode Text: " + aryResult[i].BarcodeText + "\r\n";
+                            strResult += String.Format("Result {0}\r\n Barcode Format: {1}    Barcode Text: {2}\r\n", (i + 1), aryResult[i].BarcodeFormat, aryResult[i].BarcodeText);
 
                         }
                         MessageBox.Show(strResult, "Barcodes Results");

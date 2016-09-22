@@ -71,8 +71,9 @@
             this.dlgColor = new System.Windows.Forms.ColorDialog();
             this.label1 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.dynamicDotNetTwain1 = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
+            this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+            this.saveAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -96,6 +97,7 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem,
+            this.saveAllToolStripMenuItem,
             this.printToolStripMenuItem,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -480,15 +482,6 @@
             this.splitContainer1.SplitterDistance = 546;
             this.splitContainer1.TabIndex = 3;
             // 
-            // propertyGrid1
-            // 
-            this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
-            this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.Size = new System.Drawing.Size(164, 385);
-            this.propertyGrid1.TabIndex = 0;
-            this.propertyGrid1.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid1_PropertyValueChanged);
-            // 
             // dynamicDotNetTwain1
             // 
             this.dynamicDotNetTwain1.AnnotationFillColor = System.Drawing.Color.White;
@@ -512,12 +505,28 @@
             this.dynamicDotNetTwain1.Size = new System.Drawing.Size(546, 385);
             this.dynamicDotNetTwain1.TabIndex = 0;
             this.dynamicDotNetTwain1.OnAnnotationResized += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationResizedHandler(this.dynamicDotNetTwain1_OnAnnotationResized);
-            this.dynamicDotNetTwain1.OnAnnotationDeselected += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationDeselectedHandler(this.dynamicDotNetTwain1_OnAnnotationDeselected);
             this.dynamicDotNetTwain1.OnAnnotationSelected += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationSelectedHandler(this.dynamicDotNetTwain1_OnAnnotationSelected);
-            this.dynamicDotNetTwain1.OnAnnotationTextChanged += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationTextChangedHandler(this.dynamicDotNetTwain1_OnAnnotationTextChanged);
-            this.dynamicDotNetTwain1.OnTopImageInTheViewChanged += new Dynamsoft.DotNet.TWAIN.Delegate.OnTopImageInTheViewChangedHandler(this.dynamicDotNetTwain1_OnTopImageInTheViewChanged);
-            this.dynamicDotNetTwain1.OnAnnotationCreated += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationCreatedHandler(this.dynamicDotNetTwain1_OnAnnotationCreated);
             this.dynamicDotNetTwain1.OnAnnotationMoved += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationMovedHandler(this.dynamicDotNetTwain1_OnAnnotationMoved);
+            this.dynamicDotNetTwain1.OnAnnotationTextChanged += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationTextChangedHandler(this.dynamicDotNetTwain1_OnAnnotationTextChanged);
+            this.dynamicDotNetTwain1.OnAnnotationCreated += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationCreatedHandler(this.dynamicDotNetTwain1_OnAnnotationCreated);
+            this.dynamicDotNetTwain1.OnTopImageInTheViewChanged += new Dynamsoft.DotNet.TWAIN.Delegate.OnTopImageInTheViewChangedHandler(this.dynamicDotNetTwain1_OnTopImageInTheViewChanged);
+            this.dynamicDotNetTwain1.OnAnnotationDeselected += new Dynamsoft.DotNet.TWAIN.Delegate.OnAnnotationDeselectedHandler(this.dynamicDotNetTwain1_OnAnnotationDeselected);
+            // 
+            // propertyGrid1
+            // 
+            this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
+            this.propertyGrid1.Name = "propertyGrid1";
+            this.propertyGrid1.Size = new System.Drawing.Size(164, 385);
+            this.propertyGrid1.TabIndex = 0;
+            this.propertyGrid1.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid1_PropertyValueChanged);
+            // 
+            // saveAllToolStripMenuItem
+            // 
+            this.saveAllToolStripMenuItem.Name = "saveAllToolStripMenuItem";
+            this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveAllToolStripMenuItem.Text = "&Save All...";
+            this.saveAllToolStripMenuItem.Click += new System.EventHandler(this.saveAllToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -590,6 +599,7 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain1;
         private System.Windows.Forms.PropertyGrid propertyGrid1;
+        private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
     }
 }
 

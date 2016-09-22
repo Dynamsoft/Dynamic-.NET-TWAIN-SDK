@@ -5,7 +5,7 @@ Public Class Form1
     Dim m_bSamplesExist As Boolean
 
     Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-        Me.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+        Me.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         Me.dynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = True
         Me.dynamicDotNetTwain1.ScanInNewProcess = True
         cbxViewMode.SelectedIndex = 1
@@ -102,7 +102,7 @@ Public Class Form1
         strPDFDllPath = imageFolder
         If (m_bSamplesExist) Then
             imageFolder = m_strCurrentDirectory + "Samples\Bin\Images\OCRImages\"
-            strPDFDllPath = m_strCurrentDirectory + "Redistributable\PDFResources\"
+            strPDFDllPath = m_strCurrentDirectory + "Redistributable\Resources\PDF\"
         End If
         filedlg.InitialDirectory = imageFolder
         dynamicDotNetTwain1.PDFRasterizerDllPath = strPDFDllPath
@@ -118,7 +118,10 @@ Public Class Form1
                     Dim strSuffix As String
                     strSuffix = strFilename.Substring(pos, strFilename.Length - pos).ToLower()
                     If (strSuffix.CompareTo(".pdf") = 0) Then
-                        dynamicDotNetTwain1.ConvertPDFToImage(strFilename, 200)
+                        dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
+                        dynamicDotNetTwain1.SetPDFResolution(200)
+                        dynamicDotNetTwain1.LoadImage(strfilename)
+                        'dynamicDotNetTwain1.ConvertPDFToImage(strFilename, 200)
                         Continue For
                     End If
                 End If
@@ -150,7 +153,7 @@ Public Class Form1
         Dim strDllPath As String
         strDllPath = m_strCurrentDirectory
         If (m_bSamplesExist) Then
-            strDllPath = m_strCurrentDirectory + "Redistributable\OCRResources\"
+            strDllPath = m_strCurrentDirectory + "Redistributable\Resources\OCR\"
         End If
         Me.dynamicDotNetTwain1.OCRDllPath = strDllPath
 

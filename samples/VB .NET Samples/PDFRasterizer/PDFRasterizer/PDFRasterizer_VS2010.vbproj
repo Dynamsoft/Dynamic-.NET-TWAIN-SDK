@@ -50,7 +50,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2010\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -63,7 +63,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2010\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -76,7 +76,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <BaseIntermediateOutputPath>obj\obj_VS2010\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DefineTrace>true</DefineTrace>
@@ -88,11 +88,11 @@
     <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <BaseIntermediateOutputPath>obj\obj_VS2010\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN">
-      <HintPath>..\..\..\..\Redistributable\For .NET 4.0\DynamicDotNetTWAIN.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 4.0\For Winform\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

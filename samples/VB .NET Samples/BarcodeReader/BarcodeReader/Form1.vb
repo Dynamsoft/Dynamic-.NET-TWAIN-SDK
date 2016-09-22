@@ -20,7 +20,7 @@ Public Class Form1
         Dim pos As Integer = imagesFolder.LastIndexOf("\Samples\")
         If (pos <> -1) Then
             imagesFolder = imagesFolder.Substring(0, imagesFolder.IndexOf(System.IO.Path.DirectorySeparatorChar, pos)) + "\Samples\Bin\Images\BarcodeImages\"
-            strPDFDllPath = strPDFDllPath.Substring(0, strPDFDllPath.IndexOf(System.IO.Path.DirectorySeparatorChar, pos)) + "\Redistributable\PDFResources\"
+            strPDFDllPath = strPDFDllPath.Substring(0, strPDFDllPath.IndexOf(System.IO.Path.DirectorySeparatorChar, pos)) + "\Redistributable\Resources\PDF\"
         Else
             pos = imagesFolder.LastIndexOf("\")
             imagesFolder = imagesFolder.Substring(0, imagesFolder.IndexOf("\", pos)) + "\"
@@ -29,7 +29,7 @@ Public Class Form1
 
         'use this folder as a starting point
         filedlg.InitialDirectory = imagesFolder
-        DynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+        DynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         DynamicDotNetTwain1.PDFRasterizerDllPath = strPDFDllPath
         DynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = True
         DynamicDotNetTwain1.MaxImagesInBuffer = 64
@@ -42,7 +42,10 @@ Public Class Form1
                     Dim strSuffix As String
                     strSuffix = strFilename.Substring(pos, strFilename.Length - pos).ToLower()
                     If (strSuffix.CompareTo(".pdf") = 0) Then
-                        DynamicDotNetTwain1.ConvertPDFToImage(strFilename, 200)
+                        DynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
+                        DynamicDotNetTwain1.SetPDFResolution(200)
+                        DynamicDotNetTwain1.LoadImage(strfilename)
+                        'DynamicDotNetTwain1.ConvertPDFToImage(strFilename, 200)
                         Continue For
                     End If
                 End If
@@ -60,37 +63,39 @@ Public Class Form1
         End If
         Try
             Dim reader As New Dynamsoft.Barcode.BarcodeReader
-            reader.LicenseKeys = "91392547848AAF2410B494747EADA719"
+            reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB"
             reader.ReaderOptions.MaxBarcodesToReadPerPage = Integer.Parse(tbxMaxNum.Text)
             Me.TextBox1.Text = ""
             Select Case cbxFormat.SelectedIndex
                 Case 0
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
+
                 Case 1
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
                 Case 2
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
                 Case 3
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
                 Case 4
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
                 Case 5
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
                 Case 6
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
                 Case 7
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
                 Case 8
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
                 Case 9
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
                 Case 10
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
                 Case 11
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
                 Case 12
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
                 Case 13
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                Case 14
                     reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25
             End Select
 
@@ -115,7 +120,7 @@ Public Class Form1
                     objResult = aryResult(i)
                     strText.AppendFormat("      Result " & (i + 1) & Constants.vbCrLf)
                     strText.AppendFormat("      BarcodeFormat: " & objResult.BarcodeFormat.ToString() & Constants.vbCrLf)
-                    strText.AppendFormat("      Text read: " & objResult.BarcodeText & Constants.vbCrLf)
+                    strText.AppendFormat("      Text read: {0}" & Constants.vbCrLf, objResult.BarcodeText)
                 Next i
                 Me.TextBox1.Text = strText.ToString()
             End If
@@ -134,6 +139,7 @@ Public Class Form1
     End Sub
 
     Protected Sub InitializeUI()
+        cbxFormat.Items.Add("All")
         cbxFormat.Items.Add("OneD")
         cbxFormat.Items.Add("Code 39")
         cbxFormat.Items.Add("Code 128")

@@ -145,7 +145,8 @@ namespace DotNet_TWAIN_Demo
             this.cbxResampleType.Items.AddRange(new object[] {
             "Bicubic",
             "Bilinear",
-            "Nearest Neighbour"});
+            "Nearest Neighbour",
+            "Best Quality"});
             this.cbxResampleType.Location = new System.Drawing.Point(118, 180);
             this.cbxResampleType.Name = "cbxResampleType";
             this.cbxResampleType.Size = new System.Drawing.Size(136, 21);

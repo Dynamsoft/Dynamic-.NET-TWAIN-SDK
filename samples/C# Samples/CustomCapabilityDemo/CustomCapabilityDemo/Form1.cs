@@ -14,7 +14,7 @@ namespace CustomCapabilityDemo
         {
             InitializeComponent();
             this.dynamicDotNetTwain1.ScanInNewProcess = true;
-            this.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
         }
 
         private void btnSetCapability_Click(object sender, EventArgs e)
@@ -59,6 +59,7 @@ namespace CustomCapabilityDemo
         private void button2_Click(object sender, EventArgs e)
         {
             dynamicDotNetTwain1.IfShowUI = true;
+            dynamicDotNetTwain1.IfDisableSourceAfterAcquire = true;
             dynamicDotNetTwain1.AcquireImage();
         }
     }

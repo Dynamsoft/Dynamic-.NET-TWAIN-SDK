@@ -43,7 +43,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2013\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -54,7 +54,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2013\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -66,7 +66,7 @@
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <BaseIntermediateOutputPath>obj\obj_VS2013\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release_VS2013\</OutputPath>
@@ -78,12 +78,11 @@
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <BaseIntermediateOutputPath>obj\obj_VS2013\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\For .NET 4.0\DynamicDotNetTWAIN.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 4.0\For Winform\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

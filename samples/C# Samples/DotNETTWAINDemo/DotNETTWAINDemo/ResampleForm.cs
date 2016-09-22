@@ -73,6 +73,9 @@ namespace DotNet_TWAIN_Demo
                     case 2:
                         interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.NearestNeighbour;
                         break;
+                    case 3:
+                        interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.BestQuality;
+                        break;
                 }
                 return interpolation;
             }

@@ -111,7 +111,7 @@ Partial Class Form1
         '
         'picMode1
         '
-        Me.picMode1.Image = Global.PSDWBS.My.Resources.Resources.Mode1_Selected
+
         Me.picMode1.Location = New System.Drawing.Point(382, 149)
         Me.picMode1.Name = "picMode1"
         Me.picMode1.Size = New System.Drawing.Size(118, 179)
@@ -129,7 +129,7 @@ Partial Class Form1
         '
         'picMode2
         '
-        Me.picMode2.Image = Global.PSDWBS.My.Resources.Resources.Mode2
+
         Me.picMode2.Location = New System.Drawing.Point(531, 149)
         Me.picMode2.Name = "picMode2"
         Me.picMode2.Size = New System.Drawing.Size(118, 179)
@@ -228,7 +228,7 @@ Partial Class Form1
         '
         'picFAQMode2
         '
-        Me.picFAQMode2.Image = Global.PSDWBS.My.Resources.Resources.faq
+
         Me.picFAQMode2.Location = New System.Drawing.Point(594, 126)
         Me.picFAQMode2.Name = "picFAQMode2"
         Me.picFAQMode2.Size = New System.Drawing.Size(32, 17)
@@ -237,7 +237,7 @@ Partial Class Form1
         '
         'picFAQMode1
         '
-        Me.picFAQMode1.Image = Global.PSDWBS.My.Resources.Resources.faq
+
         Me.picFAQMode1.Location = New System.Drawing.Point(445, 126)
         Me.picFAQMode1.Name = "picFAQMode1"
         Me.picFAQMode1.Size = New System.Drawing.Size(30, 17)
@@ -266,7 +266,7 @@ Partial Class Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackgroundImage = Global.PSDWBS.My.Resources.Resources.main_bg
+
         Me.ClientSize = New System.Drawing.Size(679, 424)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)

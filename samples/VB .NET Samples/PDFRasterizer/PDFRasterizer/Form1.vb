@@ -2,7 +2,7 @@
 
     Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         Me.Icon = New Icon(GetType(Form), "wfc.ico")
-        Me.DynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+        Me.DynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         Me.DynamicDotNetTwain1.IfThrowException = False
         Me.cmbPDFResolution.DropDownStyle = ComboBoxStyle.DropDownList
         Me.cmbPDFResolution.Items.Add("100")
@@ -20,7 +20,7 @@
         pos = m_strCurrentDirectory.LastIndexOf("\Samples\")
         If (pos <> -1) Then
             m_strCurrentDirectory = m_strCurrentDirectory.Substring(0, m_strCurrentDirectory.IndexOf("\", pos)) + "\"
-            strDllPath = m_strCurrentDirectory + "Redistributable\PDFResources\"
+            strDllPath = m_strCurrentDirectory + "Redistributable\Resources\PDF\"
         Else
             pos = m_strCurrentDirectory.LastIndexOf("\")
             m_strCurrentDirectory = m_strCurrentDirectory.Substring(0, m_strCurrentDirectory.IndexOf("\", pos)) + "\"
@@ -40,7 +40,13 @@
             Dim strfilename As String
             If (openfiledlg.ShowDialog() = DialogResult.OK) Then
                 For Each strfilename In openfiledlg.FileNames
-                    Me.DynamicDotNetTwain1.ConvertPDFToImage(strfilename, CInt(cmbPDFResolution.SelectedItem.ToString()))
+                    dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
+                    DynamicDotNetTwain1.SetPDFResolution(CInt(cmbPDFResolution.SelectedItem.ToString()))
+                    dynamicDotNetTwain1.LoadImage(strfilename)
+                    'Me.DynamicDotNetTwain1.ConvertPDFToImage(strfilename, CInt(cmbPDFResolution.SelectedItem.ToString()))
+                    If Not Me.DynamicDotNetTwain1.ErrorCode = Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed Then
+                        MessageBox.Show(Me.DynamicDotNetTwain1.ErrorString, "PDF Rasterizer", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    End If
                 Next
             End If
         Catch ex As Exception

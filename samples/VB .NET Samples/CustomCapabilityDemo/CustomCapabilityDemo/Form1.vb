@@ -3,7 +3,7 @@ Imports Dynamsoft.DotNet.TWAIN.Enums
 Public Class Form1
 
     Private Sub btnSetCapability_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSetCapability.Click
-        dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+        dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         If dynamicDotNetTwain1.SelectSource() Then
             dynamicDotNetTwain1.OpenSource()
             Dim cap As Dynamsoft.DotNet.TWAIN.Enums.TWCapability
@@ -48,6 +48,7 @@ Public Class Form1
 
     Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button2.Click
         dynamicDotNetTwain1.IfShowUI = True
+        dynamicDotNetTwain1.IfDisableSourceAfterAcquire = True
         dynamicDotNetTwain1.AcquireImage()
     End Sub
 

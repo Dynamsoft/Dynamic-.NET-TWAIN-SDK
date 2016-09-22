@@ -14,7 +14,7 @@ namespace PDFReaderDemo
         {
             InitializeComponent();
             Initialization();
-            this.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
         }
 
         protected void Initialization()
@@ -35,7 +35,7 @@ namespace PDFReaderDemo
             int pos = strDllFolder.LastIndexOf("\\Samples\\");
             if (pos != -1)
             {
-                strDllFolder = strDllFolder.Substring(0, strDllFolder.IndexOf(@"\", pos)) + @"\Redistributable\PDFResources\";
+                strDllFolder = strDllFolder.Substring(0, strDllFolder.IndexOf(@"\", pos)) + @"\Redistributable\Resources\PDF\";
             }
             else
             {
@@ -60,7 +60,12 @@ namespace PDFReaderDemo
                 {
                     foreach (string strfilename in openfiledlg.FileNames)
                     {
-                        this.dynamicDotNetTwain1.ConvertPDFToImage(strfilename, float.Parse(cmbPDFResolution.SelectedItem.ToString()));
+			            this.dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
+                        this.dynamicDotNetTwain1.SetPDFResolution(uint.Parse(cmbPDFResolution.SelectedItem.ToString()));
+			            this.dynamicDotNetTwain1.LoadImage(strfilename);
+                        //this.dynamicDotNetTwain1.ConvertPDFToImage(strfilename, float.Parse(cmbPDFResolution.SelectedItem.ToString()));
+                        if (this.dynamicDotNetTwain1.ErrorCode != Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed)
+                            MessageBox.Show(this.dynamicDotNetTwain1.ErrorString, "PDF Rasterizer", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }

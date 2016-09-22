@@ -48,7 +48,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
     <BaseIntermediateOutputPath>obj\obj_VS2010\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -60,7 +60,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
     <BaseIntermediateOutputPath>obj\obj_VS2010\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -72,7 +72,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2010\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DefineTrace>true</DefineTrace>
@@ -83,11 +83,11 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2010\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN">
-      <HintPath>..\..\..\..\Redistributable\For .NET 4.0\DynamicDotNetTWAIN.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 4.0\For Winform\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -132,7 +132,7 @@
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
     </None>
- </ItemGroup>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\toolStripBtnDelete.Image.png" />
     <Content Include="Resources\toolStripBtnDelete.png" />

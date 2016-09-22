@@ -6,10 +6,10 @@ Namespace WpfWebcamDemo
     Partial Public Class Window1
         Inherits Window
         Private m_iRotate As Integer
-
+        Private m_dDesignWidth As Double = 898
         Public Sub New()
             InitializeComponent()
-            Me.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+            Me.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
             Me.ResizeMode = System.Windows.ResizeMode.CanMinimize
             Me.dynamicDotNetTwain1.IfShowUI = True
             Me.chkContainer.IsChecked = False
@@ -37,6 +37,7 @@ Namespace WpfWebcamDemo
 
         Private Sub Window_Loaded(ByVal sender As Object, ByVal e As RoutedEventArgs)
             Try
+                AddHandler cbxSources.DropDownOpened, AddressOf cbxSources_DropDownOpened
                 Me.chkContainer.IsChecked = True
                 Dim i As Short
                 For i = 0 To dynamicDotNetTwain1.SourceCount - 1
@@ -62,6 +63,7 @@ Namespace WpfWebcamDemo
             If (cbxSources.SelectedIndex >= 0& & cbxSources.SelectedIndex < dynamicDotNetTwain1.SourceCount) Then
                 dynamicDotNetTwain1.SelectSourceByIndex(cbxSources.SelectedIndex)
                 m_iRotate = 0
+                cbxRotateType.SelectedIndex = 0
                 dynamicDotNetTwain1.RotateVideo(EnumVideoRotateType.Rotate_0)
                 dynamicDotNetTwain1.OpenSource()
                 ResizeVideoWindow(m_iRotate)
@@ -69,11 +71,20 @@ Namespace WpfWebcamDemo
         End Sub
 
         Private Sub chkContainer_Checked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkContainer.Checked
+            Me.border1.Visibility = Windows.Visibility.Visible
+            Me.image1.Visibility = Windows.Visibility.Visible
+            Me.Width = m_dDesignWidth
+            chkFocus.IsEnabled = True
             dynamicDotNetTwain1.SetVideoContainer(image1)
             ResizeVideoWindow(m_iRotate)
         End Sub
 
         Private Sub chkContainer_Unchecked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkContainer.Unchecked
+            Me.border1.Visibility = Windows.Visibility.Hidden
+            Me.image1.Visibility = Windows.Visibility.Hidden
+            Me.Width = m_dDesignWidth - Me.border1.ActualWidth - 45
+            chkFocus.IsChecked = False
+            chkFocus.IsEnabled = False
             dynamicDotNetTwain1.SetVideoContainer(Nothing)
         End Sub
 
@@ -119,19 +130,31 @@ Namespace WpfWebcamDemo
             End If
         End Sub
 
-        Private Sub chkFocus_Checked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkFocus.Checked
-            chkContainer.IsChecked = True
-            chkContainer.IsEnabled = False
-        End Sub
+        'Private Sub chkFocus_Checked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkFocus.Checked
+        '    'chkContainer.IsChecked = True
+        '    'chkContainer.IsEnabled = False
+        'End Sub
 
-        Private Sub chkFocus_Unchecked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkFocus.Unchecked
-            chkContainer.IsEnabled = True
-        End Sub
+        'Private Sub chkFocus_Unchecked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkFocus.Unchecked
+        '    'chkContainer.IsEnabled = True
+        'End Sub
 
-        Private Sub cbxRotateType_DropDownClosed(sender As Object, e As EventArgs) Handles cbxRotateType.DropDownClosed
-            m_iRotate = m_iRotate + cbxRotateType.SelectedIndex
+        'Private Sub cbxRotateType_DropDownClosed(sender As Object, e As EventArgs) Handles cbxRotateType.DropDownClosed
+        '    m_iRotate = cbxRotateType.SelectedIndex
+        '    dynamicDotNetTwain1.RotateVideo(CType(System.Enum.Parse(GetType(Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType), Val(cbxRotateType.SelectedIndex)), Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType))
+        '    ResizeVideoWindow(m_iRotate)
+        'End Sub
+        Private Sub cbxRotateType_SelectionChaanged(sender As Object, e As EventArgs) Handles cbxRotateType.SelectionChanged
+            m_iRotate = cbxRotateType.SelectedIndex
             dynamicDotNetTwain1.RotateVideo(CType(System.Enum.Parse(GetType(Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType), Val(cbxRotateType.SelectedIndex)), Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType))
             ResizeVideoWindow(m_iRotate)
+        End Sub
+
+        Private Sub cbxSources_DropDownOpened(sender As Object, e As EventArgs)
+            RemoveHandler cbxSources.SelectionChanged, AddressOf cbxSources_SelectionChanged
+            cbxSources.SelectedIndex = -1
+            AddHandler cbxSources.SelectionChanged, AddressOf cbxSources_SelectionChanged
+
         End Sub
     End Class
 End Namespace

@@ -153,6 +153,7 @@ namespace DotNet_TWAIN_Demo
             this.label23 = new System.Windows.Forms.Label();
             this.picboxFit = new System.Windows.Forms.PictureBox();
             this.picboxOriginalSize = new System.Windows.Forms.PictureBox();
+            this.label25 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picboxHand)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxCrop)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxPoint)).BeginInit();
@@ -1746,6 +1747,14 @@ namespace DotNet_TWAIN_Demo
             this.label23.Size = new System.Drawing.Size(63, 15);
             this.label23.TabIndex = 86;
             this.label23.Text = "Fit && Scale";
+            //
+            //label25
+            //
+            this.label25.AutoSize = false;
+            this.label25.Size = new System.Drawing.Size(894,18);
+            this.label25.Location = new System.Drawing.Point(2,677);
+            this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label25.Text = "Note: PDF Rasterizer add-on is used when loading PDF files.          @2016 Dynamsoft Corporation. All rights reserved.";
             // 
             // picboxFit
             // 
@@ -1790,6 +1799,7 @@ namespace DotNet_TWAIN_Demo
             this.Controls.Add(this.picboxOriginalSize);
             this.Controls.Add(this.label23);
             this.Controls.Add(this.label22);
+            this.Controls.Add(this.label25);
             this.Controls.Add(this.flowLayoutPanel2);
             this.Controls.Add(this.panelAnnotations);
             this.Controls.Add(this.tbxTotalImageNum);
@@ -2024,6 +2034,7 @@ namespace DotNet_TWAIN_Demo
         private System.Windows.Forms.PictureBox picboxOriginalSize;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label label25;
     }
 }
 

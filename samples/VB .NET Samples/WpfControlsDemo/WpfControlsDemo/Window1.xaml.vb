@@ -44,26 +44,26 @@ Namespace WpfControlsDemo
             Dim index As Integer
             index = System.Reflection.Assembly.GetExecutingAssembly().Location.IndexOf("Samples")
             If index <> -1 Then
-                dynamicDotNetTwainThum.OCRDllPath = dynamicDotNetTwainDirectory + "Redistributable\OCRResources\"
+                dynamicDotNetTwainThum.OCRDllPath = dynamicDotNetTwainDirectory + "Redistributable\Resources\OCR\"
                 dynamicDotNetTwainThum.OCRTessDataPath = dynamicDotNetTwainDirectory + "Samples\Bin\"
-                dynamicDotNetTwainThum.PDFRasterizerDllPath = dynamicDotNetTwainDirectory + "Redistributable\PDFResources\"
+                dynamicDotNetTwainThum.PDFRasterizerDllPath = dynamicDotNetTwainDirectory + "Redistributable\Resources\PDF\"
             Else
-                dynamicDotNetTwainThum.OCRDllPath = dynamicDotNetTwainDirectory + "Redistributable\OCRResources\"
+                dynamicDotNetTwainThum.OCRDllPath = dynamicDotNetTwainDirectory + "Redistributable\Resources\OCR\"
                 dynamicDotNetTwainThum.OCRTessDataPath = dynamicDotNetTwainDirectory + "Redistributable\"
-                dynamicDotNetTwainThum.PDFRasterizerDllPath = dynamicDotNetTwainDirectory + "Redistributable\PDFResources\"
+                dynamicDotNetTwainThum.PDFRasterizerDllPath = dynamicDotNetTwainDirectory + "Redistributable\Resources\PDF\"
             End If
 
             dynamicDotNetTwainThum.IfShowCancelDialogWhenBarcodeOrOCR = True
             dynamicDotNetTwainThum.ScanInNewProcess = True
             'dynamicDotNetTwainThum.MaxImagesInBuffer = 32
             dynamicDotNetTwainThum.EnableKeyboardInteractive = False
-            dynamicDotNetTwainThum.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+            dynamicDotNetTwainThum.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
 
             dynamicDotNetTwainView.MouseShape = False
             dynamicDotNetTwainView.SetViewMode(-1, -1)
             dynamicDotNetTwainView.MaxImagesInBuffer = 1
             dynamicDotNetTwainView.ScanInNewProcess = True
-            dynamicDotNetTwainView.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+            dynamicDotNetTwainView.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         End Sub
 
         Public Shared icons As New System.Collections.Generic.Dictionary(Of String, System.Windows.Media.ImageBrush)
@@ -230,7 +230,10 @@ Namespace WpfControlsDemo
                         Dim strSuffix As String
                         strSuffix = strFileName.Substring(pos, strFileName.Length - pos).ToLower()
                         If (strSuffix.CompareTo(".pdf") = 0) Then
-                            dynamicDotNetTwainThum.ConvertPDFToImage(strFileName, 200)
+                            dynamicDotNetTwainThum.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
+                            dynamicDotNetTwainThum.SetPDFResolution(200)
+                            dynamicDotNetTwainThum.LoadImage(strFileName)
+                            'dynamicDotNetTwainThum.ConvertPDFToImage(strFileName, 200)
                             If (Not dynamicDotNetTwainThum.ErrorCode = Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed) Then
                                 MessageBox.Show(dynamicDotNetTwainThum.ErrorString, "Loading image error", MessageBoxButton.OK, MessageBoxImage.Error)
                             End If
@@ -248,41 +251,44 @@ Namespace WpfControlsDemo
                 Dim bmp As Bitmap = Nothing
                 Try
                 Dim reader As New Dynamsoft.Barcode.BarcodeReader
-                reader.LicenseKeys = "91392547848AAF2410B494747EADA719"
-                Dim ms As New IO.MemoryStream
-                Dim bi As New BitmapImage
-                bi = dynamicDotNetTwainThum.GetImage(Me.dynamicDotNetTwainThum.CurrentImageIndexInBuffer)
-                Using outStream = New MemoryStream()
-                    Dim enc As BitmapEncoder = New BmpBitmapEncoder
-                    enc.Frames.Add(BitmapFrame.Create(bi))
-                    enc.Save(outStream)
-                    Dim bitmap = New Bitmap(outStream)
-                    bmp = bitmap
-                End Using
-
-                Dim results As BarcodeResult() : results = reader.DecodeBitmap(bmp)
-                Dim strResult As String
-                If results Is Nothing Then
+                    reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB"
+                    'Dim ms As New IO.MemoryStream
+                    'Dim bi As New BitmapImage
+                    'bi = dynamicDotNetTwainThum.GetImage(Me.dynamicDotNetTwainThum.CurrentImageIndexInBuffer)
+                    'Using outStream = New MemoryStream()
+                    '    Dim enc As BitmapEncoder = New BmpBitmapEncoder
+                    '    enc.Frames.Add(BitmapFrame.Create(bi))
+                    '    enc.Save(outStream)
+                    '    Dim bitmap = New Bitmap(outStream)
+                    '    bmp = bitmap
+                    'End Using
+                    Dim results As BarcodeResult()
+                    If dynamicDotNetTwainThum.CurrentImageIndexInBuffer >= 0 Then
+                        results = reader.DecodeBitmap(dynamicDotNetTwainThum.GetBitmap(dynamicDotNetTwainThum.CurrentImageIndexInBuffer))
+                    End If
+                    Dim strResult As String
+                    If results Is Nothing Then
                         strResult = "The barcode for selected format is not found." + Chr(10) & Chr(13)
-                Else
-                    strResult = results.Length.ToString() + " total barcode found." + Chr(10) & Chr(13)
-                End If
+                    Else
+                        strResult = results.Length.ToString() + " total barcode found." + Chr(10) & Chr(13)
+                    End If
 
-                Dim i As Integer
-                If results Is Nothing Then
-                Else
-                    For i = 0 To results.Length - 1
-                        strResult += "Result " + (i + 1).ToString() + Chr(10) & Chr(13) + " Barcode Format:" + results(i).BarcodeFormat.ToString() + "    Barcode Text:" + results(i).BarcodeText + Chr(10) & Chr(13)
-                    Next i
-                End If
+                    Dim i As Integer
+                    If results Is Nothing Then
+                    Else
+                        For i = 0 To results.Length - 1
+                            'strResult += "Result " + (i + 1).ToString() + Chr(10) & Chr(13) + " Barcode Format:" + results(i).BarcodeFormat.ToString() + "    Barcode Text:" + results(i).BarcodeText + Chr(10) & Chr(13)
+                            strResult += String.Format("Result {0}" & Constants.vbCrLf & "  Barcode Format: {1}" & "    Barcode Text: {2}" & Constants.vbCrLf, (i + 1).ToString(), results(i).BarcodeFormat.ToString(), results(i).BarcodeText)
+                        Next i
+                    End If
 
                     MessageBox.Show(strResult, "Barcodes Results")
                 Catch exp As Exception
                     MessageBox.Show(exp.Message, "Decoding Error", MessageBoxButton.OK, MessageBoxImage.Error)
                 Finally
-                    If Not bmp.Equals(Nothing) Then
-                        bmp.Dispose()
-                    End If
+                    'If Not bmp.Equals(Nothing) Then
+                    '    bmp.Dispose()
+                    'End If
                 End Try
             End If
         End Sub

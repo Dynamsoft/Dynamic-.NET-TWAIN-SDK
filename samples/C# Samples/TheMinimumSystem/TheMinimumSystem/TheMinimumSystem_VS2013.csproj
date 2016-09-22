@@ -70,7 +70,7 @@
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2013\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release_VS2013\</OutputPath>
@@ -96,7 +96,7 @@
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseIntermediateOutputPath>obj\obj_VS2013\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -108,7 +108,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <BaseIntermediateOutputPath>obj\obj_VS2013\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release_VS2013\</OutputPath>
@@ -119,11 +119,11 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <BaseIntermediateOutputPath>obj\obj_VS2013\</BaseIntermediateOutputPath>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable> 
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamicDotNetTWAIN">
-      <HintPath>..\..\..\..\Redistributable\For .NET 4.0\DynamicDotNetTWAIN.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 4.0\For Winform\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -140,13 +140,6 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <COMReference Include="stdole">
-      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">

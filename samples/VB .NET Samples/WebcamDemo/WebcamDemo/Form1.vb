@@ -2,14 +2,13 @@ Imports Dynamsoft.DotNet.TWAIN.Enums
 Public Class Form1
 
     Private designWidth As Int32
-    Private m_iRotate As Integer = 0
 
     Sub New()
         ' This call is required by the Windows Form Designer.
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
-        dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+        dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         dynamicDotNetTwain1.SupportedDeviceType = EnumSupportedDeviceType.SDT_WEBCAM
         Me.chkContainer.Checked = False
         Me.chkFocusArea.Checked = False
@@ -32,7 +31,11 @@ Public Class Form1
             Next i
 
             For i = 0 To 3
-                Dim sRotateType As String = (90 * i).ToString + "°"
+                Dim bSubscript(1) As Byte
+                bSubscript(0) = 176
+                bSubscript(1) = 0
+
+                Dim sRotateType As String = (90 * i).ToString + System.Text.UnicodeEncoding.Unicode.GetString(bSubscript)
                 cbxRotateType.Items.Add(sRotateType)
             Next
             cbxRotateType.SelectedIndex = 0
@@ -52,13 +55,10 @@ Public Class Form1
     Private Sub cbxSources_SelectedIndexChanged(ByVal sender As Object, ByVal e As EventArgs)
         If (cbxSources.SelectedIndex >= 0 And cbxSources.SelectedIndex < dynamicDotNetTwain1.SourceCount) Then
             dynamicDotNetTwain1.SelectSourceByIndex(cbxSources.SelectedIndex)
-            m_iRotate = 0
             cbxRotateType.SelectedIndex = 0
             If (cbxRotateType.SelectedIndex >= 0) Then
-                m_iRotate = m_iRotate + cbxRotateType.SelectedIndex
-                dynamicDotNetTwain1.RotateVideo(m_iRotate)
+                ResizeVideoWindow(cbxRotateType.SelectedIndex Mod 4)
                 dynamicDotNetTwain1.OpenSource()
-                ResizeVideoWindow(m_iRotate)
             End If
         End If
     End Sub
@@ -78,27 +78,31 @@ Public Class Form1
 
     Private Sub chkContainer_CheckedChanged(ByVal sender As Object, ByVal e As System.EventArgs)
         If Not chkContainer.Checked Then
+            Me.dynamicDotNetTwain1.ResizeVideoWindow(0, 0, -1, -1)
             lbContainer.Visible = False
             Panel1.Visible = False
             Me.Width = designWidth - Me.Panel1.Width - 15
+            chkFocusArea.Checked = False
+            chkFocusArea.Enabled = False
             dynamicDotNetTwain1.SetVideoContainer(Nothing)
         Else
             lbContainer.Visible = True
             Panel1.Visible = True
             Me.Width = designWidth 'Me.Width + Me.pictureBox1.Width + 20
+            chkFocusArea.Enabled = True
             dynamicDotNetTwain1.SetVideoContainer(pictureBox1)
+            cbxRotateType_SelectedIndexChanged(cbxRotateType, Nothing)
         End If
-        ResizeVideoWindow(m_iRotate)
     End Sub
 
     Private Sub chkFocusArea_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkFocusArea.CheckedChanged
         If (chkFocusArea.Checked) Then
-            chkContainer.Checked = True
-            chkContainer.Enabled = False
+            'chkContainer.Checked = True
+            'chkContainer.Enabled = False
             AddHandler pictureBox1.MouseClick, AddressOf pictureBox1_MouseClick
         Else
             RemoveHandler pictureBox1.MouseClick, AddressOf pictureBox1_MouseClick
-            chkContainer.Enabled = True
+            'chkContainer.Enabled = True
         End If
     End Sub
 
@@ -109,9 +113,8 @@ Public Class Form1
 
     Private Sub cbxRotateType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cbxRotateType.SelectedIndexChanged
         If (cbxRotateType.SelectedIndex >= 0) Then
-            m_iRotate = m_iRotate + cbxRotateType.SelectedIndex
             dynamicDotNetTwain1.RotateVideo(CType(System.Enum.Parse(GetType(Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType), Val(cbxRotateType.SelectedIndex)), Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType))
-            ResizeVideoWindow(m_iRotate)
+            ResizeVideoWindow(cbxRotateType.SelectedIndex Mod 4)
         End If
     End Sub
 

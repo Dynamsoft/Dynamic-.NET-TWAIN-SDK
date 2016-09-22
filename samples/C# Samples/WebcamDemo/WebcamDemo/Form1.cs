@@ -12,13 +12,11 @@ namespace WebcamDemo
     public partial class Form1 : Form
     {
         private int m_iDesignWidth = 755;
-        private int m_iRotate = 0;
         public Form1()
         {
             InitializeComponent();
-            this.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
             dynamicDotNetTwain1.SupportedDeviceType = EnumSupportedDeviceType.SDT_WEBCAM;
-
             //set IfShowUI true if you want to show video
             dynamicDotNetTwain1.IfShowUI = true;
 
@@ -47,7 +45,7 @@ namespace WebcamDemo
                     cbxRotateType.Items.Add(sRotateType);
                 }
                 cbxSources.SelectedIndexChanged += cbxSources_SelectedIndexChanged;
-                cbxRotateType.SelectedIndex = 0;
+                //cbxRotateType.SelectedIndex = 0;
                 if (cbxSources.Items.Count > 0)
                     cbxSources.SelectedIndex = 0;
             }
@@ -87,13 +85,9 @@ namespace WebcamDemo
             if (((ComboBox)sender).SelectedIndex >= 0 && ((ComboBox)sender).SelectedIndex < dynamicDotNetTwain1.SourceCount)
             {
                 dynamicDotNetTwain1.SelectSourceByIndex(cbxSources.SelectedIndex);
-                m_iRotate = 0;
                 cbxRotateType.SelectedIndex = 0;
-                if(cbxRotateType.SelectedIndex>=0)
-                m_iRotate = m_iRotate + cbxRotateType.SelectedIndex;
-                dynamicDotNetTwain1.RotateVideo((EnumVideoRotateType)(m_iRotate));
+                ResizeVideoWindow(cbxRotateType.SelectedIndex % 4);
                 dynamicDotNetTwain1.OpenSource();
-                ResizeVideoWindow(m_iRotate);
             }
         }
 
@@ -101,32 +95,37 @@ namespace WebcamDemo
         {
             if (!chkContainer.Checked)
             {
+                dynamicDotNetTwain1.ResizeVideoWindow(0, 0, -1, -1); 
                 lbContainer.Visible = false;
                 panel1.Visible = false;
+                chkFocusArea.Checked = false;
+                chkFocusArea.Enabled = false;
                 this.Width = m_iDesignWidth - this.panel1.Width - 15;
                 dynamicDotNetTwain1.SetVideoContainer(null);
             }
             else
             {
+                
                 lbContainer.Visible = true;
                 panel1.Visible = true;
+                chkFocusArea.Enabled = true;
                 this.Width = m_iDesignWidth;
                 dynamicDotNetTwain1.SetVideoContainer(pictureBox1);
+                cbxRotateType_SelectedIndexChanged(cbxRotateType, null);
             }
-            ResizeVideoWindow(m_iRotate);
         }
 
         private void chkFocusArea_CheckedChanged(object sender, EventArgs e)
         {
             if (chkFocusArea.Checked)
             {
-                this.chkContainer.Checked = true;
-                this.chkContainer.Enabled = false;
+                //this.chkContainer.Checked = true;
+                //this.chkContainer.Enabled = false;
                 pictureBox1.MouseClick += new MouseEventHandler(pictureBox1_MouseClick);
             }
             else
             {
-                this.chkContainer.Enabled = true;
+                //this.chkContainer.Enabled = true;
                 pictureBox1.MouseClick -= new MouseEventHandler(pictureBox1_MouseClick);
             }
         }
@@ -141,9 +140,8 @@ namespace WebcamDemo
         {
             if(((ComboBox)sender).SelectedIndex>=0)
             {
-            m_iRotate = (m_iRotate + ((ComboBox)sender).SelectedIndex) % 4;
-            dynamicDotNetTwain1.RotateVideo((EnumVideoRotateType)(((ComboBox)sender).SelectedIndex));
-            ResizeVideoWindow(m_iRotate);
+                dynamicDotNetTwain1.RotateVideo((EnumVideoRotateType)(((ComboBox)sender).SelectedIndex));
+                ResizeVideoWindow(((ComboBox)sender).SelectedIndex % 4);
             }
 
         }
@@ -155,7 +153,7 @@ namespace WebcamDemo
                 Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution camResolution = dynamicDotNetTwain1.ResolutionForCam;
                 if (camResolution != null && camResolution.Width > 0 && camResolution.Height > 0)
                 {
-                    if (m_iRotate % 2 == 0)
+                    if (iRotate % 2 == 0)
                     {
                         int iVideoWidth = pictureBox1.Width;
                         int iVideoHeight = pictureBox1.Width * camResolution.Height / camResolution.Width;

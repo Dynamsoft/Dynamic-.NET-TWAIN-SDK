@@ -18,7 +18,7 @@ namespace AddBarcodeDemo
         {
             InitializeComponent();
             Initialization();
-            this.dynamicDotNetTwain1.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82";
+            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
         }
 
         protected void Initialization()
@@ -27,6 +27,7 @@ namespace AddBarcodeDemo
             this.dynamicDotNetTwain1.Visible = false;
             this.cmbBarcodeFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             //this.cmbBarcodeFormat.DataSource = Enum.GetValues(typeof(Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat));
+            cmbBarcodeFormat.Items.Add("All");
             cmbBarcodeFormat.Items.Add("OneD");
             cmbBarcodeFormat.Items.Add("Code 39");
             cmbBarcodeFormat.Items.Add("Code 128");
@@ -104,6 +105,7 @@ namespace AddBarcodeDemo
         }
 
         List<string> m_listBarcodeType = null;
+        string strBarcodeFormat = null; 
         private void SaveFileByBarcodeText()
         {
             m_listBarcodeType = new List<string>();
@@ -111,59 +113,66 @@ namespace AddBarcodeDemo
             IndexList listIndex = new IndexList();
             listImageIndex.Add(listIndex); //use to save no barcode files
             BarcodeReader reader = new BarcodeReader();
-            reader.LicenseKeys = "91392547848AAF2410B494747EADA719";
+            reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB";
             try
             {
                 switch (cmbBarcodeFormat.SelectedIndex)
                 {
                     case 0:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD;
                         break;
                     case 1:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD;
                         break;
                     case 2:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39;
                         break;
                     case 3:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128;
                         break;
                     case 4:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93;
                         break;
                     case 5:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR;
                         break;
                     case 6:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF;
                         break;
                     case 7:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13;
                         break;
                     case 8:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8;
                         break;
                     case 9:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A;
                         break;
                     case 10:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E;
                         break;
                     case 11:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417;
                         break;
                     case 12:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX;
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE;
                         break;
                     case 13:
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX;
+                        break;
+                    case 14:
                         reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25;
                         break;
+                }
+                strBarcodeFormat = reader.ReaderOptions.BarcodeFormats.ToString();
+                if (cmbBarcodeFormat.SelectedIndex==0)
+                {
+                    strBarcodeFormat = "All";
                 }
                 for (int i = 0; i < this.dynamicDotNetTwain1.HowManyImagesInBuffer; i++)
                 {
                     BarcodeResult[] aryResult = null;
                     aryResult = reader.DecodeBitmap((Bitmap)dynamicDotNetTwain1.GetImage((short)i));
-                    if (null == aryResult || aryResult.Length == 0)
+                    if (null == aryResult || (aryResult !=null &&aryResult.Length == 0))
                     {
                         //If no barcode found on the current image, add it to the image list for saving
                         UpdateDateList(0, i, ref listImageIndex);
@@ -226,6 +235,7 @@ namespace AddBarcodeDemo
             return bRet;
         }
 
+        bool bHasBarcodeOnFirstImage = false;
         private void SaveImages(List<IndexList> listImageIndex)
         {
             int index = 0;
@@ -236,7 +246,55 @@ namespace AddBarcodeDemo
                 {
                     if (list.Count != 0)
                     {
-                        this.dynamicDotNetTwain1.SaveAsMultiPagePDF(objFolderBrowserDialog.SelectedPath.Trim() + "\\" + index + ".pdf", list);
+                        string strFirstPDFName = null;
+                        if (radMode1.Checked == true)
+                        {
+                            if (index == 0 && bHasBarcodeOnFirstImage == false)
+                            {
+
+                                strFirstPDFName = objFolderBrowserDialog.SelectedPath.Trim() + "\\" + strBarcodeFormat.ToString() + "-BeginWithNoBarcode.pdf";
+                                int i =2;
+                                while  (System.IO.File.Exists(strFirstPDFName))
+                                {
+                                    strFirstPDFName =String .Format (objFolderBrowserDialog.SelectedPath.Trim() + "\\" + strBarcodeFormat.ToString() + "-BeginWithNoBarcode({0}).pdf",i) ;
+                                    i++;
+                                }
+                                this.dynamicDotNetTwain1.SaveAsMultiPagePDF(strFirstPDFName, list);
+                            }
+                            else
+                            {
+                                if (index == 0 && bHasBarcodeOnFirstImage == true)
+                                    index = 1;
+                                if (m_listBarcodeType != null)
+                                {
+                                    string strTempPDFName = m_listBarcodeType[index - 1];
+                                    strTempPDFName = this.SetPDFFileName(objFolderBrowserDialog.SelectedPath.Trim(), strBarcodeFormat.ToString(), m_listBarcodeType[index - 1]);
+                                    this.dynamicDotNetTwain1.SaveAsMultiPagePDF(objFolderBrowserDialog.SelectedPath.Trim() + "\\" + strTempPDFName, list);
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            if (index == 0)
+                            {
+                                strFirstPDFName = objFolderBrowserDialog.SelectedPath.Trim() + "\\" + strBarcodeFormat.ToString() + "-None.pdf";
+                                int i =2;
+                                while  (System.IO.File.Exists(strFirstPDFName))
+                                {
+                                    strFirstPDFName =String .Format (objFolderBrowserDialog.SelectedPath.Trim() + "\\" + strBarcodeFormat.ToString() + "-None({0}).pdf",i) ;
+                                    i++;
+                                }
+                                this.dynamicDotNetTwain1.SaveAsMultiPagePDF(strFirstPDFName, list);
+                            }
+                            else
+                            {
+                                string strTempPDFName = null;
+                                strTempPDFName = this.SetPDFFileName(objFolderBrowserDialog.SelectedPath.Trim(), strBarcodeFormat.ToString(), m_listBarcodeType[index - 1]);
+                                this.dynamicDotNetTwain1.SaveAsMultiPagePDF(objFolderBrowserDialog.SelectedPath.Trim() + "\\" +strTempPDFName , list);
+                            }
+                                
+                        }
                     }
                     index++;
                 }
@@ -246,10 +304,12 @@ namespace AddBarcodeDemo
 
         private void SaveFileByBegainWithBarcode()
         {
+            m_listBarcodeType = new List<string>();
             List<IndexList> listImageIndex = new List<IndexList>();
             IndexList listIndex = null;
             BarcodeReader reader = new BarcodeReader();
-            reader.LicenseKeys = "91392547848AAF2410B494747EADA719";
+            bHasBarcodeOnFirstImage = false;
+            reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB";
             try
             {
                 for (int i = 0; i < this.dynamicDotNetTwain1.HowManyImagesInBuffer; i++)
@@ -259,56 +319,71 @@ namespace AddBarcodeDemo
                     switch (cmbBarcodeFormat.SelectedIndex)
                     {
                         case 0:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD;
                             break;
                         case 1:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD;
                             break;
                         case 2:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39;
                             break;
                         case 3:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128;
                             break;
                         case 4:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93;
                             break;
                         case 5:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR;
                             break;
                         case 6:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF;
                             break;
                         case 7:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13;
                             break;
                         case 8:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8;
                             break;
                         case 9:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A;
                             break;
                         case 10:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E;
                             break;
                         case 11:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417;
                             break;
                         case 12:
-                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX;
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE;
                             break;
                         case 13:
+                            reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX;
+                            break;
+                        case 14:
                             reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25;
                             break;
                     }
+                    strBarcodeFormat = reader.ReaderOptions.BarcodeFormats.ToString();
+                    if (cmbBarcodeFormat.SelectedIndex == 0)
+                    {
+                        strBarcodeFormat = "All";
+                    }
                     BarcodeResult[] aryResult = null;
                     aryResult = reader.DecodeBitmap((Bitmap)dynamicDotNetTwain1.GetImage((short)i));
-                    if (null == aryResult || aryResult.Length == 0)
+                    if (i == 0)
+                    {
+                        if (aryResult != null)
+                            if(aryResult.Length !=0)
+                                bHasBarcodeOnFirstImage = true;
+                    }
+
+                    if (null == aryResult ||(aryResult !=null && aryResult.Length == 0))
                     {
                         listIndex.Add(i); //If no barcode found on the current image, add it to the image list for saving
                     }
                     else
                     {
+                        m_listBarcodeType.Add(aryResult[0].BarcodeText);
                         if (listIndex != null && listIndex.Count > 0)
                         {
                             listImageIndex.Add(listIndex);
@@ -320,24 +395,6 @@ namespace AddBarcodeDemo
                             listIndex = new IndexList();
                         listIndex.Add(i);
                     }
-                    //Result[] aryResult = this.dynamicDotNetTwain1.ReadBarcode((short)i, (BarcodeFormat)cmbBarcodeFormat.SelectedValue);//Please update the barcode format to yours
-                    //if (null == aryResult || aryResult.Length == 0)
-                    //{
-                    //    listIndex.Add(i); //If no barcode found on the current image, add it to the image list for saving
-                    //}
-                    //else
-                    //{
-                    //    if (listIndex != null && listIndex.Count > 0)
-                    //    {
-                    //        listImageIndex.Add(listIndex);
-                    //        listIndex = null;
-                    //    }
-
-                    //    //If a barcode is found, restart the list
-                    //    if (null == listIndex)
-                    //        listIndex = new IndexList();
-                    //    listIndex.Add(i);
-                    //}
                 }
 
                 if (listIndex != null)
@@ -361,8 +418,9 @@ namespace AddBarcodeDemo
             this.dynamicDotNetTwain1.OpenSource();
             this.dynamicDotNetTwain1.IfAutoFeed = true;
             this.dynamicDotNetTwain1.IfFeederEnabled = true;
-            this.dynamicDotNetTwain1.IfShowUI = false;    
+            this.dynamicDotNetTwain1.IfShowUI = false;
             this.dynamicDotNetTwain1.AcquireImage();
+            
         }
 
         private void btnRemoveAllImage_Click(object sender, EventArgs e)
@@ -393,6 +451,57 @@ namespace AddBarcodeDemo
         {
             if(this.dynamicDotNetTwain1.Visible == false)
                 this.dynamicDotNetTwain1.Visible = true;
+        }
+
+        private string SetPDFFileName(string FileFolder, string strBarcodeType,string strText)
+        {
+            int iCharindex = 0;
+            string strBarcodeText = strText ;
+            string strFullPDFName = null;
+            string strPDFName = null;
+            bool bHasillegalcharacter = false;
+            foreach (char text in strBarcodeText)
+            {
+                bool  bIsillegalcharacter = false;
+
+                foreach (char temp in System .IO .Path .GetInvalidFileNameChars ())
+                {
+                    if (text == temp)
+                    {
+                        bIsillegalcharacter = true;
+                        bHasillegalcharacter = true;
+                    }
+                }
+                if (bIsillegalcharacter)
+                {
+                    strBarcodeText = strBarcodeText.Remove(iCharindex, 1);
+                    iCharindex--;
+                }
+                iCharindex++;
+            }
+            strFullPDFName = strBarcodeType + "-" + strBarcodeText;
+            int i = 2;
+            string FilePath = FileFolder + "\\" + strFullPDFName+".pdf";
+            while (System.IO.File.Exists(FilePath))
+            {
+                strFullPDFName = string.Format(strBarcodeType + "-" + strBarcodeText + "({0})", i);
+                FilePath = FileFolder + "\\" + strFullPDFName + ".pdf";
+                i++;
+            }
+
+            if (bHasillegalcharacter)
+            {
+                PSDWBS.Form2 fSetFileNameForm = new PSDWBS.Form2(FileFolder, strFullPDFName);
+                fSetFileNameForm.ShowDialog();
+                strPDFName = fSetFileNameForm.GetPDfFileName();
+            }
+            else
+            {
+                strPDFName = strFullPDFName + ".pdf";
+            }
+
+
+            return strPDFName;
         }
 
     }

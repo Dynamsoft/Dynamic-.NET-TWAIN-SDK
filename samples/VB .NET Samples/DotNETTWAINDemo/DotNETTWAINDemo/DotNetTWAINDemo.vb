@@ -248,10 +248,10 @@ Imports Dynamsoft.DotNet.TWAIN
         If Not pos = -1 Then
             strAddOnDllFolder = strAddOnDllFolder.Substring(0, strAddOnDllFolder.IndexOf("\", pos))
             strOCRTessDataFolder = strAddOnDllFolder + "\Samples\Bin\"
-            strAddOnDllFolder = strAddOnDllFolder + "\Redistributable\"
-            strPDFDllFolder = strAddOnDllFolder + "PDFResources\"
-            strBarcodeDllFolder = strAddOnDllFolder + "BarcodeResources\"
-            strOCRDllFolder = strAddOnDllFolder + "OCRResources\"
+            strAddOnDllFolder = strAddOnDllFolder + "\Redistributable\Resources\"
+            strPDFDllFolder = strAddOnDllFolder + "PDF\"
+            strBarcodeDllFolder = strAddOnDllFolder + "Barcode Generator\"
+            strOCRDllFolder = strAddOnDllFolder + "OCR\"
         Else
             pos = strAddOnDllFolder.LastIndexOf("\\")
             strAddOnDllFolder = strAddOnDllFolder.Substring(0, strAddOnDllFolder.IndexOf("\", pos)) + "\"
@@ -260,7 +260,7 @@ Imports Dynamsoft.DotNet.TWAIN
             strOCRDllFolder = strAddOnDllFolder
             strOCRTessDataFolder = strAddOnDllFolder
         End If
-        Me.dynamicDotNetTwain.LicenseKeys = "BAF81AB5515958BF519F7AAE2A318B3B;BAF81AB5515958BF6DA4299CBA3CC11D;BAF81AB5515958BF9C195A4722534974;BAF81AB5515958BFE96B7433DD28E75B;BAF81AB5515958BF3DBAF9AB37059787;BAF81AB5515958BF5291EEE0B030BD82"
+        Me.dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
         Me.dynamicDotNetTwain.PDFRasterizerDllPath = strPDFDllFolder
         Me.dynamicDotNetTwain.BarcodeDllPath = strBarcodeDllFolder
         Me.dynamicDotNetTwain.OCRDllPath = strOCRDllFolder
@@ -364,6 +364,7 @@ Imports Dynamsoft.DotNet.TWAIN
 
         'Read Barcode
         'Me.cbxBarcodeFormat.DataSource = [Enum].GetValues(Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.All.GetType())
+        cbxBarcodeFormat.Items.Add("All")
         cbxBarcodeFormat.Items.Add("OneD")
         cbxBarcodeFormat.Items.Add("Code 39")
         cbxBarcodeFormat.Items.Add("Code 128")
@@ -699,7 +700,10 @@ Imports Dynamsoft.DotNet.TWAIN
                     Dim strSuffix As String
                     strSuffix = strFileName.Substring(pos, strFileName.Length - pos).ToLower()
                     If (strSuffix.CompareTo(".pdf") = 0) Then
-                        dynamicDotNetTwain.ConvertPDFToImage(strFileName, 200)
+                        dynamicDotNetTwain.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
+                        dynamicDotNetTwain.SetPDFResolution(200)
+                        dynamicDotNetTwain.LoadImage(strFileName)
+                        'dynamicDotNetTwain.ConvertPDFToImage(strFileName, 200)
                         If (Not dynamicDotNetTwain.ErrorCode = Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed) Then
                             MessageBox.Show(dynamicDotNetTwain.ErrorString, "Loading image error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                         End If
@@ -955,6 +959,7 @@ Imports Dynamsoft.DotNet.TWAIN
 
     Private Sub picboxOriginalSize_Click(ByVal sender As Object, ByVal e As EventArgs) Handles picboxOriginalSize.Click
         dynamicDotNetTwain.IfFitWindow = False
+        dynamicDotNetTwain.Zoom = 1
         checkZoom()
     End Sub
 
@@ -1436,37 +1441,39 @@ Imports Dynamsoft.DotNet.TWAIN
 
         Try
             Dim reader As New Dynamsoft.Barcode.BarcodeReader
-            reader.LicenseKeys = "91392547848AAF2410B494747EADA719"
+            reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB"
             reader.ReaderOptions.MaxBarcodesToReadPerPage = iMaxBarcodesToRead
             If cbxBarcodeFormat.SelectedValue >= 0 Then
                 Select Case cbxBarcodeFormat.SelectedIndex
                     Case 0
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
+
                     Case 1
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
                     Case 2
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
                     Case 3
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
                     Case 4
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
                     Case 5
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
                     Case 6
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
                     Case 7
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
                     Case 8
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
                     Case 9
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
                     Case 10
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
                     Case 11
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
                     Case 12
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
                     Case 13
+                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                    Case 14
                         reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25
                 End Select
             Else
@@ -1489,7 +1496,8 @@ Imports Dynamsoft.DotNet.TWAIN
                 For i As Integer = 0 To aryResult.Length - 1
                     Dim objResult As Dynamsoft.Barcode.BarcodeResult
                     objResult = aryResult(i)
-                    strResult += "Result " & (i + 1).ToString() + Constants.vbCrLf & "  Barcode Format: " & aryResult(i).BarcodeFormat.ToString() & "    Barcode Text: " & aryResult(i).BarcodeText & Constants.vbCrLf
+                    'strResult += "Result " & (i + 1).ToString() + Constants.vbCrLf & "  Barcode Format: " & aryResult(i).BarcodeFormat.ToString() & "    Barcode Text: " & aryResult(i).BarcodeText & Constants.vbCrLf
+                    strResult += String.Format("Result {0}" & Constants.vbCrLf & "  Barcode Format: {1}" & "    Barcode Text: {2}" & Constants.vbCrLf, (i + 1).ToString(), aryResult(i).BarcodeFormat.ToString(), aryResult(i).BarcodeText)
                 Next i
                 MessageBox.Show(strResult, "Barcodes Results")
             End If

@@ -416,12 +416,12 @@ namespace ShowInfoAndSaveImage
             // 
             // label14
             // 
-            this.label14.Location = new System.Drawing.Point(60, 103);
+            this.label14.Location = new System.Drawing.Point(50, 103);
             this.label14.Name = "label14";
             this.label14.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.label14.Size = new System.Drawing.Size(94, 18);
+            this.label14.Size = new System.Drawing.Size(110, 18);
             this.label14.TabIndex = 14;
-            this.label14.Text = "File Size:";
+            this.label14.Text = "Current Image Size:";
             this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // MultiPDF
@@ -516,10 +516,10 @@ namespace ShowInfoAndSaveImage
             this.dynamicDotNetTwain.PDFMarginTop = ((uint)(0u));
             this.dynamicDotNetTwain.Size = new System.Drawing.Size(237, 436);
             this.dynamicDotNetTwain.TabIndex = 10;
-            this.dynamicDotNetTwain.OnPostTransfer += new Dynamsoft.DotNet.TWAIN.Delegate.OnPostTransferHandler(this.dynamicDotNetTwain_OnPostTransfer);
-            this.dynamicDotNetTwain.OnMouseClick += new Dynamsoft.DotNet.TWAIN.Delegate.OnMouseClickHandler(this.dynamicDotNetTwain_OnMouseClick);
-            this.dynamicDotNetTwain.OnTopImageInTheViewChanged += new Dynamsoft.DotNet.TWAIN.Delegate.OnTopImageInTheViewChangedHandler(this.dynamicDotNetTwain_OnMouseClick);
             this.dynamicDotNetTwain.OnPostAllTransfers += new Dynamsoft.DotNet.TWAIN.Delegate.OnPostAllTransfersHandler(this.dynamicDotNetTwain_OnPostAllTransfers);
+            this.dynamicDotNetTwain.OnPreAllTransfers += new Dynamsoft.DotNet.TWAIN.Delegate.OnPreAllTransfersHandler(this.dynamicDotNetTwain_OnPreAllTransfers);
+            this.dynamicDotNetTwain.OnPostTransfer += new Dynamsoft.DotNet.TWAIN.Delegate.OnPostTransferHandler(this.dynamicDotNetTwain_OnPostTransfer);
+            this.dynamicDotNetTwain.OnTopImageInTheViewChanged += new Dynamsoft.DotNet.TWAIN.Delegate.OnTopImageInTheViewChangedHandler(this.dynamicDotNetTwain_OnTopImageInTheViewChanged);
             // 
             // Form1
             // 
@@ -533,8 +533,8 @@ namespace ShowInfoAndSaveImage
             this.Controls.Add(this.btnScan);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-		this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-		this.MaximizeBox = false;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Show Image Info and Save Scanned Images";
             this.groupBox2.ResumeLayout(false);
