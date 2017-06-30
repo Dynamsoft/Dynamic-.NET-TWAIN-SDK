@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -51,13 +51,37 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DynamicDotNetTWAIN.Wpf">
+    <Reference Include="Dynamsoft.BarcodeGenerator, Version=7.0.0.309, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\Assembly\Scanner and WebCam\For .NETFramework 2.0\For WPF\DynamicDotNetTWAIN.Wpf.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.BarcodeGenerator.dll</HintPath>
     </Reference>
-    <Reference Include="Dynamsoft.BarcodeReader">
+    <Reference Include="Dynamsoft.BarcodeReader, Version=5.0.0.214, Culture=neutral, PublicKeyToken=ad0967c36e09320a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\Assembly\Barcode Reader\For .NETFramework 2.0\Dynamsoft.BarcodeReader.dll</HintPath>
+      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.BarcodeReader.dll</HintPath>
+    </Reference>
+    <Reference Include="Dynamsoft.Camera, Version=7.0.0.309, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.Camera.dll</HintPath>
+    </Reference>
+    <Reference Include="Dynamsoft.ImageCore, Version=7.0.0.309, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.ImageCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Dynamsoft.OCR, Version=7.0.0.309, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.OCR.dll</HintPath>
+    </Reference>
+    <Reference Include="Dynamsoft.PDF, Version=7.0.0.309, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.PDF.dll</HintPath>
+    </Reference>
+    <Reference Include="Dynamsoft.Twain, Version=7.0.0.309, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.Twain.dll</HintPath>
+    </Reference>
+    <Reference Include="Dynamsoft.WPF.Viewer, Version=7.0.0.309, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.WPF.Viewer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

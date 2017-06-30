@@ -1,148 +1,220 @@
-﻿Public Class Form1
+Imports System.Collections.Generic
+Imports System.ComponentModel
+Imports System.Data
+Imports System.Drawing
+Imports System.Text
+Imports System.Windows.Forms
+Imports Dynamsoft.PDF
+Imports Dynamsoft.Core
+Imports Dynamsoft.Core.Enums
+Imports System.IO
+Imports System.Runtime.InteropServices
 
-    Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-        Me.Icon = New Icon(GetType(Form), "wfc.ico")
-        Me.DynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
-        Me.DynamicDotNetTwain1.IfThrowException = False
-        Me.cmbPDFResolution.DropDownStyle = ComboBoxStyle.DropDownList
-        Me.cmbPDFResolution.Items.Add("100")
-        Me.cmbPDFResolution.Items.Add("150")
-        Me.cmbPDFResolution.Items.Add("200")
-        Me.cmbPDFResolution.Items.Add("300")
-        Me.cmbPDFResolution.SelectedIndex = 0
+Namespace Rasterizer
+    Partial Public Class Form1
+        Inherits Form
+        Implements IConvertCallback
+        Implements ISave
+        Private m_PDFRasteizer As Dynamsoft.PDF.PDFRasterizer = Nothing
+        Private m_PDFCreator As PDFCreator = Nothing
+        Private m_StrProductKey As String
+        Private m_ImageCore As ImageCore = Nothing
+        Public Sub New()
+            InitializeComponent()
+            Initialization()
+            m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+            m_PDFRasteizer = New Dynamsoft.PDF.PDFRasterizer(m_StrProductKey)
+            m_PDFCreator = New PDFCreator(m_StrProductKey)
+            m_ImageCore = New ImageCore()
 
-        Me.rdbBMP.Checked = True
+            dsViewer1.Bind(m_ImageCore)
 
-        Dim strDllPath As String
-        Dim m_strCurrentDirectory As String
-        m_strCurrentDirectory = Application.ExecutablePath
-        Dim pos As Integer
-        pos = m_strCurrentDirectory.LastIndexOf("\Samples\")
-        If (pos <> -1) Then
-            m_strCurrentDirectory = m_strCurrentDirectory.Substring(0, m_strCurrentDirectory.IndexOf("\", pos)) + "\"
-            strDllPath = m_strCurrentDirectory + "Redistributable\Resources\PDF\"
-        Else
-            pos = m_strCurrentDirectory.LastIndexOf("\")
-            m_strCurrentDirectory = m_strCurrentDirectory.Substring(0, m_strCurrentDirectory.IndexOf("\", pos)) + "\"
-            strDllPath = m_strCurrentDirectory
-        End If
-        Me.DynamicDotNetTwain1.PDFRasterizerDllPath = strDllPath
-        Me.DynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = True
-    End Sub
+	    chbMultiPagePDF.Checked = False
+            chbMultiPagePDF.Enabled = False
+            chbMultiPageTIFF.Checked = False
+            chbMultiPageTIFF.Enabled = False
+        End Sub
 
-    Private Sub btnLoadPDF_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnLoadPDF.Click
-        Dim openfiledlg As New OpenFileDialog
-        Try
-            openfiledlg.Filter = "PDF|*.PDF"
-            openfiledlg.FilterIndex = 0
-            openfiledlg.Multiselect = True
 
-            Dim strfilename As String
-            If (openfiledlg.ShowDialog() = DialogResult.OK) Then
-                For Each strfilename In openfiledlg.FileNames
-                    dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
-                    DynamicDotNetTwain1.SetPDFResolution(CInt(cmbPDFResolution.SelectedItem.ToString()))
-                    dynamicDotNetTwain1.LoadImage(strfilename)
-                    'Me.DynamicDotNetTwain1.ConvertPDFToImage(strfilename, CInt(cmbPDFResolution.SelectedItem.ToString()))
-                    If Not Me.DynamicDotNetTwain1.ErrorCode = Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed Then
-                        MessageBox.Show(Me.DynamicDotNetTwain1.ErrorString, "PDF Rasterizer", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+        Protected Sub Initialization()
+            Me.Icon = New Icon(GetType(Form), "wfc.ico")
+            Me.cmbPDFResolution.DropDownStyle = ComboBoxStyle.DropDownList
+            Me.cmbPDFResolution.Items.Add("100")
+            Me.cmbPDFResolution.Items.Add("150")
+            Me.cmbPDFResolution.Items.Add("200")
+            Me.cmbPDFResolution.Items.Add("300")
+            Me.cmbPDFResolution.SelectedIndex = 0
+
+            Me.rdbBMP.Checked = True
+        End Sub
+
+        Private Sub btnLoadPDF_Click(sender As Object, e As EventArgs)
+            Try
+                Dim openfiledlg As New OpenFileDialog()
+                openfiledlg.Filter = "PDF|*.PDF"
+                openfiledlg.FilterIndex = 0
+                openfiledlg.Multiselect = True
+
+                If openfiledlg.ShowDialog() = DialogResult.OK Then
+                    For Each strfilename As String In openfiledlg.FileNames
+                        m_PDFRasteizer.ConvertMode = Dynamsoft.PDF.Enums.EnumConvertMode.enumCM_RENDERALL
+                        m_PDFRasteizer.ConvertToImage(strfilename, "", Convert.ToInt32(cmbPDFResolution.Text), TryCast(Me, IConvertCallback))
+                    Next
+                End If
+            Catch exp As Exception
+                MessageBox.Show(exp.Message)
+            End Try
+        End Sub
+
+        Private Sub btnSave_Click(sender As Object, e As EventArgs)
+            Try
+                If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 Then
+                    Me.labMsg.Text = ""
+                    Dim savefdlg As New SaveFileDialog()
+                    savefdlg.InitialDirectory = System.IO.Directory.GetCurrentDirectory()
+                    savefdlg.FileName = ""
+
+                    If rdbBMP.Checked = True Then
+
+                        savefdlg.Filter = "BMP File(*.bmp)| *.bmp"
                     End If
-                Next
-            End If
-        Catch ex As Exception
-            MessageBox.Show(ex.Message)
-        End Try      
-    End Sub
 
-    Private Sub btnSave_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSave.Click
-        Try
-            If (Me.DynamicDotNetTwain1.HowManyImagesInBuffer > 0) Then
-                Me.LabMsg.Text = ""
-                Dim dlgFileSave As New SaveFileDialog
-                Dim strFile As String 'The file name use to save the acquired image
+                    If rdbJPEG.Checked = True Then
 
-                If (rdbBMP.Checked = True) Then
-                    dlgFileSave.Filter = "BMP File (*.bmp)|*.bmp"
-                ElseIf (rdbJPEG.Checked = True) Then
-                    dlgFileSave.Filter = "JPEG File (*.jpg)|*.jpg"
-                ElseIf (rdbPNG.Checked = True) Then
-                    dlgFileSave.Filter = "PNG File (*.png)|*.png"
-                ElseIf (rdbTIFF.Checked = True) Then
-                    dlgFileSave.Filter = "TIFF File (*.tif)|*.tif"
+                        savefdlg.Filter = "JPEG File(*.jpeg)| *.jpeg"
+                    End If
+
+                    If rdbPNG.Checked = True Then
+
+                        savefdlg.Filter = "PNG File(*.png) | *.png"
+                    End If
+
+                    If rdbTIFF.Checked = True Then
+
+                        savefdlg.Filter = "TIFF File(*.tiff)| *.tiff"
+                    End If
+
+                    If rdbPDF.Checked = True Then
+
+                        savefdlg.Filter = "PDF File(*.pdf)| *.pdf"
+                    End If
+
+                    If savefdlg.ShowDialog() = DialogResult.OK Then
+
+                        Dim strFilename As String = savefdlg.FileName
+
+                        If rdbBMP.Checked = True Then
+                            m_ImageCore.IO.SaveAsBMP(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                        End If
+
+                        If rdbJPEG.Checked = True Then
+                            m_ImageCore.IO.SaveAsJPEG(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                        End If
+
+                        If rdbPNG.Checked = True Then
+                            m_ImageCore.IO.SaveAsPNG(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                        End If
+
+                        If rdbTIFF.Checked = True Then
+                            Dim tempListIndex As New List(Of Short)()
+                            If chbMultiPageTIFF.Checked = True Then
+                                For sIndex As Short = 0 To m_ImageCore.ImageBuffer.HowManyImagesInBuffer - 1
+                                    tempListIndex.Add(sIndex)
+                                Next
+                            Else
+                                tempListIndex.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                            End If
+                            m_ImageCore.IO.SaveAsTIFF(strFilename, tempListIndex)
+                        End If
+
+                        If rdbPDF.Checked = True Then
+                            m_PDFCreator.Save(TryCast(Me, ISave), strFilename)
+                        End If
+                    End If
                 Else
-                    dlgFileSave.Filter = "PDF File (*.pdf)|*.pdf"
+                    Me.labMsg.ForeColor = Color.Red
+                    Me.labMsg.Text = "Please load a PDF file first"
+                    Me.labMsg.Location = New Point(Me.groupBox2.Size.Width \ 2 - Me.labMsg.Size.Width \ 2, Me.labMsg.Location.Y)
                 End If
+            Catch exp As Exception
+                MessageBox.Show(exp.Message)
+            End Try
+        End Sub
 
-                dlgFileSave.InitialDirectory = CurDir()
-                dlgFileSave.FileName = ""
-                If (dlgFileSave.ShowDialog() = DialogResult.OK) Then
-                    strFile = dlgFileSave.FileName
-                    If (rdbBMP.Checked = True) Then
-                        DynamicDotNetTwain1.SaveAsBMP(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
+        Private Sub rdbBMP_CheckedChanged(sender As Object, e As EventArgs)
+            chbMultiPagePDF.Checked = False
+            chbMultiPagePDF.Enabled = False
+            chbMultiPageTIFF.Checked = False
+            chbMultiPageTIFF.Enabled = False
+        End Sub
 
-                    ElseIf (rdbJPEG.Checked = True) Then
-                        DynamicDotNetTwain1.SaveAsJPEG(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
+        Private Sub rdbJPEG_CheckedChanged(sender As Object, e As EventArgs)
+            chbMultiPagePDF.Checked = False
+            chbMultiPagePDF.Enabled = False
+            chbMultiPageTIFF.Checked = False
+            chbMultiPageTIFF.Enabled = False
+        End Sub
 
-                    ElseIf (rdbPNG.Checked = True) Then
-                        DynamicDotNetTwain1.SaveAsPNG(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
+        Private Sub rdbPNG_CheckedChanged(sender As Object, e As EventArgs)
+            chbMultiPagePDF.Checked = False
+            chbMultiPagePDF.Enabled = False
+            chbMultiPageTIFF.Checked = False
+            chbMultiPageTIFF.Enabled = False
+        End Sub
 
-                    ElseIf (rdbTIFF.Checked = True) Then
-                        If (chbMultiPageTIFF.CheckState = 1) Then
-                            DynamicDotNetTwain1.SaveAllAsMultiPageTIFF(strFile)
-                        Else
-                            DynamicDotNetTwain1.SaveAsTIFF(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
-                        End If
-                    Else
-                        DynamicDotNetTwain1.IfSaveAnnotations = True
-                        If (chbMultiPagePDF.CheckState = 1) Then
-                            DynamicDotNetTwain1.SaveAllAsPDF(strFile)
-                        Else
-                            DynamicDotNetTwain1.SaveAsPDF(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
-                        End If
-                    End If
-                End If
+        Private Sub rdbTIFF_CheckedChanged(sender As Object, e As EventArgs)
+            chbMultiPagePDF.Checked = False
+            chbMultiPagePDF.Enabled = False
+            chbMultiPageTIFF.Checked = True
+            chbMultiPageTIFF.Enabled = True
+        End Sub
+
+        Private Sub rdbPDF_CheckedChanged(sender As Object, e As EventArgs)
+            chbMultiPagePDF.Checked = True
+            chbMultiPagePDF.Enabled = True
+            chbMultiPageTIFF.Checked = False
+            chbMultiPageTIFF.Enabled = False
+        End Sub
+
+#Region "IConvertCallback Members"
+
+        Public Sub LoadConvertResult(result As ConvertResult) Implements IConvertCallback.LoadConvertResult
+            m_ImageCore.IO.LoadImage(result.Image)
+            m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, result.Annotations, True)
+        End Sub
+
+#End Region
+
+#Region "ISave Members"
+
+        Public Function GetAnnotations(iPageNumber As Integer) As Object Implements ISave.GetAnnotations
+            If chbMultiPagePDF.Checked Then
+                Return m_ImageCore.ImageBuffer.GetMetaData(CShort(iPageNumber), EnumMetaDataType.enumAnnotation)
             Else
-                Me.LabMsg.ForeColor = Color.Red
-                Me.LabMsg.Text = "Please load a PDF file first"
-                Me.LabMsg.Location = New Point(Me.GroupBox2.Size.Width / 2 - Me.LabMsg.Size.Width / 2, Me.LabMsg.Location.Y)
+                Return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation)
             End If
-        Catch ex As Exception
-            MessageBox.Show(ex.Message)
-        End Try  
-    End Sub
 
-    Private Sub rdbBMP_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbBMP.CheckedChanged
-        chbMultiPagePDF.Checked = False
-        chbMultiPagePDF.Enabled = False
-        chbMultiPageTIFF.Checked = False
-        chbMultiPageTIFF.Enabled = False
-    End Sub
+        End Function
 
-    Private Sub rdbJPEG_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbJPEG.CheckedChanged
-        chbMultiPagePDF.Checked = False
-        chbMultiPagePDF.Enabled = False
-        chbMultiPageTIFF.Checked = False
-        chbMultiPageTIFF.Enabled = False
-    End Sub
+        Public Function GetImage(iPageNumber As Integer) As Bitmap Implements ISave.GetImage
+            If chbMultiPagePDF.Checked Then
+                Return m_ImageCore.ImageBuffer.GetBitmap(CShort(iPageNumber))
+            Else
+                Return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+            End If
 
-    Private Sub rdbPNG_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbPNG.CheckedChanged
-        chbMultiPagePDF.Checked = False
-        chbMultiPagePDF.Enabled = False
-        chbMultiPageTIFF.Checked = False
-        chbMultiPageTIFF.Enabled = False
-    End Sub
+        End Function
 
-    Private Sub rdbTIFF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbTIFF.CheckedChanged
-        chbMultiPagePDF.Checked = False
-        chbMultiPagePDF.Enabled = False
-        chbMultiPageTIFF.Checked = True
-        chbMultiPageTIFF.Enabled = True
-    End Sub
+        Public Function GetPageCount() As Integer Implements ISave.GetPageCount
+            If chbMultiPagePDF.Checked Then
+                Return m_ImageCore.ImageBuffer.HowManyImagesInBuffer
+            Else
+                Return 1
+            End If
 
-    Private Sub rdbPDF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbPDF.CheckedChanged
-        chbMultiPagePDF.Checked = True
-        chbMultiPagePDF.Enabled = True
-        chbMultiPageTIFF.Checked = False
-        chbMultiPageTIFF.Enabled = False
-    End Sub
-End Class
+        End Function
+
+#End Region
+    End Class
+End Namespace

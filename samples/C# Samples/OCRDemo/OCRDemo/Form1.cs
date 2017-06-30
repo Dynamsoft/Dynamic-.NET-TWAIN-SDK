@@ -5,20 +5,43 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using System.Drawing.Imaging;
+using Dynamsoft.Core;
+using Dynamsoft.OCR;
 using System.IO;
+using Dynamsoft.Forms;
+using Dynamsoft.PDF;
+using Dynamsoft.Core.Enums;
+using System.Runtime.InteropServices;
 
 namespace OCRDemo
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form,IConvertCallback
     {
+        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private ImageCore m_ImageCore = null;
+        private Tesseract m_Tesseract = null;
+        private PDFRasterizer m_PDFRasterizer = null;
+
         public Form1()
         {
             InitializeComponent();
-            this.dynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = true;
-            this.dynamicDotNetTwain1.ScanInNewProcess = true;
-            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
+            m_Tesseract = new Tesseract(m_StrProductKey);
+            m_ImageCore = new ImageCore();
+            dsViewer1.Bind(m_ImageCore);
+            m_PDFRasterizer = new PDFRasterizer(m_StrProductKey);
+            dsViewer1.OnImageAreaSelected += new Dynamsoft.Forms.Delegate.OnImageAreaSelectedHandler(dsViewer1_OnImageAreaSelected);
+            dsViewer1.OnImageAreaDeselected += dynamicDotNetTwain1_OnImageAreaDeselected;
+            dsViewer1.OnMouseClick += dynamicDotNetTwain1_OnImageAreaDeselected;
         }
+
+        void dsViewer1_OnImageAreaSelected(short sImageIndex, int left, int top, int right, int bottom)
+        {
+            tbxLeft.Text = left.ToString();
+            tbxTop.Text = top.ToString();
+            tbxRight.Text = right.ToString();
+            tbxBottom.Text = bottom.ToString();
+        }
+
 
         private string m_strCurrentDirectory;
         private bool m_bSamplesExist = false;
@@ -33,14 +56,10 @@ namespace OCRDemo
             if (m_bSamplesExist)
             {
                 imageFolder = m_strCurrentDirectory + @"Samples\Bin\Images\OCRImages\";
-                strPDFDllFolder = m_strCurrentDirectory + @"Redistributable\Resources\PDF\";
             }
 
             filedlg.InitialDirectory = imageFolder;
 
-            dynamicDotNetTwain1.PDFRasterizerDllPath = strPDFDllFolder;
-            dynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = true;
-            dynamicDotNetTwain1.MaxImagesInBuffer = 64;
 
             if (filedlg.ShowDialog() == DialogResult.OK)
             {
@@ -52,16 +71,14 @@ namespace OCRDemo
                         string strSuffix = strfilename.Substring(pos, strfilename.Length - pos).ToLower();
                         if (strSuffix.CompareTo(".pdf") == 0)
                         {
-			                this.dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
-                            this.dynamicDotNetTwain1.SetPDFResolution(200);
-			                this.dynamicDotNetTwain1.LoadImage(strfilename);
-                            //this.dynamicDotNetTwain1.ConvertPDFToImage(strfilename, 200);
+                            m_PDFRasterizer.ConvertMode = Dynamsoft.PDF.Enums.EnumConvertMode.enumCM_RENDERALL;
+                            m_PDFRasterizer.ConvertToImage(strfilename,"",200,this as IConvertCallback);
                             continue;
                         }
                     }
-                    this.dynamicDotNetTwain1.LoadImage(strfilename);
+                    m_ImageCore.IO.LoadImage(strfilename);
                 }
-                dynamicDotNetTwain1_OnImageAreaDeselected(dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                dynamicDotNetTwain1_OnImageAreaDeselected(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
             }
         }
 
@@ -77,32 +94,64 @@ namespace OCRDemo
             {
                 languageFolder = m_strCurrentDirectory + @"Samples\Bin\";
             }
-
-            this.dynamicDotNetTwain1.OCRTessDataPath = languageFolder;
-            this.dynamicDotNetTwain1.OCRLanguage = languages[this.cbxOCRLanguage.Text];
-            this.dynamicDotNetTwain1.OCRResultFormat = (Dynamsoft.DotNet.TWAIN.OCR.ResultFormat)this.ddlResultFormat.SelectedIndex;
-
-            string strDllPath = m_strCurrentDirectory;
-            if (m_bSamplesExist)
+            else
             {
-                strDllPath = m_strCurrentDirectory + @"Redistributable\Resources\OCR\";
+                languageFolder = Application.StartupPath + "\\Bin";
             }
 
-            this.dynamicDotNetTwain1.OCRDllPath = strDllPath;
-            //this.dynamicDotNetTwain1.OCRPageSetMode = (Dynamsoft.DotNet.TWAIN.OCR.PageSetMode)cbxOCRPageSetMode.SelectedValue;
+            m_Tesseract.TessDataPath = languageFolder;
+            m_Tesseract.Language = languages[this.cbxOCRLanguage.Text];
+            m_Tesseract.ResultFormat = (Dynamsoft.OCR.Enums.ResultFormat)this.ddlResultFormat.SelectedIndex;
 
-            if (this.dynamicDotNetTwain1.CurrentImageIndexInBuffer < 0)
+            string strDllPath = m_strCurrentDirectory;
+
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer < 0)
             {
                 MessageBox.Show("Please load an image before doing OCR!", "Index out of bounds", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             byte[] sbytes = null;
+
+            List<short> tempListSelectedIndex = dsViewer1.CurrentSelectedImageIndicesInBuffer;
+            List<Bitmap> tempListSelectedBitmap = null;
+            foreach(short index in tempListSelectedIndex)
+            {
+                if (index >= 0 && index < m_ImageCore.ImageBuffer.HowManyImagesInBuffer)
+                {
+                    if (tempListSelectedBitmap == null)
+                    {
+                        tempListSelectedBitmap = new List<Bitmap>();
+                    }
+                    Bitmap temp = m_ImageCore.ImageBuffer.GetBitmap(index);
+                    tempListSelectedBitmap.Add(temp);
+                }
+            }
             if (!isOcrOnRectangleArea)
-                sbytes = this.dynamicDotNetTwain1.OCR(this.dynamicDotNetTwain1.CurrentSelectedImageIndicesInBuffer);
+            {
+                if(tempListSelectedBitmap !=null)
+                    sbytes = m_Tesseract.Recognize(tempListSelectedBitmap);
+            }
             else
-                sbytes = this.dynamicDotNetTwain1.OCR(dynamicDotNetTwain1.CurrentImageIndexInBuffer, int.Parse(tbxLeft.Text),
-                    int.Parse(tbxTop.Text), int.Parse(tbxRight.Text), int.Parse(tbxBottom.Text));
+            {
+                Rectangle tempRect = Rectangle.Empty;
+                try
+                {
+                    if (int.Parse(tbxRight.Text) == 0 || int.Parse(tbxBottom.Text) == 0)
+                    {
+                        MessageBox.Show("The width or height of the selected rectangle can not be 0.");
+                        return;
+                    }
+                    sbytes = m_Tesseract.Recognize(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer), int.Parse(tbxLeft.Text),
+int.Parse(tbxTop.Text), int.Parse(tbxRight.Text), int.Parse(tbxBottom.Text));
+
+                }
+                catch(Exception exp)
+                {
+                    MessageBox.Show(exp.Message);
+                }
+
+            }
+
 
             if (sbytes != null && sbytes.Length > 0)
             {
@@ -116,14 +165,9 @@ namespace OCRDemo
                     filedlg.Filter = "Text File(*.txt)| *.txt";
                 }
                 if (filedlg.ShowDialog() == DialogResult.OK)
-                {                   
-                    File.WriteAllBytes(filedlg.FileName, sbytes);    
+                {
+                    File.WriteAllBytes(filedlg.FileName, sbytes);
                 }
-            }
-            else
-            {
-                if(this.dynamicDotNetTwain1.ErrorCode != 0)
-                    MessageBox.Show(this.dynamicDotNetTwain1.ErrorString);
             }
         }
 
@@ -131,53 +175,11 @@ namespace OCRDemo
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.dynamicDotNetTwain1.SetViewMode(2,2);
+            dsViewer1.SetViewMode(2, 2);
             cbxViewMode.SelectedIndex = 1;
-            this.dynamicDotNetTwain1.AllowMultiSelect = true;
+            dsViewer1.AllowMultiSelect = true;
 
             languages.Add("English", "eng");
-            //languages.Add("Arabic", "ara");
-            //languages.Add("Bulgarian", "bul");
-            //languages.Add("Catalan", "cat");
-            //languages.Add("Czech", "ces");
-            //languages.Add("Chinese (Simplified)", "chi_sim");
-            //languages.Add("Chinese (Traditional)", "chi_tra");
-            //languages.Add("Cherokee", "chr");
-            //languages.Add("Danish (frak)", "dan-frak");
-            //languages.Add("Danish", "dan");
-            //languages.Add("Dutch", "nld");
-            //languages.Add("German (frak)", "deu-frak");
-            //languages.Add("German", "deu");
-            //languages.Add("Greek", "ell");
-            //languages.Add("Finnish", "fin");
-            //languages.Add("French", "fra");
-            //languages.Add("Hebrew (ras)", "heb-ras");
-            //languages.Add("Hebrew (seg)", "heb-seg");
-            //languages.Add("Hebrew", "heb");
-            //languages.Add("Hindi", "hin");
-            //languages.Add("Hungarian", "hun");
-            //languages.Add("Indonesian", "ind");
-            //languages.Add("Italian", "ita");
-            //languages.Add("Japanese", "jpn");
-            //languages.Add("Korean", "kor");
-            //languages.Add("Latvian", "lav");
-            //languages.Add("Lithuanian", "lit");
-            //languages.Add("Norwegian", "nor");
-            //languages.Add("Polish", "pol");
-            //languages.Add("Portuguese", "por");
-            //languages.Add("Romanian", "ron");
-            //languages.Add("Russian", "rus");
-            //languages.Add("Slovak (frak)", "slk-frak");
-            //languages.Add("Slovak", "slk");
-            //languages.Add("Slovenian", "slv");
-            //languages.Add("Spanish", "spa");
-            //languages.Add("Serbian", "srp");
-            //languages.Add("Swedish (frak)", "swe-frak");
-            //languages.Add("Swedish", "swe");
-            //languages.Add("Thai", "tha");
-            //languages.Add("Turkish", "tur");
-            //languages.Add("Ukrainian", "ukr");
-            //languages.Add("Vietnamese", "vie");
             foreach (string str in languages.Keys)
             {
                 this.cbxOCRLanguage.Items.Add(str);
@@ -203,21 +205,21 @@ namespace OCRDemo
                 m_bSamplesExist = false;
                 pos = imageFolder.LastIndexOf("\\");
                 m_strCurrentDirectory = imageFolder.Substring(0, imageFolder.IndexOf(@"\", pos)) + @"\";
-                imageFolder = m_strCurrentDirectory;
+                imageFolder = m_strCurrentDirectory+@"Bin\Images\OCRImages\";
             }
 
-            this.dynamicDotNetTwain1.LoadImage(imageFolder + @"\DNTImage1.tif");
-            this.dynamicDotNetTwain1.LoadImage(imageFolder + @"\DNTImage2.tif");
-            this.dynamicDotNetTwain1.LoadImage(imageFolder + @"\DNTImage3.tif");
-            this.dynamicDotNetTwain1.LoadImage(imageFolder + @"\DNTImage4.tif");
-            this.dynamicDotNetTwain1.LoadImage(imageFolder + @"\DNTImage5.tif");
-            this.dynamicDotNetTwain1.LoadImage(imageFolder + @"\DNTImage6.tif");
-            this.dynamicDotNetTwain1.LoadImage(imageFolder + @"\DNTImage7.tif");
-            dynamicDotNetTwain1_OnImageAreaDeselected(dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+            m_ImageCore.IO.LoadImage(imageFolder + @"\DNTImage1.tif");
+            m_ImageCore.IO.LoadImage(imageFolder + @"\DNTImage2.tif");
+            m_ImageCore.IO.LoadImage(imageFolder + @"\DNTImage3.tif");
+            m_ImageCore.IO.LoadImage(imageFolder + @"\DNTImage4.tif");
+            m_ImageCore.IO.LoadImage(imageFolder + @"\DNTImage5.tif");
+            m_ImageCore.IO.LoadImage(imageFolder + @"\DNTImage6.tif");
+            m_ImageCore.IO.LoadImage(imageFolder + @"\DNTImage7.tif");
+            dynamicDotNetTwain1_OnImageAreaDeselected(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
         }
 
+
         private void dynamicDotNetTwain1_OnImageAreaSelected(short sImageIndex, int left, int top, int right, int bottom)
-        
         {
             tbxLeft.Text = left.ToString();
             tbxTop.Text = top.ToString();
@@ -229,10 +231,10 @@ namespace OCRDemo
         {
             tbxLeft.Text = "0";
             tbxTop.Text = "0";
-            if (dynamicDotNetTwain1.CurrentImageIndexInBuffer >= 0)
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0)
             {
-                tbxRight.Text = dynamicDotNetTwain1.GetImage(dynamicDotNetTwain1.CurrentImageIndexInBuffer).Width.ToString();
-                tbxBottom.Text = dynamicDotNetTwain1.GetImage(dynamicDotNetTwain1.CurrentImageIndexInBuffer).Height.ToString();
+                tbxRight.Text = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width.ToString();
+                tbxBottom.Text = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height.ToString();
             }
         }
 
@@ -243,8 +245,14 @@ namespace OCRDemo
 
         private void cbxViewMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            dynamicDotNetTwain1.SetViewMode((short)(cbxViewMode.SelectedIndex + 1), (short)(cbxViewMode.SelectedIndex + 1));
+            dsViewer1.SetViewMode((short)(cbxViewMode.SelectedIndex + 1), (short)(cbxViewMode.SelectedIndex + 1));
         }
 
+
+        public void LoadConvertResult(ConvertResult result)
+        {
+            m_ImageCore.IO.LoadImage(result.Image);
+            m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation,result.Annotations,true);
+        }
     }
 }

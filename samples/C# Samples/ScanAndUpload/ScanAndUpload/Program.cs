@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace ScanAndUploadToDB
+namespace ScanAndUpload
 {
     static class Program
     {

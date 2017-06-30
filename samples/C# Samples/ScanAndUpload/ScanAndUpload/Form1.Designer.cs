@@ -1,4 +1,4 @@
-﻿namespace ScanAndUploadToDB
+﻿namespace ScanAndUpload
 {
     partial class Form1
     {
@@ -36,6 +36,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.cmbSource = new System.Windows.Forms.ComboBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.lbNote = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.txtboxExtraTxt = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -56,8 +57,7 @@
             this.txtboxName = new System.Windows.Forms.TextBox();
             this.txtboxPort = new System.Windows.Forms.TextBox();
             this.txtboxServer = new System.Windows.Forms.TextBox();
-            this.dynamicDotNetTwain1 = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
-            this.lbNote = new System.Windows.Forms.Label();
+            this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -161,6 +161,16 @@
             this.groupBox3.TabIndex = 3;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Upload To DB";
+            // 
+            // lbNote
+            // 
+            this.lbNote.AutoSize = true;
+            this.lbNote.ForeColor = System.Drawing.Color.Blue;
+            this.lbNote.Location = new System.Drawing.Point(84, 55);
+            this.lbNote.Name = "lbNote";
+            this.lbNote.Size = new System.Drawing.Size(154, 13);
+            this.lbNote.TabIndex = 20;
+            this.lbNote.Text = "File size shouldn\'t exceed 2.5M";
             // 
             // label8
             // 
@@ -341,45 +351,21 @@
             this.txtboxServer.TabIndex = 0;
             this.txtboxServer.TextChanged += new System.EventHandler(this.txtboxServer_TextChanged);
             // 
-            // dynamicDotNetTwain1
+            // dsViewer1
             // 
-            this.dynamicDotNetTwain1.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain1.AnnotationPen = null;
-            this.dynamicDotNetTwain1.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain1.AnnotationTextFont = null;
-            this.dynamicDotNetTwain1.IfShowCancelDialogWhenImageTransfer = false;
-            this.dynamicDotNetTwain1.IfShowPrintUI = false;
-            this.dynamicDotNetTwain1.IfThrowException = false;
-            this.dynamicDotNetTwain1.Location = new System.Drawing.Point(8, 8);
-            this.dynamicDotNetTwain1.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain1.Name = "dynamicDotNetTwain1";
-            this.dynamicDotNetTwain1.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFXConformance = ((uint)(0u));
-            this.dynamicDotNetTwain1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.dynamicDotNetTwain1.Size = new System.Drawing.Size(282, 386);
-            this.dynamicDotNetTwain1.TabIndex = 4;
-            this.dynamicDotNetTwain1.OnPostTransfer += new Dynamsoft.DotNet.TWAIN.Delegate.OnPostTransferHandler(this.dynamicDotNetTwain1_OnPostTransfer);
-            this.dynamicDotNetTwain1.OnMouseClick += new Dynamsoft.DotNet.TWAIN.Delegate.OnMouseClickHandler(this.dynamicDotNetTwain1_OnMouseClick);
-            // 
-            // lbNote
-            // 
-            this.lbNote.AutoSize = true;
-            this.lbNote.ForeColor = System.Drawing.Color.Blue;
-            this.lbNote.Location = new System.Drawing.Point(84, 55);
-            this.lbNote.Name = "lbNote";
-            this.lbNote.Size = new System.Drawing.Size(151, 13);
-            this.lbNote.TabIndex = 20;
-            this.lbNote.Text = "Image size dont\'t exceed 2.5M";
+            this.dsViewer1.Location = new System.Drawing.Point(0, 0);
+            this.dsViewer1.Name = "dsViewer1";
+            this.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dsViewer1.SelectionRectAspectRatio = 0D;
+            this.dsViewer1.Size = new System.Drawing.Size(291, 394);
+            this.dsViewer1.TabIndex = 0;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(571, 516);
-            this.Controls.Add(this.dynamicDotNetTwain1);
+            this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -387,6 +373,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Scan and Upload";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -425,10 +412,10 @@
         private System.Windows.Forms.Button btnUpload;
         private System.Windows.Forms.CheckBox chkboxMultiPage;
         private System.Windows.Forms.RadioButton rdbtnPDF;
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain1;
         private System.Windows.Forms.TextBox txtboxExtraTxt;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label lbNote;
+        private Dynamsoft.Forms.DSViewer dsViewer1;
     }
 }
 

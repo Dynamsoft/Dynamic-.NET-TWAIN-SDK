@@ -1,60 +1,48 @@
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
 Partial Class Form1
-    Inherits System.Windows.Forms.Form
+	''' <summary>
+	''' Required designer variable.
+	''' </summary>
+	Private components As System.ComponentModel.IContainer = Nothing
 
-    'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
-    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
-        If disposing AndAlso components IsNot Nothing Then
-            components.Dispose()
-        End If
-        MyBase.Dispose(disposing)
-    End Sub
+	''' <summary>
+	''' Clean up any resources being used.
+	''' </summary>
+	''' <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+	Protected Overrides Sub Dispose(disposing As Boolean)
+		If disposing AndAlso (components IsNot Nothing) Then
+			components.Dispose()
+		End If
+		MyBase.Dispose(disposing)
+	End Sub
 
-    'Required by the Windows Form Designer
-    Private components As System.ComponentModel.IContainer
+	#Region "Windows Form Designer generated code"
 
-    'NOTE: The following procedure is required by the Windows Form Designer
-    'It can be modified using the Windows Form Designer.  
-    'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
-    Private Sub InitializeComponent()
-        Me.chkFocusArea = New System.Windows.Forms.CheckBox
-        Me.btnRemoveAllImages = New System.Windows.Forms.Button
-        Me.pictureBox1 = New System.Windows.Forms.PictureBox
-        Me.btnCaptureImage = New System.Windows.Forms.Button
-        Me.dynamicDotNetTwain1 = New Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain
-        Me.Panel1 = New System.Windows.Forms.Panel
-        Me.Label1 = New System.Windows.Forms.Label
-        Me.Label2 = New System.Windows.Forms.Label
-        Me.lbContainer = New System.Windows.Forms.Label
-        Me.cbxSources = New System.Windows.Forms.ComboBox
-        Me.label4 = New System.Windows.Forms.Label
-        Me.cbxRotateType = New System.Windows.Forms.ComboBox
-        Me.Label3 = New System.Windows.Forms.Label
-        Me.chkContainer = New System.Windows.Forms.CheckBox
+	''' <summary>
+	''' Required method for Designer support - do not modify
+	''' the contents of this method with the code editor.
+	''' </summary>
+	Private Sub InitializeComponent()
+        Me.btnCaptureImage = New System.Windows.Forms.Button()
+        Me.pictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.btnRemoveAllImages = New System.Windows.Forms.Button()
+        Me.label1 = New System.Windows.Forms.Label()
+        Me.cbxSources = New System.Windows.Forms.ComboBox()
+        Me.label2 = New System.Windows.Forms.Label()
+        Me.lbContainer = New System.Windows.Forms.Label()
+        Me.panel1 = New System.Windows.Forms.Panel()
+        Me.dsViewer1 = New Dynamsoft.Forms.DSViewer()
         CType(Me.pictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel1.SuspendLayout()
+        Me.panel1.SuspendLayout()
         Me.SuspendLayout()
         '
-        'chkFocusArea
+        'btnCaptureImage
         '
-        Me.chkFocusArea.AutoSize = True
-        Me.chkFocusArea.Location = New System.Drawing.Point(15, 163)
-        Me.chkFocusArea.Name = "chkFocusArea"
-        Me.chkFocusArea.Size = New System.Drawing.Size(97, 17)
-        Me.chkFocusArea.TabIndex = 21
-        Me.chkFocusArea.Text = "Focus On Area"
-        Me.chkFocusArea.UseVisualStyleBackColor = True
-        '
-        'btnRemoveAllImages
-        '
-        Me.btnRemoveAllImages.Location = New System.Drawing.Point(15, 258)
-        Me.btnRemoveAllImages.Name = "btnRemoveAllImages"
-        Me.btnRemoveAllImages.Size = New System.Drawing.Size(130, 23)
-        Me.btnRemoveAllImages.TabIndex = 16
-        Me.btnRemoveAllImages.Text = "Remove All Images"
-        Me.btnRemoveAllImages.UseVisualStyleBackColor = True
+        Me.btnCaptureImage.Location = New System.Drawing.Point(15, 266)
+        Me.btnCaptureImage.Name = "btnCaptureImage"
+        Me.btnCaptureImage.Size = New System.Drawing.Size(130, 23)
+        Me.btnCaptureImage.TabIndex = 1
+        Me.btnCaptureImage.Text = "Capture Image"
+        Me.btnCaptureImage.UseVisualStyleBackColor = True
         '
         'pictureBox1
         '
@@ -62,79 +50,27 @@ Partial Class Form1
         Me.pictureBox1.Location = New System.Drawing.Point(0, 0)
         Me.pictureBox1.Name = "pictureBox1"
         Me.pictureBox1.Size = New System.Drawing.Size(275, 295)
-        Me.pictureBox1.TabIndex = 14
+        Me.pictureBox1.TabIndex = 2
         Me.pictureBox1.TabStop = False
         '
-        'btnCaptureImage
+        'btnRemoveAllImages
         '
-        Me.btnCaptureImage.Location = New System.Drawing.Point(15, 209)
-        Me.btnCaptureImage.Name = "btnCaptureImage"
-        Me.btnCaptureImage.Size = New System.Drawing.Size(130, 23)
-        Me.btnCaptureImage.TabIndex = 13
-        Me.btnCaptureImage.Text = "Capture Image"
-        Me.btnCaptureImage.UseVisualStyleBackColor = True
+        Me.btnRemoveAllImages.Location = New System.Drawing.Point(15, 309)
+        Me.btnRemoveAllImages.Name = "btnRemoveAllImages"
+        Me.btnRemoveAllImages.Size = New System.Drawing.Size(130, 23)
+        Me.btnRemoveAllImages.TabIndex = 4
+        Me.btnRemoveAllImages.Text = "Remove All Images"
+        Me.btnRemoveAllImages.UseVisualStyleBackColor = True
         '
-        'dynamicDotNetTwain1
+        'label1
         '
-        Me.dynamicDotNetTwain1.AnnotationFillColor = System.Drawing.Color.White
-        Me.dynamicDotNetTwain1.AnnotationPen = Nothing
-        Me.dynamicDotNetTwain1.AnnotationTextColor = System.Drawing.Color.Black
-        Me.dynamicDotNetTwain1.AnnotationTextFont = Nothing
-        Me.dynamicDotNetTwain1.BorderStyle = Dynamsoft.DotNet.TWAIN.Enums.DWTWndBorderStyle.Single3D
-        Me.dynamicDotNetTwain1.IfShowCancelDialogWhenImageTransfer = False
-        Me.dynamicDotNetTwain1.IfShowPrintUI = False
-        Me.dynamicDotNetTwain1.IfThrowException = False
-        Me.dynamicDotNetTwain1.Location = New System.Drawing.Point(160, 35)
-        Me.dynamicDotNetTwain1.LogLevel = CType(1, Short)
-        Me.dynamicDotNetTwain1.Name = "dynamicDotNetTwain1"
-        Me.dynamicDotNetTwain1.PDFMarginBottom = CType(0UI, UInteger)
-        Me.dynamicDotNetTwain1.PDFMarginLeft = CType(0UI, UInteger)
-        Me.dynamicDotNetTwain1.PDFMarginRight = CType(0UI, UInteger)
-        Me.dynamicDotNetTwain1.PDFMarginTop = CType(0UI, UInteger)
-        Me.dynamicDotNetTwain1.PDFXConformance = CType(0UI, UInteger)
-        Me.dynamicDotNetTwain1.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.dynamicDotNetTwain1.Size = New System.Drawing.Size(280, 300)
-        Me.dynamicDotNetTwain1.TabIndex = 12
-        '
-        'Panel1
-        '
-        Me.Panel1.BackColor = System.Drawing.Color.White
-        Me.Panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.Panel1.Controls.Add(Me.pictureBox1)
-        Me.Panel1.Location = New System.Drawing.Point(455, 35)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(280, 300)
-        Me.Panel1.TabIndex = 23
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
-        Me.Label1.Location = New System.Drawing.Point(15, 15)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(104, 13)
-        Me.Label1.TabIndex = 24
-        Me.Label1.Text = "Webcam Source:"
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
-        Me.Label2.Location = New System.Drawing.Point(160, 15)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(99, 13)
-        Me.Label2.TabIndex = 25
-        Me.Label2.Text = "ImageContainer:"
-        '
-        'lbContainer
-        '
-        Me.lbContainer.AutoSize = True
-        Me.lbContainer.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
-        Me.lbContainer.Location = New System.Drawing.Point(455, 16)
-        Me.lbContainer.Name = "lbContainer"
-        Me.lbContainer.Size = New System.Drawing.Size(101, 13)
-        Me.lbContainer.TabIndex = 26
-        Me.lbContainer.Text = "Video Container:"
+        Me.label1.AutoSize = True
+        Me.label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
+        Me.label1.Location = New System.Drawing.Point(15, 15)
+        Me.label1.Name = "label1"
+        Me.label1.Size = New System.Drawing.Size(104, 13)
+        Me.label1.TabIndex = 12
+        Me.label1.Text = "Webcam Source:"
         '
         'cbxSources
         '
@@ -143,86 +79,82 @@ Partial Class Form1
         Me.cbxSources.Location = New System.Drawing.Point(15, 35)
         Me.cbxSources.Name = "cbxSources"
         Me.cbxSources.Size = New System.Drawing.Size(131, 21)
-        Me.cbxSources.TabIndex = 27
+        Me.cbxSources.TabIndex = 13
         '
-        'label4
+        'label2
         '
-        Me.label4.BackColor = System.Drawing.Color.Silver
-        Me.label4.Location = New System.Drawing.Point(15, 183)
-        Me.label4.Name = "label4"
-        Me.label4.Size = New System.Drawing.Size(130, 1)
-        Me.label4.TabIndex = 28
+        Me.label2.AutoSize = True
+        Me.label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
+        Me.label2.Location = New System.Drawing.Point(160, 15)
+        Me.label2.Name = "label2"
+        Me.label2.Size = New System.Drawing.Size(99, 13)
+        Me.label2.TabIndex = 14
+        Me.label2.Text = "ImageContainer:"
         '
-        'cbxRotateType
+        'lbContainer
         '
-        Me.cbxRotateType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cbxRotateType.FormattingEnabled = True
-        Me.cbxRotateType.Location = New System.Drawing.Point(15, 85)
-        Me.cbxRotateType.Name = "cbxRotateType"
-        Me.cbxRotateType.Size = New System.Drawing.Size(131, 21)
-        Me.cbxRotateType.TabIndex = 29
+        Me.lbContainer.AutoSize = True
+        Me.lbContainer.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
+        Me.lbContainer.Location = New System.Drawing.Point(455, 16)
+        Me.lbContainer.Name = "lbContainer"
+        Me.lbContainer.Size = New System.Drawing.Size(101, 13)
+        Me.lbContainer.TabIndex = 15
+        Me.lbContainer.Text = "Video Container:"
         '
-        'Label3
+        'panel1
         '
-        Me.Label3.AutoSize = True
-        Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(134, Byte))
-        Me.Label3.Location = New System.Drawing.Point(15, 69)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(49, 13)
-        Me.Label3.TabIndex = 30
-        Me.Label3.Text = "Rotate:"
+        Me.panel1.AutoScroll = True
+        Me.panel1.BackColor = System.Drawing.Color.White
+        Me.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.panel1.Controls.Add(Me.pictureBox1)
+        Me.panel1.Location = New System.Drawing.Point(455, 35)
+        Me.panel1.Name = "panel1"
+        Me.panel1.Size = New System.Drawing.Size(280, 300)
+        Me.panel1.TabIndex = 17
         '
-        'chkContainer
+        'dsViewer1
         '
-        Me.chkContainer.AutoSize = True
-        Me.chkContainer.Location = New System.Drawing.Point(15, 126)
-        Me.chkContainer.Name = "chkContainer"
-        Me.chkContainer.Size = New System.Drawing.Size(120, 17)
-        Me.chkContainer.TabIndex = 31
-        Me.chkContainer.Text = "Set Video Container"
-        Me.chkContainer.UseVisualStyleBackColor = True
+        Me.dsViewer1.Location = New System.Drawing.Point(163, 37)
+        Me.dsViewer1.Name = "dsViewer1"
+        Me.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.dsViewer1.SelectionRectAspectRatio = 0.0R
+        Me.dsViewer1.Size = New System.Drawing.Size(277, 295)
+        Me.dsViewer1.TabIndex = 23
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.AutoSize = True
         Me.ClientSize = New System.Drawing.Size(749, 347)
-        Me.Controls.Add(Me.chkContainer)
-        Me.Controls.Add(Me.Label3)
-        Me.Controls.Add(Me.cbxRotateType)
-        Me.Controls.Add(Me.label4)
-        Me.Controls.Add(Me.cbxSources)
+        Me.Controls.Add(Me.dsViewer1)
+        Me.Controls.Add(Me.panel1)
         Me.Controls.Add(Me.lbContainer)
-        Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.Label1)
-        Me.Controls.Add(Me.Panel1)
-        Me.Controls.Add(Me.chkFocusArea)
+        Me.Controls.Add(Me.label2)
+        Me.Controls.Add(Me.cbxSources)
+        Me.Controls.Add(Me.label1)
         Me.Controls.Add(Me.btnRemoveAllImages)
         Me.Controls.Add(Me.btnCaptureImage)
-        Me.Controls.Add(Me.dynamicDotNetTwain1)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
         Me.Name = "Form1"
         Me.Text = "Webcam Demo"
         CType(Me.pictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel1.ResumeLayout(False)
+        Me.panel1.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Private WithEvents chkFocusArea As System.Windows.Forms.CheckBox
-    Private WithEvents btnRemoveAllImages As System.Windows.Forms.Button
-    Private WithEvents pictureBox1 As System.Windows.Forms.PictureBox
-    Private WithEvents btnCaptureImage As System.Windows.Forms.Button
-    Private WithEvents dynamicDotNetTwain1 As Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain
-    Friend WithEvents Panel1 As System.Windows.Forms.Panel
-    Friend WithEvents Label1 As System.Windows.Forms.Label
-    Friend WithEvents Label2 As System.Windows.Forms.Label
-    Friend WithEvents lbContainer As System.Windows.Forms.Label
-    Friend WithEvents cbxSources As System.Windows.Forms.ComboBox
-    Private WithEvents label4 As System.Windows.Forms.Label
-    Friend WithEvents cbxRotateType As System.Windows.Forms.ComboBox
-    Friend WithEvents Label3 As System.Windows.Forms.Label
-    Private WithEvents chkContainer As System.Windows.Forms.CheckBox
 
+	#End Region
+    Private WithEvents btnCaptureImage As System.Windows.Forms.Button
+    Private WithEvents pictureBox1 As System.Windows.Forms.PictureBox
+    Private WithEvents btnRemoveAllImages As System.Windows.Forms.Button
+    Private WithEvents label1 As System.Windows.Forms.Label
+    Private WithEvents cbxSources As System.Windows.Forms.ComboBox
+    Private WithEvents label2 As System.Windows.Forms.Label
+    Private WithEvents lbContainer As System.Windows.Forms.Label
+    Private WithEvents panel1 As System.Windows.Forms.Panel
+    Private WithEvents dsViewer1 As Dynamsoft.Forms.DSViewer
 End Class
+

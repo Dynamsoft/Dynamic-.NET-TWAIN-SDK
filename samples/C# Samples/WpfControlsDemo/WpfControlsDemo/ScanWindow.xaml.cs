@@ -10,16 +10,32 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Dynamsoft.DotNet.TWAIN.Wpf;
 using Microsoft.Win32;
+using Dynamsoft.TWAIN;
+using Dynamsoft.TWAIN.Interface;
+using Dynamsoft.Core;
 
 namespace WpfControlsDemo
 {
     /// <summary>
     /// Interaction logic for ScanWindow.xaml
     /// </summary>
-    public partial class ScanWindow : Window
+    public partial class ScanWindow : Window,Dynamsoft.TWAIN.Interface.IAcquireCallback
     {
+        private TextBox m_TotalImageTextBox = null;
+
+        public void SetTotalImageTextBox(TextBox tbx)
+        {
+            m_TotalImageTextBox = tbx;
+        }
+
+        private TextBox m_CurrentImageTextBox = null;
+
+        public void SetCurrentImageTextBox(TextBox tbx)
+        {
+            m_CurrentImageTextBox = tbx;
+        }
+
         public ScanWindow()
         {
             InitializeComponent();
@@ -30,13 +46,15 @@ namespace WpfControlsDemo
             catch{ }
             lbScan.IsEnabled = false;
             this.Closing += new System.ComponentModel.CancelEventHandler(ScanWindow_Closing);
+            m_RefreshInfo = new RefreshImageBufferInfo(RefreshInfo);
         }
 
         void ScanWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (twain != null)
             {
-                if (twain.DataSourceStatus == Dynamsoft.DotNet.TWAIN.Enums.TWDataSourceStatus.TWDSS_ACQUIRING)
+                //if (twain.DataSourceStatus == Dynamsoft.DotNet.TWAIN.Enums.TWDataSourceStatus.TWDSS_ACQUIRING)
+                if(twain.DataSourceStatus == Dynamsoft.TWAIN.Enums.TWDataSourceStatus.TWDSS_ACQUIRING)
                 {
                     e.Cancel = true;
                     MessageBox.Show("There are some uncompleted scanning tasks. Please wait until the tasks completes.", "WpfControlsDemo", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -49,9 +67,9 @@ namespace WpfControlsDemo
             }
         }
 
-        private Dynamsoft.DotNet.TWAIN.Wpf.DynamicDotNetTwain twain = null;
+        private TwainManager twain = null;
 
-        public DynamicDotNetTwain TWAIN
+        public Dynamsoft.TWAIN.TwainManager TWAIN
         {
             set { 
                 twain = value; 
@@ -72,6 +90,24 @@ namespace WpfControlsDemo
                         lbScan.IsEnabled = false;
                     }
                 }
+            }
+        }
+
+        private ImageCore m_CoreForImageThum = null;
+        public ImageCore CoreForImageThum
+        {
+            set
+            {
+                m_CoreForImageThum = value;
+            }
+        }
+
+        private ImageCore m_CoreForViewer = null;
+        public ImageCore CoreForImageViewer
+        { 
+            set
+            {
+                m_CoreForViewer = value;
             }
         }
 
@@ -107,20 +143,20 @@ namespace WpfControlsDemo
                 twain.IfDuplexEnabled = ckbDuplex.IsChecked.Value;
                 if (rbBW.IsChecked.Value)
                 {
-                    twain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_BW;
+                    twain.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_BW;
                     twain.BitDepth = 1;
                 }
                 else if (rbGrey.IsChecked.Value)
                 {
-                    twain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_GRAY;
+                    twain.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_GRAY;
                     twain.BitDepth = 8;
                 }
                 else if (rbColorful.IsChecked.Value)
                 {
-                    twain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_RGB;
+                    twain.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_RGB;
                     twain.BitDepth = 24;
                 }
-                twain.AcquireImage();
+                twain.AcquireImage(this as IAcquireCallback);
             }
         }
 
@@ -185,5 +221,65 @@ namespace WpfControlsDemo
 
             return true;
         }
+
+        #region IAcquireCallback Members
+
+        public void OnPostAllTransfers()
+        {
+        }
+
+        public delegate void RefreshImageBufferInfo(int sCurrentIndex, int sTotalImageCount);
+        private RefreshImageBufferInfo m_RefreshInfo;
+
+
+        private void RefreshInfo(int sCurrentIndex, int sTotalImageCount)
+        {
+            m_TotalImageTextBox.Text = sTotalImageCount.ToString();
+            m_CurrentImageTextBox.Text = sCurrentIndex.ToString();
+        }
+
+        public bool OnPostTransfer(System.Drawing.Bitmap bit)
+        {
+            if (m_CoreForImageThum != null)
+            {
+                m_CoreForImageThum.IO.LoadImage(bit);
+                m_RefreshInfo((m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer + 1), m_CoreForImageThum.ImageBuffer.HowManyImagesInBuffer);
+            }
+
+            if (m_CoreForViewer != null)
+            {
+                if (m_CoreForViewer.ImageBuffer.CurrentImageIndexInBuffer == -1)
+                    m_CoreForViewer.IO.LoadImage(m_CoreForImageThum.ImageBuffer.GetBitmap(m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer));
+                else
+                {
+                    m_CoreForViewer.ImageBuffer.SetBitmap(m_CoreForViewer.ImageBuffer.CurrentImageIndexInBuffer, m_CoreForImageThum.ImageBuffer.GetBitmap(m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer));
+                }
+
+            }
+            return true;
+        }
+
+        public void OnPreAllTransfers()
+        {
+        }
+
+        public bool OnPreTransfer()
+        {
+            return true;
+        }
+
+        public void OnSourceUIClose()
+        {
+        }
+
+        public void OnTransferCancelled()
+        {
+        }
+
+        public void OnTransferError()
+        {
+        }
+
+        #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ScanAndUploadToDB
+﻿namespace ScanAndUpload
 {
     partial class SuccessInfo
     {

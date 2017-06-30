@@ -1,58 +1,36 @@
 using System;
-using System.Drawing;
-using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Forms;
 using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+using Dynamsoft.TWAIN;
+using Dynamsoft.Core;
+using Dynamsoft.TWAIN.Interface;
+using System.Runtime.InteropServices;
 using System.IO;
+using Dynamsoft.Common;
 
 namespace SetImageLayout
 {
-	/// <summary>
-	/// Summary description for Form1.
-	/// </summary>
-	public class frmMain : System.Windows.Forms.Form
-	{
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.Label label2;
-		private System.Windows.Forms.Label label3;
-		private System.Windows.Forms.Label label4;
-		private System.Windows.Forms.TextBox edtFrameLeft;
-		private System.Windows.Forms.Button btnSetAndAcquire;
-		private System.Windows.Forms.TextBox edtFrameTop;
-		private System.Windows.Forms.TextBox edtFrameRight;
-        private System.Windows.Forms.TextBox edtFrameBottom;
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain;
-        private Label label5;
-        private ComboBox cbxSources;
-        private Label lblFrameBottom;
-        private Label lblFrameTop;
-        private Label lblFrameRight;
-        private Label lblFrameLeft;
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.Container components = null;
+    public partial class Form1 : Form,IAcquireCallback
+    {
+        private TwainManager m_TwainManager = null;
+        private ImageCore m_ImageCore = null;
+        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        public Form1()
+        {
+            InitializeComponent();
+            m_TwainManager = new TwainManager(m_StrProductKey);
+            m_ImageCore = new ImageCore();
+            dsViewer1.Bind(m_ImageCore);
 
-		public frmMain()
-		{
-			//
-			// Required for Windows Form Designer support
-			//
-			InitializeComponent();
-
-			//
-			// TODO: Add any constructor code after InitializeComponent call
-			//
-            dynamicDotNetTwain.ScanInNewProcess = true;
-            this.dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
-            dynamicDotNetTwain.SupportedDeviceType = Dynamsoft.DotNet.TWAIN.Enums.EnumSupportedDeviceType.SDT_TWAIN;
-            if (dynamicDotNetTwain.SourceCount > 0)
+            if (m_TwainManager.SourceCount > 0)
             {
-                for (short i = 0; i < dynamicDotNetTwain.SourceCount; i++)
+                for (short i = 0; i < m_TwainManager.SourceCount; i++)
                 {
-                    string strSourceName = dynamicDotNetTwain.SourceNameItems(i);
+                    string strSourceName = m_TwainManager.SourceNameItems(i);
                     if (strSourceName != null)
                         cbxSources.Items.Add(strSourceName);
                 }
@@ -65,254 +43,20 @@ namespace SetImageLayout
     "Please ensure that at least one (virtual) scanner is installed.", "Information");
                 return;
             }
-		}
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
-				if (components != null) 
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
-		}
+        }
 
-		#region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.lblFrameBottom = new System.Windows.Forms.Label();
-            this.lblFrameTop = new System.Windows.Forms.Label();
-            this.lblFrameRight = new System.Windows.Forms.Label();
-            this.lblFrameLeft = new System.Windows.Forms.Label();
-            this.cbxSources = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.edtFrameRight = new System.Windows.Forms.TextBox();
-            this.edtFrameTop = new System.Windows.Forms.TextBox();
-            this.btnSetAndAcquire = new System.Windows.Forms.Button();
-            this.edtFrameLeft = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.edtFrameBottom = new System.Windows.Forms.TextBox();
-            this.dynamicDotNetTwain = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
-            this.groupBox1.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.lblFrameBottom);
-            this.groupBox1.Controls.Add(this.lblFrameTop);
-            this.groupBox1.Controls.Add(this.lblFrameRight);
-            this.groupBox1.Controls.Add(this.lblFrameLeft);
-            this.groupBox1.Controls.Add(this.cbxSources);
-            this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.edtFrameRight);
-            this.groupBox1.Controls.Add(this.edtFrameTop);
-            this.groupBox1.Controls.Add(this.btnSetAndAcquire);
-            this.groupBox1.Controls.Add(this.edtFrameLeft);
-            this.groupBox1.Controls.Add(this.label4);
-            this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.edtFrameBottom);
-            this.groupBox1.Location = new System.Drawing.Point(8, 9);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(448, 168);
-            this.groupBox1.TabIndex = 10;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Image Layout Information";
-            // 
-            // lblFrameBottom
-            // 
-            this.lblFrameBottom.AutoSize = true;
-            this.lblFrameBottom.Location = new System.Drawing.Point(382, 103);
-            this.lblFrameBottom.Name = "lblFrameBottom";
-            this.lblFrameBottom.Size = new System.Drawing.Size(0, 13);
-            this.lblFrameBottom.TabIndex = 18;
-            // 
-            // lblFrameTop
-            // 
-            this.lblFrameTop.AutoSize = true;
-            this.lblFrameTop.Location = new System.Drawing.Point(382, 68);
-            this.lblFrameTop.Name = "lblFrameTop";
-            this.lblFrameTop.Size = new System.Drawing.Size(0, 13);
-            this.lblFrameTop.TabIndex = 17;
-            // 
-            // lblFrameRight
-            // 
-            this.lblFrameRight.AutoSize = true;
-            this.lblFrameRight.Location = new System.Drawing.Point(155, 103);
-            this.lblFrameRight.Name = "lblFrameRight";
-            this.lblFrameRight.Size = new System.Drawing.Size(0, 13);
-            this.lblFrameRight.TabIndex = 16;
-            // 
-            // lblFrameLeft
-            // 
-            this.lblFrameLeft.AutoSize = true;
-            this.lblFrameLeft.Location = new System.Drawing.Point(155, 69);
-            this.lblFrameLeft.Name = "lblFrameLeft";
-            this.lblFrameLeft.Size = new System.Drawing.Size(0, 13);
-            this.lblFrameLeft.TabIndex = 15;
-            // 
-            // cbxSources
-            // 
-            this.cbxSources.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbxSources.FormattingEnabled = true;
-            this.cbxSources.Location = new System.Drawing.Point(167, 25);
-            this.cbxSources.Name = "cbxSources";
-            this.cbxSources.Size = new System.Drawing.Size(131, 21);
-            this.cbxSources.TabIndex = 14;
-            // 
-            // label5
-            // 
-            this.label5.Location = new System.Drawing.Point(49, 26);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(90, 16);
-            this.label5.TabIndex = 11;
-            this.label5.Text = "Select Scources:";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // edtFrameRight
-            // 
-            this.edtFrameRight.Location = new System.Drawing.Point(91, 100);
-            this.edtFrameRight.Name = "edtFrameRight";
-            this.edtFrameRight.Size = new System.Drawing.Size(48, 20);
-            this.edtFrameRight.TabIndex = 6;
-            // 
-            // edtFrameTop
-            // 
-            this.edtFrameTop.Location = new System.Drawing.Point(313, 66);
-            this.edtFrameTop.Name = "edtFrameTop";
-            this.edtFrameTop.Size = new System.Drawing.Size(51, 20);
-            this.edtFrameTop.TabIndex = 5;
-            // 
-            // btnSetAndAcquire
-            // 
-            this.btnSetAndAcquire.Location = new System.Drawing.Point(21, 134);
-            this.btnSetAndAcquire.Name = "btnSetAndAcquire";
-            this.btnSetAndAcquire.Size = new System.Drawing.Size(102, 25);
-            this.btnSetAndAcquire.TabIndex = 8;
-            this.btnSetAndAcquire.Text = "Set And Acquire";
-            this.btnSetAndAcquire.Click += new System.EventHandler(this.btnSetAndAcquire_Click);
-            // 
-            // edtFrameLeft
-            // 
-            this.edtFrameLeft.Location = new System.Drawing.Point(91, 66);
-            this.edtFrameLeft.Name = "edtFrameLeft";
-            this.edtFrameLeft.Size = new System.Drawing.Size(48, 20);
-            this.edtFrameLeft.TabIndex = 0;
-            // 
-            // label4
-            // 
-            this.label4.Location = new System.Drawing.Point(218, 102);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(80, 18);
-            this.label4.TabIndex = 3;
-            this.label4.Text = "Frame Bottom:";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // label3
-            // 
-            this.label3.Location = new System.Drawing.Point(11, 100);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(72, 18);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Frame Right:";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label2
-            // 
-            this.label2.Location = new System.Drawing.Point(19, 66);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(64, 17);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Frame Left:";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label1
-            // 
-            this.label1.Location = new System.Drawing.Point(234, 67);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(64, 17);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Frame Top:";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // edtFrameBottom
-            // 
-            this.edtFrameBottom.Location = new System.Drawing.Point(313, 100);
-            this.edtFrameBottom.Name = "edtFrameBottom";
-            this.edtFrameBottom.Size = new System.Drawing.Size(51, 20);
-            this.edtFrameBottom.TabIndex = 7;
-            // 
-            // dynamicDotNetTwain
-            // 
-            this.dynamicDotNetTwain.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain.AnnotationPen = null;
-            this.dynamicDotNetTwain.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain.AnnotationTextFont = null;
-            this.dynamicDotNetTwain.IfShowCancelDialogWhenImageTransfer = false;
-            this.dynamicDotNetTwain.IfShowPrintUI = false;
-            this.dynamicDotNetTwain.IfThrowException = false;
-            this.dynamicDotNetTwain.Location = new System.Drawing.Point(8, 183);
-            this.dynamicDotNetTwain.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain.Name = "dynamicDotNetTwain";
-            this.dynamicDotNetTwain.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFXConformance = ((uint)(0u));
-            this.dynamicDotNetTwain.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.dynamicDotNetTwain.Size = new System.Drawing.Size(448, 286);
-            this.dynamicDotNetTwain.TabIndex = 11;
-            // 
-            // frmMain
-            // 
-            this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(468, 481);
-            this.Controls.Add(this.dynamicDotNetTwain);
-            this.Controls.Add(this.groupBox1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.Name = "frmMain";
-            this.Text = "Set Image Layout";
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.ResumeLayout(false);
 
-		}
-		#endregion
-
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		[STAThread]
-		static void Main() 
-		{
-			Application.Run(new frmMain());
-		}
-
-		private void btnSetAndAcquire_Click(object sender, System.EventArgs e)
-		{
+        private void btnSetAndAcquire_Click(object sender, System.EventArgs e)
+        {
             float fFrameLeft, fFrameTop, fFrameRight, fFrameBottom, frameTemp;
 
-			try
-			{
-				fFrameLeft = Convert.ToSingle(edtFrameLeft.Text);
-				fFrameTop = Convert.ToSingle(edtFrameTop.Text);
-				fFrameRight = Convert.ToSingle(edtFrameRight.Text);
-				fFrameBottom = Convert.ToSingle(edtFrameBottom.Text);
+            try
+            {
+                fFrameLeft = Convert.ToSingle(edtFrameLeft.Text);
+                fFrameTop = Convert.ToSingle(edtFrameTop.Text);
+                fFrameRight = Convert.ToSingle(edtFrameRight.Text);
+                fFrameBottom = Convert.ToSingle(edtFrameBottom.Text);
 
                 if (fFrameLeft > fFrameRight)
                 {
@@ -327,12 +71,12 @@ namespace SetImageLayout
                     fFrameTop = fFrameBottom;
                     fFrameBottom = frameTemp;
                 }
-			}
-			catch (Exception)
-			{
-				MessageBox.Show("Please input numerical values in the input boxes.", "Error");
-				return;
-			}
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Please input numerical values in the input boxes.", "Error");
+                return;
+            }
 
             if (fFrameLeft == fFrameRight || fFrameTop == fFrameBottom)
             {
@@ -350,26 +94,35 @@ namespace SetImageLayout
                     return;
                 }
             }
-            if (dynamicDotNetTwain.SetImageLayout(fFrameLeft, fFrameTop, fFrameRight, fFrameBottom) == false)
-                MessageBox.Show(dynamicDotNetTwain.ErrorString, "Error");
+            if (m_TwainManager.SetImageLayout(new Margin(fFrameLeft, fFrameTop, fFrameRight, fFrameBottom)) == false)
+            {
+                MessageBox.Show("Fail to set image layout","Error");
+            }
             else
             {
-                dynamicDotNetTwain.IfShowUI = false;
-                dynamicDotNetTwain.IfDisableSourceAfterAcquire = true;
-                dynamicDotNetTwain.EnableSource();
+                m_TwainManager.IfShowUI = false;
+
+                m_TwainManager.IfDisableSourceAfterAcquire = true;
+                m_TwainManager.EnableSource(this as IAcquireCallback);
             }
-		}
+        }
 
         float fDefaultFrameLeft, fDefaultFrameTop, fDefaultFrameRight, fDefaultFrameBottom;
+
+
         private void cbxSources_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (((ComboBox)sender).SelectedIndex >= 0 && ((ComboBox)sender).SelectedIndex < dynamicDotNetTwain.SourceCount)
+            if (((ComboBox)sender).SelectedIndex >= 0 && ((ComboBox)sender).SelectedIndex < m_TwainManager.SourceCount)
             {
-                dynamicDotNetTwain.SelectSourceByIndex(cbxSources.SelectedIndex);
-                dynamicDotNetTwain.OpenSource();
-                dynamicDotNetTwain.ResetImageLayout();
-                dynamicDotNetTwain.GetImageLayout(out fDefaultFrameLeft ,out fDefaultFrameTop ,out fDefaultFrameRight ,out fDefaultFrameBottom );
-                fDefaultFrameLeft = (float)((int)(fDefaultFrameLeft *10))/10;
+                m_TwainManager.SelectSourceByIndex(cbxSources.SelectedIndex);
+                m_TwainManager.OpenSource();
+                m_TwainManager.ResetImageLayout();
+                Margin tempMargin = m_TwainManager.GetImageLayout();
+                fDefaultFrameLeft = tempMargin.Left;
+                fDefaultFrameTop = tempMargin.Top;
+                fDefaultFrameRight = tempMargin.Right;
+                fDefaultFrameBottom = tempMargin.Bottom;
+                fDefaultFrameLeft = (float)((int)(fDefaultFrameLeft * 10)) / 10;
                 fDefaultFrameTop = (float)((int)(fDefaultFrameTop * 10)) / 10;
                 fDefaultFrameRight = (float)((int)(fDefaultFrameRight * 10)) / 10;
                 fDefaultFrameBottom = (float)((int)(fDefaultFrameBottom * 10)) / 10;
@@ -377,13 +130,47 @@ namespace SetImageLayout
                 edtFrameTop.Text = fDefaultFrameTop.ToString();
                 edtFrameRight.Text = fDefaultFrameRight.ToString();
                 edtFrameBottom.Text = fDefaultFrameBottom.ToString();
-                lblFrameLeft.Text = string.Format("(0 ~ " + fDefaultFrameRight.ToString()+")");
+                lblFrameLeft.Text = string.Format("(0 ~ " + fDefaultFrameRight.ToString() + ")");
                 lblFrameTop.Text = string.Format("(0 ~ " + fDefaultFrameBottom.ToString() + ")");
-                lblFrameRight.Text = string.Format("(0 ~ " + fDefaultFrameRight.ToString()+")");
-                lblFrameBottom.Text = string.Format("(0 ~ " + fDefaultFrameBottom.ToString()+")");
+                lblFrameRight.Text = string.Format("(0 ~ " + fDefaultFrameRight.ToString() + ")");
+                lblFrameBottom.Text = string.Format("(0 ~ " + fDefaultFrameBottom.ToString() + ")");
             }
         }
-	
-	}
-}
 
+        public void OnPostAllTransfers()
+        {
+        }
+
+        public bool OnPostTransfer(Bitmap bit)
+        {
+            m_ImageCore.IO.LoadImage(bit);
+            return true;
+        }
+
+        public void OnPreAllTransfers()
+        {
+        }
+
+        public bool OnPreTransfer()
+        {
+            return true;
+        }
+
+        public void OnSourceUIClose()
+        {
+        }
+
+        public void OnTransferCancelled()
+        {
+        }
+
+        public void OnTransferError()
+        {
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            m_TwainManager.Dispose();
+        }
+    }
+}

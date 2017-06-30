@@ -1,23 +1,51 @@
-﻿Imports Dynamsoft.DotNet.TWAIN.Wpf
+Imports System.Collections.Generic
+Imports System.Linq
+Imports System.Text
+Imports System.Windows
+Imports System.Windows.Controls
+Imports System.Windows.Data
+Imports System.Windows.Documents
+Imports System.Windows.Input
+Imports System.Windows.Media
+Imports System.Windows.Media.Imaging
+Imports System.Windows.Shapes
 Imports Microsoft.Win32
+Imports Dynamsoft.TWAIN
+Imports Dynamsoft.TWAIN.Interface
+Imports Dynamsoft.Core
 
+''' <summary>
+''' Interaction logic for ScanWindow.xaml
+''' </summary>
 Namespace WpfControlsDemo
     Partial Public Class ScanWindow
         Inherits Window
-
+        Implements Dynamsoft.TWAIN.Interface.IAcquireCallback
         Public Sub New()
             InitializeComponent()
-            m_twain = Nothing
             Try
-                lbScan.Background = New ImageBrush(New BitmapImage(New Uri(Window1.imageDirectory + "normal\\scan_now.png", UriKind.RelativeOrAbsolute)))
-            Catch ex As Exception
+                lbScan.Background = New ImageBrush(New BitmapImage(New Uri(Window1.imageDirectory & "normal\scan_now.png", UriKind.RelativeOrAbsolute)))
+            Catch
             End Try
             lbScan.IsEnabled = False
+            AddHandler Me.Closing, New System.ComponentModel.CancelEventHandler(AddressOf ScanWindow_Closing)
+            m_RefreshInfo = New RefreshImageBufferInfo(AddressOf RefreshImageInfo)
         End Sub
 
-        Private Sub ScanWindow_Closing(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles Me.Closing
+        Private m_TotalImageTextBox As TextBox = Nothing
+
+        Public Sub SetTotalImageTextBox(tbx As TextBox)
+            m_TotalImageTextBox = tbx
+        End Sub
+
+        Private m_CurrentImageTextBox As TextBox = Nothing
+
+        Public Sub SetCurrentImageTextBox(tbx As TextBox)
+            m_CurrentImageTextBox = tbx
+        End Sub
+        Private Sub ScanWindow_Closing(sender As Object, e As System.ComponentModel.CancelEventArgs)
             If m_twain IsNot Nothing Then
-                If m_twain.DataSourceStatus = Dynamsoft.DotNet.TWAIN.Enums.TWDataSourceStatus.TWDSS_ACQUIRING Then
+                If m_twain.DataSourceStatus = Dynamsoft.TWAIN.Enums.TWDataSourceStatus.TWDSS_ACQUIRING Then
                     e.Cancel = True
                     MessageBox.Show("There are some uncompleted scanning tasks. Please wait until the tasks completes.", "WpfControlsDemo", MessageBoxButton.OK, MessageBoxImage.Warning)
                 Else
@@ -27,41 +55,54 @@ Namespace WpfControlsDemo
             End If
         End Sub
 
-        Private m_twain As Dynamsoft.DotNet.TWAIN.Wpf.DynamicDotNetTwain
+        Private m_twain As TwainManager = Nothing
 
-        Public WriteOnly Property TWAIN() As DynamicDotNetTwain
-            Set(ByVal value As DynamicDotNetTwain)
+        Public WriteOnly Property TWAIN() As Dynamsoft.TWAIN.TwainManager
+            Set(value As Dynamsoft.TWAIN.TwainManager)
                 m_twain = value
-                If (Not m_twain Is Nothing) Then
-                    Dim i As Integer
-                    For i = 0 To m_twain.SourceCount - 1
+                If m_twain IsNot Nothing Then
+                    For i As Integer = 0 To m_twain.SourceCount - 1
                         cbxSources.Items.Add(m_twain.SourceNameItems(CShort(i)))
                     Next
-                End If
-                If (m_twain.SourceCount > 0) Then
-                    cbxSources.SelectedIndex = 0
-                    lbScan.IsEnabled = True
-                Else
-                    MessageBox.Show("There is no scan source!", "Scan Warning", MessageBoxButton.OK, MessageBoxImage.Warning)
-                    lbScan.IsEnabled = False
+                    If m_twain.SourceCount > 0 Then
+                        cbxSources.SelectedIndex = 0
+                        lbScan.IsEnabled = True
+                    Else
+                        MessageBox.Show("There is no scan source!", "Scan Warning", MessageBoxButton.OK, MessageBoxImage.Warning)
+                        lbScan.IsEnabled = False
+                    End If
                 End If
             End Set
         End Property
 
-        Private Sub lbScan_MouseDown(ByVal sender As Object, ByVal e As MouseButtonEventArgs)
-            Dim key As String : key = "active/" + "scan_now"
-            If (Not Window1.icons.ContainsKey(key)) Then
+        Private m_CoreForImageThum As ImageCore = Nothing
+        Public WriteOnly Property CoreForImageThum() As ImageCore
+            Set(value As ImageCore)
+                m_CoreForImageThum = value
+            End Set
+        End Property
+
+        Private m_CoreForViewer As ImageCore = Nothing
+        Public WriteOnly Property CoreForImageViewer() As ImageCore
+            Set(value As ImageCore)
+                m_CoreForViewer = value
+            End Set
+        End Property
+
+        Private Sub lbScan_MouseDown(sender As Object, e As MouseButtonEventArgs)
+            Dim key As String = "active/" & "scan_now"
+            If Not Window1.icons.ContainsKey(key) Then
                 Try
-                    Window1.icons.Add(key, New ImageBrush(New BitmapImage(New Uri(Window1.imageDirectory + key + ".png", UriKind.RelativeOrAbsolute))))
-                Catch ex As Exception
+                    Window1.icons.Add(key, New ImageBrush(New BitmapImage(New Uri(Window1.imageDirectory & key & ".png", UriKind.RelativeOrAbsolute))))
+                Catch
                 End Try
             End If
             Try
                 lbScan.Background = Window1.icons(key)
-            Catch ex As Exception
+            Catch
             End Try
 
-            If (Not m_twain Is Nothing) Then
+            If m_twain IsNot Nothing Then
                 If Not IsFrameworkSatisfied() Then
                     MessageBox.Show("WPF requires .NET Framework 3.5 SP1 or above. Please upgrade your .NET Framework.", "WpfControlsDemo", MessageBoxButton.OK, MessageBoxImage.Information)
                     Return
@@ -72,60 +113,60 @@ Namespace WpfControlsDemo
                 m_twain.IfShowUI = ckbShowUI.IsChecked.Value
                 m_twain.IfFeederEnabled = ckbADF.IsChecked.Value
                 m_twain.IfDuplexEnabled = ckbDuplex.IsChecked.Value
-                If (rbBW.IsChecked.Value) Then
-                    m_twain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_BW
+                If rbBW.IsChecked.Value Then
+                    m_twain.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_BW
                     m_twain.BitDepth = 1
-                ElseIf (rbGrey.IsChecked.Value) Then
-                    m_twain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_GRAY
+                ElseIf rbGrey.IsChecked.Value Then
+                    m_twain.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_GRAY
                     m_twain.BitDepth = 8
-                ElseIf (rbColorful.IsChecked.Value) Then
-                    m_twain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_RGB
+                ElseIf rbColorful.IsChecked.Value Then
+                    m_twain.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_RGB
                     m_twain.BitDepth = 24
                 End If
-                m_twain.AcquireImage()
+                m_twain.AcquireImage(TryCast(Me, IAcquireCallback))
             End If
         End Sub
 
-        Private Sub lbScan_MouseEnter(ByVal sender As Object, ByVal e As MouseEventArgs)
-            Dim key As String : key = "hover/" + "scan_now"
-            If (Not Window1.icons.ContainsKey(key)) Then
+        Private Sub lbScan_MouseEnter(sender As Object, e As MouseEventArgs)
+            Dim key As String = "hover/" & "scan_now"
+            If Not Window1.icons.ContainsKey(key) Then
                 Try
-                    Window1.icons.Add(key, New ImageBrush(New BitmapImage(New Uri(Window1.imageDirectory + key + ".png", UriKind.RelativeOrAbsolute))))
-                Catch ex As Exception
+                    Window1.icons.Add(key, New ImageBrush(New BitmapImage(New Uri(Window1.imageDirectory & key & ".png", UriKind.RelativeOrAbsolute))))
+                Catch
                 End Try
             End If
             Try
                 lbScan.Background = Window1.icons(key)
-            Catch ex As Exception
+            Catch
             End Try
         End Sub
 
-        Private Sub lbScan_MouseLeave(ByVal sender As Object, ByVal e As MouseEventArgs)
-            Dim key As String : key = "normal/" + "scan_now"
-            If (Not Window1.icons.ContainsKey(key)) Then
+        Private Sub lbScan_MouseLeave(sender As Object, e As MouseEventArgs)
+            Dim key As String = "normal/" & "scan_now"
+            If Not Window1.icons.ContainsKey(key) Then
                 Try
-                    Window1.icons.Add(key, New ImageBrush(New BitmapImage(New Uri(Window1.imageDirectory + key + ".png", UriKind.RelativeOrAbsolute))))
-                Catch ex As Exception
+                    Window1.icons.Add(key, New ImageBrush(New BitmapImage(New Uri(Window1.imageDirectory & key & ".png", UriKind.RelativeOrAbsolute))))
+                Catch
                 End Try
             End If
             Try
                 lbScan.Background = Window1.icons(key)
-            Catch ex As Exception
+            Catch
             End Try
         End Sub
 
         Private Function IsFrameworkSatisfied() As Boolean
-            Dim iMajorVersion As Integer : iMajorVersion = Environment.Version.Major
+            Dim iMajorVersion As Integer = Environment.Version.Major
             If iMajorVersion = 2 Then
-                Dim msKey As RegistryKey : msKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\NET Framework Setup\\NDP")
-                If msKey.Equals(Nothing) Then
+                Dim msKey As RegistryKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\Microsoft\NET Framework Setup\NDP")
+                If msKey Is Nothing Then
                     Return False
                 End If
-                Dim netVersion As RegistryKey : netVersion = msKey.OpenSubKey("v3.5")
-                If Not netVersion.GetValue("Install") = Nothing Then
+                Dim netVersion As RegistryKey = msKey.OpenSubKey("v3.5")
+                If netVersion.GetValue("Install") IsNot Nothing Then
                     If netVersion.GetValue("Install").ToString() = "1" Then
-                        Dim objSp As Object : objSp = netVersion.GetValue("SP")
-                        If (Not objSp = Nothing) And objSp.ToString().CompareTo("0") > 0 Then
+                        Dim objSP As Object = netVersion.GetValue("SP")
+                        If objSP IsNot Nothing AndAlso objSP.ToString().CompareTo("0") > 0 Then
                             Return True
                         End If
                     End If
@@ -135,5 +176,53 @@ Namespace WpfControlsDemo
 
             Return True
         End Function
+
+#Region "IAcquireCallback Members"
+
+        Public Sub OnPostAllTransfers() Implements IAcquireCallback.OnPostAllTransfers
+        End Sub
+
+        Private Delegate Sub RefreshImageBufferInfo(iCurrentImageIndex As Integer, iTotalImageCount As Integer)
+        Private m_RefreshInfo As RefreshImageBufferInfo
+
+        Private Sub RefreshImageInfo(iCurrentIndex As Integer, iTotalImageCount As Integer)
+            m_CurrentImageTextBox.Text = iCurrentIndex.ToString()
+            m_TotalImageTextBox.Text = iTotalImageCount.ToString()
+        End Sub
+
+        Public Function OnPostTransfer(bit As System.Drawing.Bitmap) As Boolean Implements IAcquireCallback.OnPostTransfer
+            If m_CoreForImageThum IsNot Nothing Then
+                m_CoreForImageThum.IO.LoadImage(bit)
+                m_RefreshInfo((m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer + 1), m_CoreForImageThum.ImageBuffer.HowManyImagesInBuffer())
+            End If
+
+            If m_CoreForViewer IsNot Nothing Then
+                If m_CoreForViewer.ImageBuffer.CurrentImageIndexInBuffer = -1 Then
+                    m_CoreForViewer.IO.LoadImage(m_CoreForImageThum.ImageBuffer.GetBitmap(m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer))
+                Else
+                    m_CoreForViewer.ImageBuffer.SetBitmap(m_CoreForViewer.ImageBuffer.CurrentImageIndexInBuffer, m_CoreForImageThum.ImageBuffer.GetBitmap(m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer))
+                End If
+            End If
+            Return True
+        End Function
+
+        Public Sub OnPreAllTransfers() Implements IAcquireCallback.OnPreAllTransfers
+        End Sub
+
+        Public Function OnPreTransfer() As Boolean Implements IAcquireCallback.OnPreTransfer
+            Return True
+        End Function
+
+        Public Sub OnSourceUIClose() Implements IAcquireCallback.OnSourceUIClose
+        End Sub
+
+        Public Sub OnTransferCancelled() Implements IAcquireCallback.OnTransferCancelled
+        End Sub
+
+        Public Sub OnTransferError() Implements IAcquireCallback.OnTransferError
+        End Sub
+
+#End Region
     End Class
 End Namespace
+

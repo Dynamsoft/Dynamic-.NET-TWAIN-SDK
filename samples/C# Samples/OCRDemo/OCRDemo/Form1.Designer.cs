@@ -1,4 +1,4 @@
-namespace OCRDemo
+﻿namespace OCRDemo
 {
     partial class Form1
     {
@@ -30,7 +30,6 @@ namespace OCRDemo
         {
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnSelectedOCR = new System.Windows.Forms.Button();
-            this.dynamicDotNetTwain1 = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
             this.ddlResultFormat = new System.Windows.Forms.ComboBox();
             this.lblFormat = new System.Windows.Forms.Label();
             this.grpOCRResult = new System.Windows.Forms.GroupBox();
@@ -49,6 +48,7 @@ namespace OCRDemo
             this.cbxViewMode = new System.Windows.Forms.ComboBox();
             this.lblViewMode = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
             this.grpOCRResult.SuspendLayout();
             this.grpSelectedArea.SuspendLayout();
             this.SuspendLayout();
@@ -72,29 +72,6 @@ namespace OCRDemo
             this.btnSelectedOCR.Text = "OCR Selected Images";
             this.btnSelectedOCR.UseVisualStyleBackColor = true;
             this.btnSelectedOCR.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // dynamicDotNetTwain1
-            // 
-            this.dynamicDotNetTwain1.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain1.AnnotationPen = null;
-            this.dynamicDotNetTwain1.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain1.AnnotationTextFont = null;
-            this.dynamicDotNetTwain1.IfShowCancelDialogWhenImageTransfer = false;
-            this.dynamicDotNetTwain1.IfShowPrintUI = false;
-            this.dynamicDotNetTwain1.IfThrowException = false;
-            this.dynamicDotNetTwain1.Location = new System.Drawing.Point(18, 21);
-            this.dynamicDotNetTwain1.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain1.Name = "dynamicDotNetTwain1";
-            this.dynamicDotNetTwain1.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFXConformance = ((uint)(0u));
-            this.dynamicDotNetTwain1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.dynamicDotNetTwain1.Size = new System.Drawing.Size(514, 434);
-            this.dynamicDotNetTwain1.TabIndex = 4;
-            this.dynamicDotNetTwain1.OnImageAreaSelected += new Dynamsoft.DotNet.TWAIN.Delegate.OnImageAreaSelectedHandler(this.dynamicDotNetTwain1_OnImageAreaSelected);
-            this.dynamicDotNetTwain1.OnImageAreaDeselected += new Dynamsoft.DotNet.TWAIN.Delegate.OnImageAreaDeselectedHandler(this.dynamicDotNetTwain1_OnImageAreaDeselected);
             // 
             // ddlResultFormat
             // 
@@ -275,19 +252,28 @@ namespace OCRDemo
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(293, 13);
             this.label1.TabIndex = 23;
-            this.label1.Text = "Note: PDF Rasterizer add-on is used when loading PDF files.";
+            this.label1.Text = "Note: PDF library is used when loading PDF files.";
+            // 
+            // dsViewer1
+            // 
+            this.dsViewer1.Location = new System.Drawing.Point(12, 12);
+            this.dsViewer1.Name = "dsViewer1";
+            this.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dsViewer1.SelectionRectAspectRatio = 0D;
+            this.dsViewer1.Size = new System.Drawing.Size(520, 439);
+            this.dsViewer1.TabIndex = 24;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(764, 482);
+            this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblViewMode);
             this.Controls.Add(this.cbxViewMode);
             this.Controls.Add(this.grpSelectedArea);
             this.Controls.Add(this.grpOCRResult);
-            this.Controls.Add(this.dynamicDotNetTwain1);
             this.Controls.Add(this.btnLoad);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -307,7 +293,6 @@ namespace OCRDemo
 
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.Button btnSelectedOCR;
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain1;
         private System.Windows.Forms.ComboBox ddlResultFormat;
         private System.Windows.Forms.Label lblFormat;
         private System.Windows.Forms.GroupBox grpOCRResult;
@@ -326,6 +311,7 @@ namespace OCRDemo
         private System.Windows.Forms.ComboBox cbxViewMode;
         private System.Windows.Forms.Label lblViewMode;
         private System.Windows.Forms.Label label1;
+        private Dynamsoft.Forms.DSViewer dsViewer1;
     }
 }
 

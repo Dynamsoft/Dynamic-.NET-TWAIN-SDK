@@ -1,4 +1,4 @@
-﻿namespace BarcodeDemo
+﻿namespace BarcodeReader
 {
     partial class Form1
     {
@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dynamicDotNetTwain1 = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
             this.btnOpen = new System.Windows.Forms.Button();
             this.btnRecognize = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -46,37 +45,13 @@
             this.lblLeft = new System.Windows.Forms.Label();
             this.lblRight = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
             this.gbSelectedArea.SuspendLayout();
             this.SuspendLayout();
             // 
-            // dynamicDotNetTwain1
-            // 
-            this.dynamicDotNetTwain1.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain1.AnnotationPen = null;
-            this.dynamicDotNetTwain1.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain1.AnnotationTextFont = null;
-            this.dynamicDotNetTwain1.IfShowCancelDialogWhenImageTransfer = false;
-            this.dynamicDotNetTwain1.IfShowPrintUI = false;
-            this.dynamicDotNetTwain1.IfThrowException = false;
-            this.dynamicDotNetTwain1.Location = new System.Drawing.Point(12, 12);
-            this.dynamicDotNetTwain1.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain1.Name = "dynamicDotNetTwain1";
-            this.dynamicDotNetTwain1.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFXConformance = ((uint)(0u));
-            this.dynamicDotNetTwain1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.dynamicDotNetTwain1.Size = new System.Drawing.Size(458, 303);
-            this.dynamicDotNetTwain1.TabIndex = 0;
-            this.dynamicDotNetTwain1.OnImageAreaDeselected += new Dynamsoft.DotNet.TWAIN.Delegate.OnImageAreaDeselectedHandler(this.dynamicDotNetTwain1_OnImageAreaDeselected);
-            this.dynamicDotNetTwain1.OnImageAreaSelected += new Dynamsoft.DotNet.TWAIN.Delegate.OnImageAreaSelectedHandler(this.dynamicDotNetTwain1_OnImageAreaSelected);
-            this.dynamicDotNetTwain1.OnPostAllTransfers += new Dynamsoft.DotNet.TWAIN.Delegate.OnPostAllTransfersHandler(this.dynamicDotNetTwain1_OnPostAllTransfers);
-            this.dynamicDotNetTwain1.OnTopImageInTheViewChanged += new Dynamsoft.DotNet.TWAIN.Delegate.OnTopImageInTheViewChangedHandler(this.dynamicDotNetTwain1_OnTopImageInTheViewChanged);
-            // 
             // btnOpen
             // 
-            this.btnOpen.Location = new System.Drawing.Point(12, 320);
+            this.btnOpen.Location = new System.Drawing.Point(12, 328);
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Size = new System.Drawing.Size(75, 23);
             this.btnOpen.TabIndex = 1;
@@ -119,9 +94,9 @@
             this.lblMaxNum.AutoSize = true;
             this.lblMaxNum.Location = new System.Drawing.Point(253, 356);
             this.lblMaxNum.Name = "lblMaxNum";
-            this.lblMaxNum.Size = new System.Drawing.Size(91, 13);
+            this.lblMaxNum.Size = new System.Drawing.Size(150, 13);
             this.lblMaxNum.TabIndex = 6;
-            this.lblMaxNum.Text = "Maximum Number";
+            this.lblMaxNum.Text = "Maximum Number of barcodes";
             // 
             // cbxFormat
             // 
@@ -133,7 +108,7 @@
             // 
             // tbxMaxNum
             // 
-            this.tbxMaxNum.Location = new System.Drawing.Point(350, 353);
+            this.tbxMaxNum.Location = new System.Drawing.Point(403, 354);
             this.tbxMaxNum.Name = "tbxMaxNum";
             this.tbxMaxNum.Size = new System.Drawing.Size(46, 20);
             this.tbxMaxNum.TabIndex = 8;
@@ -231,14 +206,24 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(458, 13);
             this.label1.TabIndex = 15;
-            this.label1.Text = "Note: PDF Rasterizer add-on is used when loading PDF files.";
+            this.label1.Text = "Note: PDF library is used when loading PDF files.";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // dsViewer1
+            // 
+            this.dsViewer1.Location = new System.Drawing.Point(0, 0);
+            this.dsViewer1.Name = "dsViewer1";
+            this.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dsViewer1.SelectionRectAspectRatio = 0D;
+            this.dsViewer1.Size = new System.Drawing.Size(487, 322);
+            this.dsViewer1.TabIndex = 0;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(488, 600);
+            this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.gbSelectedArea);
             this.Controls.Add(this.tbxMaxNum);
@@ -248,7 +233,6 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.btnRecognize);
             this.Controls.Add(this.btnOpen);
-            this.Controls.Add(this.dynamicDotNetTwain1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "Form1";
@@ -262,7 +246,8 @@
 
         #endregion
 
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain1;
+
+
         private System.Windows.Forms.Button btnOpen;
         private System.Windows.Forms.Button btnRecognize;
         private System.Windows.Forms.TextBox textBox1;
@@ -280,6 +265,7 @@
         private System.Windows.Forms.Label lblLeft;
         private System.Windows.Forms.Label lblRight;
         private System.Windows.Forms.Label label1;
+        private Dynamsoft.Forms.DSViewer dsViewer1;
     }
 }
 

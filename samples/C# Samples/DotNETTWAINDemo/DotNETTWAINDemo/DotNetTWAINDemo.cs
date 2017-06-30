@@ -7,12 +7,22 @@ using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Dynamsoft.DotNet.TWAIN;
 using Dynamsoft.Barcode;
+using Dynamsoft.TWAIN;
+using Dynamsoft.Core;
+using Dynamsoft.UVC;
+using Dynamsoft.OCR;
+using Dynamsoft.PDF;
+using Dynamsoft.Core.Annotation;
+using Dynamsoft.TWAIN.Interface;
+using Dynamsoft.Core.Enums;
+using System.IO;
+using Dynamsoft.Common;
+
 
 namespace DotNet_TWAIN_Demo
 {
-    public partial class DotNetTWAINDemo : Form
+    public partial class DotNetTWAINDemo : Form,IAcquireCallback,IConvertCallback,ISave
     {
         // For move the window
         private Point mouse_offset;
@@ -47,18 +57,40 @@ namespace DotNet_TWAIN_Demo
                 return cp;
             }
         }
+        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
 
+        private TwainManager m_TwainManager = null;
+        private ImageCore m_ImageCore = null;
+        private CameraManager m_CameraManager = null;
+        private PDFRasterizer m_PDFRasterizer = null;
+        private PDFCreator m_PDFCreator = null;
+        private Tesseract m_Tesseract = null;
+        private BarcodeReader m_BarcodeReader = null;
+        private BarcodeGenerator m_BarcodeGenerator = null;
+
+        private Camera m_Camera = null;
+        
         public DotNetTWAINDemo()
         {
             InitializeComponent();
             InitializeComponentForCustomControl();
+            m_TwainManager = new TwainManager(m_StrProductKey);
+            m_ImageCore = new ImageCore();
+            m_CameraManager = new CameraManager(m_StrProductKey);
+            m_PDFRasterizer = new PDFRasterizer(m_StrProductKey);
+            m_PDFCreator = new PDFCreator(m_StrProductKey);
+            m_Tesseract = new Tesseract(m_StrProductKey);
+            m_BarcodeReader = new BarcodeReader(m_StrProductKey);
+            m_BarcodeGenerator = new BarcodeGenerator(m_StrProductKey);
+
+            dsViewer.Bind(m_ImageCore);
 
             // Draw the background for the main form
             DrawBackground();
-
             Initialization();
-            this.dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
+
         }
+
 
         private void InitializeComponentForCustomControl()
         {
@@ -254,40 +286,26 @@ namespace DotNet_TWAIN_Demo
 
         protected void Initialization()
         {
-            string strPDFDllFolder = null;
-            string strBarcodeDllFolder = null;
-            string strOCRDllFolder = null;
             string strOCRTessDataFolder = null;
-            string strAddOnDllFolder = Application.ExecutablePath;
-            strAddOnDllFolder = strAddOnDllFolder.Replace("/", "\\");
-            if (!strAddOnDllFolder.EndsWith(@"\", false, System.Globalization.CultureInfo.CurrentCulture))
-                strAddOnDllFolder += @"\";
-            int pos = strAddOnDllFolder.LastIndexOf("\\Samples\\");
+            string strTempFolder = Application.ExecutablePath;
+            strTempFolder = strTempFolder.Replace("/", "\\");
+            if (!strTempFolder.EndsWith(@"\", false, System.Globalization.CultureInfo.CurrentCulture))
+                strTempFolder += @"\";
+            int pos = strTempFolder.LastIndexOf("\\Samples\\");
             if (pos != -1)
             {
-                strAddOnDllFolder = strAddOnDllFolder.Substring(0, strAddOnDllFolder.IndexOf(@"\", pos));
-                strOCRTessDataFolder = strAddOnDllFolder + @"\Samples\Bin\";
-                strAddOnDllFolder = strAddOnDllFolder+ @"\Redistributable\Resources\";
-                strPDFDllFolder = strAddOnDllFolder + @"PDF\";
-                strBarcodeDllFolder = strAddOnDllFolder + @"Barcode Generator\";
-                strOCRDllFolder = strAddOnDllFolder + @"OCR\";
+                strTempFolder = strTempFolder.Substring(0, strTempFolder.IndexOf(@"\", pos));
+                strOCRTessDataFolder = strTempFolder + @"\Samples\Bin\";
+                strTempFolder = strTempFolder+ @"\Redistributable\Resources\";
             }
             else
             {
-                pos = strAddOnDllFolder.LastIndexOf("\\");
-                strAddOnDllFolder = strAddOnDllFolder.Substring(0, strAddOnDllFolder.IndexOf(@"\", pos)) + @"\";
-                strPDFDllFolder = strAddOnDllFolder;
-                strBarcodeDllFolder = strAddOnDllFolder;
-                strOCRDllFolder = strAddOnDllFolder;
-                strOCRTessDataFolder = strAddOnDllFolder;
-             }
+                pos = strTempFolder.LastIndexOf("\\");
+                strTempFolder = Application.StartupPath + "\\Bin";
 
-            this.dynamicDotNetTwain.PDFRasterizerDllPath = strPDFDllFolder;
-            this.dynamicDotNetTwain.BarcodeDllPath = strBarcodeDllFolder;
-            this.dynamicDotNetTwain.OCRDllPath = strOCRDllFolder;
-            this.dynamicDotNetTwain.OCRTessDataPath = strOCRTessDataFolder;
-            this.dynamicDotNetTwain.IfShowCancelDialogWhenBarcodeOrOCR = true;
-            this.dynamicDotNetTwain.MaxImagesInBuffer = 64;
+                strOCRTessDataFolder = strTempFolder;
+             }
+            m_Tesseract.TessDataPath = strOCRTessDataFolder;
         }
         private void DotNetTWAINDemo_Load(object sender, EventArgs e)
         {
@@ -300,7 +318,8 @@ namespace DotNet_TWAIN_Demo
         /// </summary>
         private void InitUI()
         {
-            dynamicDotNetTwain.Visible = false;
+            //viewer1.Visible = false;
+            dsViewer.Visible = false;
             panelAnnotations.Visible = false;
 
             DisableAllFunctionButtons();
@@ -345,7 +364,6 @@ namespace DotNet_TWAIN_Demo
             this.picboxLoadImage.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
             this.picboxLoadImage.Click += new System.EventHandler(this.picboxLoadImage_Click);
             this.picboxLoadImage.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
-            //this.picboxLoadImage.MouseHover += new System.EventHandler(this.picbox_MouseHover);
             this.picboxLoadImage.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
             this.picboxLoadImage.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
 
@@ -399,7 +417,6 @@ namespace DotNet_TWAIN_Demo
             DisableControls(picboxAddBarcode);
 
             //Read Barcode
-            //this.cbxBarcodeFormat.DataSource = Enum.GetValues(typeof(Dynamsoft.Barcode.BarcodeFormat));
             cbxBarcodeFormat.Items.Add("All");
             cbxBarcodeFormat.Items.Add("OneD");
             cbxBarcodeFormat.Items.Add("Code 39");
@@ -438,53 +455,61 @@ namespace DotNet_TWAIN_Demo
         {
             try
             {
-               // dynamicDotNetTwain.IfThrowException = true;
-                dynamicDotNetTwain.SupportedDeviceType = Dynamsoft.DotNet.TWAIN.Enums.EnumSupportedDeviceType.SDT_ALL;
-                dynamicDotNetTwain.ScanInNewProcess = true;
-                dynamicDotNetTwain.IfFitWindow = true;
-                dynamicDotNetTwain.MouseShape = false;
-                dynamicDotNetTwain.SetViewMode(-1, -1);
+
+                dsViewer.IfFitWindow = true;
+                dsViewer.MouseShape = false;
+                dsViewer.SetViewMode(-1,-1);
                 this.cbxViewMode.SelectedIndex = 0;
 
                 // Init the sources for TWAIN scanning and Webcam grab, show in the cbxSources controls
-                if (dynamicDotNetTwain.SourceCount > 0)
+                if (m_TwainManager.SourceCount > 0)
                 {
                     bool hasTwainSource = false;
-                    bool hasWebcamSource = false;
                     cbxSource.Items.Clear();
-                    for (int i = 0; i < dynamicDotNetTwain.SourceCount; ++i)
+                    for (int i = 0; i < m_TwainManager.SourceCount; ++i)
                     {
-                        cbxSource.Items.Add(dynamicDotNetTwain.SourceNameItems((short)i));
-                        Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType enumDeviceType = dynamicDotNetTwain.GetSourceType((short)i);
-                        if (enumDeviceType == Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType.SDT_TWAIN)
-                            hasTwainSource = true;
-                        else if (enumDeviceType == Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType.SDT_WEBCAM)
-                            hasWebcamSource = true;
+                        cbxSource.Items.Add(m_TwainManager.SourceNameItems((short)i));
+                        hasTwainSource = true;
                     }
+                        if (hasTwainSource)
+                        {
+                            cbxSource.Enabled = true;
+                            chkShowUI.Enabled = true;
+                            chkADF.Enabled = true;
+                            chkDuplex.Enabled = true;
+                            cbxResolution.Enabled = true;
+                            rdbtnGray.Checked = true;
+                            cbxResolution.SelectedIndex = 0;
+                            EnableControls(this.picboxScan);
+                        }
 
-                    if (hasTwainSource)
+                }
+                int iSourceCount = 0;
+                if(m_CameraManager.GetCameraNames()!=null)
+                {
+                    iSourceCount = m_CameraManager.GetCameraNames().Count;
+                }
+                if(iSourceCount>0)
+                {
+                    bool hasWebcamSource = false;
+                    for (int i = 0; i < iSourceCount; i++)
                     {
-                        cbxSource.Enabled = true;
-                        chkShowUI.Enabled = true;
-                        chkADF.Enabled = true;
-                        chkDuplex.Enabled = true;
-                        cbxResolution.Enabled = true;
-                        rdbtnGray.Checked = true;
-                        cbxResolution.SelectedIndex = 0;
-                        EnableControls(this.picboxScan);
+                        cbxSource.Items.Add(m_CameraManager.GetCameraNames()[i]);
+                        hasWebcamSource = true;
                     }
-
                     if (hasWebcamSource)
                     {
                         chkShowUIForWebcam.Enabled = true;
-                        cbxMediaType.Enabled = true;
                         cbxResolutionForWebcam.Enabled = true;
                         EnableControls(this.picboxGrab);
                     }
-                    
+                 }
+
+                if (cbxSource.Items.Count > 0)
+                {
                     cbxSource.SelectedIndex = 0;
-                    //dynamicDotNetTwain.SelectSourceByIndex((short)cbxSource.SelectedIndex);
                 }
+
             }
             catch (System.Exception ex)
             {
@@ -573,19 +598,19 @@ namespace DotNet_TWAIN_Demo
             EnableControls(this.picboxFit);
             EnableControls(this.picboxOriginalSize);
 
-            if (dynamicDotNetTwain.HowManyImagesInBuffer > 1)
+            if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 1)
             {
                 EnableControls(this.picboxFirst);
                 EnableControls(this.picboxPrevious);
                 EnableControls(this.picboxNext);
                 EnableControls(this.picboxLast);
 
-                if (dynamicDotNetTwain.CurrentImageIndexInBuffer == 0)
+                if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer == 0)
                 {
                     DisableControls(picboxPrevious);
                     DisableControls(picboxFirst);
                 }
-                if (dynamicDotNetTwain.CurrentImageIndexInBuffer + 1 == dynamicDotNetTwain.HowManyImagesInBuffer)
+                if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer + 1 == m_ImageCore.ImageBuffer.HowManyImagesInBuffer)
                 {
                     DisableControls(picboxNext);
                     DisableControls(picboxLast);
@@ -750,6 +775,7 @@ namespace DotNet_TWAIN_Demo
             }
         }
 
+        private CameraUI m_CameraUI = null;
         /// <summary>
         /// Acquire image from the selected source
         /// </summary>
@@ -757,56 +783,69 @@ namespace DotNet_TWAIN_Demo
         {
             try
             {
-                // Select the source for TWAIN
-                dynamicDotNetTwain.SelectSourceByIndex((short)cbxSource.SelectedIndex);
-                dynamicDotNetTwain.OpenSource();
-                // Set the image fit the size of window
-                //dynamicDotNetTwain.IfFitWindow = true;
-                //dynamicDotNetTwain.MouseShape = false;
 
-                dynamicDotNetTwain.IfShowUI = chkShowUI.Checked;
-
-                // if (chkADF.Enabled)
-                // dynamicDotNetTwain.IfAutoFeed = dynamicDotNetTwain.IfFeederEnabled = chkADF.Checked;
-                dynamicDotNetTwain.IfFeederEnabled = chkADF.Checked;
-                //dynamicDotNetTwain.IfAutoFeed = chkADF.Checked;
-                // if (chkDuplex.Enabled)
-                dynamicDotNetTwain.IfDuplexEnabled = chkDuplex.Checked;
-
-                // Need to open source first
-                // dynamicDotNetTwain.OpenSource();
-                dynamicDotNetTwain.IfDisableSourceAfterAcquire = true;
-
-                if (rdbtnBW.Checked)
+                short sSourceIndex = 0;
+                sSourceIndex = (short)cbxSource.SelectedIndex;
+                short sTwainSourceCount = m_TwainManager.SourceCount;
+                short sCameraSourceCount = 0;
+                if (m_CameraManager.GetCameraNames()!=null)
                 {
-                    dynamicDotNetTwain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_BW;
-                    dynamicDotNetTwain.BitDepth = 1;
+                    sCameraSourceCount = (short)m_CameraManager.GetCameraNames().Count;
                 }
-                else if (rdbtnGray.Checked)
+
+                if (sSourceIndex < sTwainSourceCount)
                 {
-                    dynamicDotNetTwain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_GRAY;
-                    dynamicDotNetTwain.BitDepth = 8;
+                    m_TwainManager.SelectSourceByIndex(sSourceIndex);
+                    m_TwainManager.OpenSource();
+                    m_TwainManager.IfShowUI = chkShowUI.Checked;
+                    m_TwainManager.IfFeederEnabled = chkADF.Checked;
+                    m_TwainManager.IfDuplexEnabled = chkDuplex.Checked;
+                    m_TwainManager.IfDisableSourceAfterAcquire = true;
+
+
+
+                    if (rdbtnBW.Checked)
+                    {
+                        m_TwainManager.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_BW;
+                        m_TwainManager.BitDepth = 1;
+                    }
+                    else if (rdbtnGray.Checked)
+                    {
+                        m_TwainManager.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_GRAY;
+                        m_TwainManager.BitDepth = 8;
+                    }
+                    else
+                    {
+                        m_TwainManager.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_RGB;
+                        m_TwainManager.BitDepth = 24;
+                    }
+                    m_TwainManager.Resolution = int.Parse(cbxResolution.Text);
+                    m_TwainManager.AcquireImage(this as IAcquireCallback);
                 }
                 else
                 {
-                    dynamicDotNetTwain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_RGB;
-                    dynamicDotNetTwain.BitDepth = 24;
+                    short sCameraIndex = (short)(sSourceIndex - sTwainSourceCount);
+                    m_Camera = m_CameraManager.SelectCamera(sCameraIndex);
+                    if (m_CameraUI.IsDisposed||m_CameraUI == null)
+                    {
+                        m_CameraUI = new CameraUI();
+                    }
+                    m_CameraUI.Camera = m_Camera;
+                    m_Camera.Open();
+                    m_CameraUI.ClientSize = new Size(m_Camera.CurrentResolution.Width, m_Camera.CurrentResolution.Height);
+                    m_CameraUI.Show();
                 }
 
-
-                dynamicDotNetTwain.Resolution = int.Parse(cbxResolution.Text);
-                // Acquire image from the source
-                if (!dynamicDotNetTwain.AcquireImage())
-                    MessageBox.Show(dynamicDotNetTwain.ErrorString, "Scan error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            catch (System.Exception ex)
+            catch (Exception exp)
             {
-                MessageBox.Show("An exception occurs: " + ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw exp;
             }
             finally
             {
-                if (dynamicDotNetTwain.ErrorCode != Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed)
-                    EnableControls(picboxScan);
+                EnableControls(picboxScan);
+                dsViewer.Visible = true;
+                checkImageCount();
             }
         }
 
@@ -864,251 +903,373 @@ namespace DotNet_TWAIN_Demo
         /// <param name="e"></param>
         private void picboxSave_Click(object sender, EventArgs e)
         {
-            string fileName = tbxSaveFileName.Text.Trim();
-            if (VerifyFileName(fileName))
+            try
             {
-                saveFileDialog.FileName = this.tbxSaveFileName.Text;
+                string fileName = tbxSaveFileName.Text.Trim();
+                if (VerifyFileName(fileName))
+                {
+                    saveFileDialog.FileName = this.tbxSaveFileName.Text;
 
-                if (rdbtnJPG.Checked)
-                {
-                    saveFileDialog.Filter = "JPEG|*.JPG;*.JPEG;*.JPE;*.JFIF";
-                    saveFileDialog.DefaultExt = "jpg";
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    if (rdbtnJPG.Checked)
                     {
-                        dynamicDotNetTwain.SaveAsJPEG(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer);
-                    }
-                }
-                if (rdbtnBMP.Checked)
-                {
-                    saveFileDialog.Filter = "BMP|*.BMP";
-                    saveFileDialog.DefaultExt = "bmp";
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        dynamicDotNetTwain.SaveAsBMP(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer);
-                    }
-                }
-                if (rdbtnPNG.Checked)
-                {
-                    saveFileDialog.Filter = "PNG|*.PNG";
-                    saveFileDialog.DefaultExt = "png";
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        dynamicDotNetTwain.SaveAsPNG(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer);
-                    }
-                }
-                if (rdbtnTIFF.Checked)
-                {
-                    saveFileDialog.Filter = "TIFF|*.TIF;*.TIFF";
-                    saveFileDialog.DefaultExt = "tiff";
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        // Multi page TIFF
-                        if (chkMultiPage.Checked == true)
+                        saveFileDialog.Filter = "JPEG|*.JPG;*.JPEG;*.JPE;*.JFIF";
+                        saveFileDialog.DefaultExt = "jpg";
+                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
                         {
-                            dynamicDotNetTwain.SaveAllAsMultiPageTIFF(saveFileDialog.FileName);
-                        }
-                        else
-                        {
-                            dynamicDotNetTwain.SaveAsTIFF(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer);
+                            m_ImageCore.IO.SaveAsJPEG(saveFileDialog.FileName, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
                     }
-                }
-                if (rdbtnPDF.Checked)
-                {
-                    saveFileDialog.Filter = "PDF|*.PDF";
-                    saveFileDialog.DefaultExt = "pdf";
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    if (rdbtnBMP.Checked)
                     {
-                        // Multi page PDF
-                        dynamicDotNetTwain.IfSaveAnnotations = true;
-                        if (chkMultiPage.Checked == true)
+                        saveFileDialog.Filter = "BMP|*.BMP";
+                        saveFileDialog.DefaultExt = "bmp";
+                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
                         {
-                            dynamicDotNetTwain.SaveAllAsPDF(saveFileDialog.FileName);
-                        }
-                        else
-                        {
-                            dynamicDotNetTwain.SaveAsPDF(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer);
+                            m_ImageCore.IO.SaveAsBMP(saveFileDialog.FileName, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
                     }
+                    if (rdbtnPNG.Checked)
+                    {
+                        saveFileDialog.Filter = "PNG|*.PNG";
+                        saveFileDialog.DefaultExt = "png";
+                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            m_ImageCore.IO.SaveAsPNG(saveFileDialog.FileName, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                        }
+                    }
+                    if (rdbtnTIFF.Checked)
+                    {
+                        saveFileDialog.Filter = "TIFF|*.TIF;*.TIFF";
+                        saveFileDialog.DefaultExt = "tiff";
+                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            // Multi page TIFF
+                            List<short> tempListIndex = new List<short>();
+                            if (chkMultiPage.Checked == true)
+                            {
+
+                                for (short sIndex = 0; sIndex < m_ImageCore.ImageBuffer.HowManyImagesInBuffer; sIndex++)
+                                {
+                                    tempListIndex.Add(sIndex);
+                                }
+                            }
+                            else
+                            {
+                                tempListIndex.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                            }
+                            m_ImageCore.IO.SaveAsTIFF(saveFileDialog.FileName, tempListIndex);
+                        }
+                    }
+                    if (rdbtnPDF.Checked)
+                    {
+                        saveFileDialog.Filter = "PDF|*.PDF";
+                        saveFileDialog.DefaultExt = "pdf";
+                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            // Multi page PDF
+                            m_PDFCreator.Save(this as ISave, saveFileDialog.FileName);
+
+                        }
+                    }
+                }
+                else
+                {
+                    this.tbxSaveFileName.Focus();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                this.tbxSaveFileName.Focus();
+                MessageBox.Show(ex.Message);
             }
         }
 
         private void picboxPoint_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.MouseShape = false;
-            dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumNone;
+
+            dsViewer.MouseShape = false;
+            dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumNone;
         }
 
         // Change mouse shape to hand, for move image
         private void picboxHand_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.MouseShape = true;
-            dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumNone;
+            dsViewer.MouseShape = true;
+            dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumNone;
         }
 
         private void picboxFit_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.IfFitWindow = true;
+            dsViewer.IfFitWindow = true;
             checkZoom();
         }
 
         private void picboxOriginalSize_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.IfFitWindow = false;
-            dynamicDotNetTwain.Zoom = 1;
+            dsViewer.IfFitWindow = false;
+            dsViewer.Zoom = 1;
             checkZoom();
         }
 
         private void picboxCut_Click(object sender, EventArgs e)
         {
             picboxPoint_Click(sender, null);
-            Rectangle rc = dynamicDotNetTwain.GetSelectionRect(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+            Rectangle rc = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
             if (rc.IsEmpty)
             {
                 MessageBox.Show("Please select the rectangle area first!", "Warning Info", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else
             {
-                dynamicDotNetTwain.CutFrameToClipboard(dynamicDotNetTwain.CurrentImageIndexInBuffer, rc.Left, rc.Top, rc.Right, rc.Bottom);
+                m_ImageCore.ImageProcesser.CutFrameToClipborad(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, rc.Left, rc.Top, rc.Right, rc.Bottom);
             }
         }
 
         private void picboxCrop_Click(object sender, EventArgs e)
         {
-            //if (dynamicDotNetTwain.AnnotationType != Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumNone)
-            //{
               picboxPoint_Click(sender, null);
-            //}    //what does this mean?
-            Rectangle rc = dynamicDotNetTwain.GetSelectionRect(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+            Rectangle rc = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
             if (rc.IsEmpty)
             {
-                //isToCrop = true;
-                //dynamicDotNetTwain.MouseShape = false;
-                //DisableAllFunctionButtons();//why this?
                MessageBox.Show("Please select the rectangle area first!", "Warning Info", MessageBoxButtons.OK,MessageBoxIcon.Warning);
             }
             else
             {
-                cropPicture(dynamicDotNetTwain.CurrentImageIndexInBuffer, rc);
+                cropPicture(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, rc);
             }
         }
 
         private void cropPicture(int imageIndex, Rectangle rc)
         {
-            dynamicDotNetTwain.Crop((short)imageIndex, rc.X, rc.Y, rc.X + rc.Width, rc.Y + rc.Height);
+            m_ImageCore.ImageProcesser.Crop((short)imageIndex, rc.X, rc.Y, rc.X + rc.Width, rc.Y + rc.Height);
         }
 
         private void picboxRotateLeft_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.RotateLeft(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+
+            int iImageWidth = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width;
+            int iImageHeight = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height;
+            List<AnnotationData> tempListAnnotation = (List<AnnotationData>)m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation);		
+            if (tempListAnnotation != null&&tempListAnnotation.Count!=0)			
+            {			
+                foreach(AnnotationData tempAnnotation in tempListAnnotation)
+                {		
+                    int	x = tempAnnotation.Location.Y;
+                    int	y = iImageWidth - (tempAnnotation.EndPoint.X);
+                    int	iWidth = (tempAnnotation.EndPoint.Y - tempAnnotation.StartPoint.Y);
+                    int iHeight = (tempAnnotation.EndPoint.X - tempAnnotation.StartPoint.X);	
+                    switch (tempAnnotation.AnnotationType)	
+                    {	
+                        case AnnotationType.enumEllipse:
+                        case AnnotationType.enumRectangle:
+                        case AnnotationType.enumText:
+                        tempAnnotation.StartPoint = new Point(x, y);
+                        tempAnnotation.EndPoint = new Point((tempAnnotation.StartPoint.X + iWidth), (tempAnnotation.StartPoint.Y + iHeight));
+                        break;
+                        case AnnotationType.enumLine:
+                        Point startPoint = tempAnnotation.StartPoint;
+                        x = startPoint.Y;
+                        y = iImageWidth - startPoint.X;
+                        tempAnnotation.StartPoint = new Point(x,y);
+                        Point endPoint = tempAnnotation.EndPoint;
+                        x = endPoint.Y;
+                        y = iImageWidth - endPoint.X;
+                        tempAnnotation.EndPoint = new Point(x,y);
+                    break;
+                    }
+                 }
+             }
+            m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, tempListAnnotation, true);
+            m_ImageCore.ImageProcesser.RotateLeft(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
         }
 
         private void picboxRotateRight_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.RotateRight(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+            int iImageWidth = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width;
+            int iImageHeight = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height;
+            List<AnnotationData> tempListAnnotation = (List<AnnotationData>)m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation);	
+            foreach (AnnotationData tempAnnotation in tempListAnnotation)
+            {
+                int x = iImageHeight - (tempAnnotation.Location.Y + tempAnnotation.Size.Height);
+                int y = tempAnnotation.Location.X;
+                int iWidth = tempAnnotation.Size.Height;
+                int iHeight = tempAnnotation.Size.Width;
+                switch (tempAnnotation.AnnotationType)
+                {
+                    case AnnotationType.enumEllipse:
+                    case AnnotationType.enumRectangle:
+                    case AnnotationType.enumText:
+                        tempAnnotation.StartPoint = new Point(x, y);
+                        tempAnnotation.EndPoint = new Point((tempAnnotation.StartPoint.X + iWidth), (tempAnnotation.StartPoint.Y + iHeight));
+                        break;
+                    case AnnotationType.enumLine:
+                        Point startPoint = tempAnnotation.StartPoint; 
+                        x = iImageHeight - startPoint.Y; 
+                        y = startPoint.X;
+                        tempAnnotation.StartPoint = new Point(x, y); 
+                        Point endPoint = tempAnnotation.EndPoint; 
+                        x = iImageHeight - endPoint.Y; 
+                        y = endPoint.X;
+                        tempAnnotation.EndPoint = new Point(x, y); 
+                        break;
+                }
+            }
+            m_ImageCore.ImageProcesser.RotateRight(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
         }
 
         private void picboxFlip_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.Flip(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+            int iImageWidth = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width;
+            int iImageHeight = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height;
+            List<AnnotationData> tempListAnnotation = (List<AnnotationData>)m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation);		
+            if (tempListAnnotation != null && tempListAnnotation.Count != 0)
+            {
+                foreach (AnnotationData tempAnnotation in tempListAnnotation)
+                {
+                    int y = 0;
+                    switch (tempAnnotation.AnnotationType)
+                    {
+                        case AnnotationType.enumRectangle:
+                        case AnnotationType.enumEllipse:
+                        case AnnotationType.enumText:
+                            y = iImageHeight - (tempAnnotation.StartPoint.Y + tempAnnotation.Size.Height);
+                            tempAnnotation.StartPoint = new Point(tempAnnotation.StartPoint.X, y);
+                            tempAnnotation.EndPoint = new Point((tempAnnotation.StartPoint.X + tempAnnotation.Size.Width),(tempAnnotation.StartPoint.Y + tempAnnotation.Size.Height));
+                            break;
+                        case AnnotationType.enumLine:
+                            y = iImageHeight - tempAnnotation.Location.Y - tempAnnotation.Size.Height;
+
+                            Point startPoint = tempAnnotation.StartPoint; 
+                            y = iImageHeight - startPoint.Y;
+                            tempAnnotation.StartPoint = new Point(startPoint.X, y);
+                            Point endPoint = tempAnnotation.EndPoint;
+                            y = iImageHeight - endPoint.Y;
+                            tempAnnotation.EndPoint = new Point(endPoint.X, y); 
+                            break;
+                    }
+                }
+            }
+            m_ImageCore.ImageProcesser.Flip(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
         }
 
         private void picboxMirror_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.Mirror(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+            int iImageWidth = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width;
+            int iImageHeight = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height;
+            List<AnnotationData> tempListAnnotation = (List<AnnotationData>)m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation);
+            foreach (AnnotationData tempAnnotation in tempListAnnotation)
+            {
+                int x = 0;
+                Point startPoint, endPoint;
+                switch (tempAnnotation.AnnotationType)
+                {
+                    case AnnotationType.enumRectangle:
+                    case AnnotationType.enumEllipse:
+                    case AnnotationType.enumText:
+                        x = iImageWidth - tempAnnotation.Location.X - tempAnnotation.Size.Width;
+                        startPoint = new Point(x,tempAnnotation.StartPoint.Y);
+                        endPoint = new Point((startPoint.X +tempAnnotation.Size.Width),(startPoint.Y + tempAnnotation.Size.Height));
+                        tempAnnotation.StartPoint = startPoint;
+                        tempAnnotation.EndPoint = endPoint;
+                        break;
+                    case AnnotationType.enumLine:
+                        x = iImageWidth - tempAnnotation.Location.X - tempAnnotation.Size.Width;
+                        startPoint = tempAnnotation.StartPoint;
+                        x = iImageWidth - startPoint.X;
+                        tempAnnotation.StartPoint = new Point(x, startPoint.Y);
+                        endPoint = tempAnnotation.EndPoint;
+                        x = iImageWidth - endPoint.X;
+                        tempAnnotation.EndPoint = new Point(x, endPoint.Y); break;
+                }
+
+            }
+
+            m_ImageCore.ImageProcesser.Mirror(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
         }
 
         private void picboxLine_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.MouseShape = false;
-            dynamicDotNetTwain.AnnotationPen = new Pen(Color.Blue, 5);
-            dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumLine;
+            dsViewer.MouseShape = false;
+            dsViewer.Annotation.Pen = new Pen(Color.Blue,5);
+            dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumLine;
             if (panelAnnotations.Visible == false)
                 panelAnnotations.Visible = true;
         }
 
         private void picboxEllipse_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.MouseShape = false;
-            dynamicDotNetTwain.AnnotationPen = new Pen(Color.Black, 2);
-            dynamicDotNetTwain.AnnotationFillColor = Color.Blue;
-            dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumEllipse;
+            dsViewer.MouseShape = false;
+            dsViewer.Annotation.Pen = new Pen(Color.Black,2);
+            dsViewer.Annotation.FillColor = Color.Blue;
+            dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumEllipse;
             if (panelAnnotations.Visible == false)
                 panelAnnotations.Visible = true;
         }
 
         private void picboxRectangle_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.MouseShape = false;
-            dynamicDotNetTwain.AnnotationPen = new Pen(Color.Black, 2);
-            dynamicDotNetTwain.AnnotationFillColor = Color.ForestGreen;
-            dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumRectangle;
+            dsViewer.MouseShape = false;
+            dsViewer.Annotation.Pen = new Pen(Color.Black,2);
+            dsViewer.Annotation.FillColor = Color.ForestGreen;
+            dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumRectangle;
             if (panelAnnotations.Visible == false)
                 panelAnnotations.Visible = true;
         }
 
         private void picboxText_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.MouseShape = false;
-            dynamicDotNetTwain.AnnotationTextColor = Color.Black;
-            dynamicDotNetTwain.AnnotationTextFont = new Font("", 32);
-            dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumText;
+            dsViewer.MouseShape = false;
+            dsViewer.Annotation.TextColor = Color.Black;
+            dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumText;
             if (panelAnnotations.Visible == false)
                 panelAnnotations.Visible = true;
         }
 
         private void picboxZoom_Click(object sender, EventArgs e)
         {
-            ZoomForm zoomForm = new ZoomForm(dynamicDotNetTwain.Zoom);
+            ZoomForm zoomForm = new ZoomForm(dsViewer.Zoom);
             zoomForm.ShowDialog();
             if (zoomForm.DialogResult == DialogResult.OK)
             {
-                dynamicDotNetTwain.IfFitWindow = false;
-                dynamicDotNetTwain.Zoom = zoomForm.ZoomRatio;
+                dsViewer.IfFitWindow = false;
+                dsViewer.Zoom = zoomForm.ZoomRatio;
                 checkZoom();
             }
         }
 
         private void picboxResample_Click(object sender, EventArgs e)
         {
-            int width = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer).Width;
-            int height = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer).Height;
+            int width = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width;
+            int height = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height;
 
             ResampleForm resampleForm = new ResampleForm(width, height);
             resampleForm.ShowDialog();
             if (resampleForm.DialogResult == DialogResult.OK)
             {
-                dynamicDotNetTwain.ChangeImageSize(dynamicDotNetTwain.CurrentImageIndexInBuffer,resampleForm.NewWidth,resampleForm.NewHeight,
+                m_ImageCore.ImageProcesser.ChangeImageSize(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,resampleForm.NewWidth,resampleForm.NewHeight,
                     resampleForm.Interpolation);
-                dynamicDotNetTwain.IfFitWindow = false;
+                dsViewer.IfFitWindow = false;
             }
         }
 
         private void picboxZoomIn_Click(object sender, EventArgs e)
         {
-            float zoom = dynamicDotNetTwain.Zoom + 0.1F;
-            dynamicDotNetTwain.IfFitWindow = false;
-            dynamicDotNetTwain.Zoom = zoom;
+            float zoom = dsViewer.Zoom + 0.1F;
+            dsViewer.IfFitWindow = false;
+            dsViewer.Zoom = zoom;
             checkZoom();
         }
 
         private void picboxZoomOut_Click(object sender, EventArgs e)
         {
-            float zoom = dynamicDotNetTwain.Zoom - 0.1F;
-            dynamicDotNetTwain.IfFitWindow = false;
-            dynamicDotNetTwain.Zoom = zoom;
+            float zoom = dsViewer.Zoom - 0.1F;
+            dsViewer.IfFitWindow = false;
+            dsViewer.Zoom = zoom;
             checkZoom();
         }
 
         private void checkZoom()
         {
-            if (cbxViewMode.SelectedIndex != 0 || dynamicDotNetTwain.HowManyImagesInBuffer == 0 )
-               // || cbxViewMode.SelectedIndex != 0)
+            if (cbxViewMode.SelectedIndex != 0 || m_ImageCore.ImageBuffer.HowManyImagesInBuffer == 0 )
             {
                 DisableControls(picboxZoomIn);
                 DisableControls(picboxZoomOut);
@@ -1126,7 +1287,7 @@ namespace DotNet_TWAIN_Demo
 
             //  the valid range of zoom is between 0.02 to 65.0,
            
-            if (dynamicDotNetTwain.Zoom <= 0.02F)
+            if(dsViewer.Zoom<=0.02F)
             {
                 DisableControls(picboxZoomOut);
             }
@@ -1135,7 +1296,7 @@ namespace DotNet_TWAIN_Demo
                 EnableControls(picboxZoomOut);
             }
 
-            if (dynamicDotNetTwain.Zoom >= 65F)         
+            if (dsViewer.Zoom >= 65F)
             {
                 DisableControls(picboxZoomIn);
             }
@@ -1147,13 +1308,13 @@ namespace DotNet_TWAIN_Demo
 
         private void picboxDelete_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.RemoveImage(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+            m_ImageCore.ImageBuffer.RemoveImage(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
             checkImageCount();
         }
 
         private void picboxDeleteAll_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.RemoveAllImages();
+            m_ImageCore.ImageBuffer.RemoveAllImages();
             checkImageCount();
         }
 
@@ -1162,9 +1323,9 @@ namespace DotNet_TWAIN_Demo
         /// </summary>
         private void checkImageCount()
         {
-            currentImageIndex = dynamicDotNetTwain.CurrentImageIndexInBuffer;
+            currentImageIndex = m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer;
             int currentIndex = currentImageIndex + 1;
-            int imageCount = dynamicDotNetTwain.HowManyImagesInBuffer;
+            int imageCount = m_ImageCore.ImageBuffer.HowManyImagesInBuffer;
             if (imageCount == 0)
                 currentIndex = 0;
 
@@ -1183,7 +1344,7 @@ namespace DotNet_TWAIN_Demo
             {
                 DisableControls(picboxSave);
                 DisableAllFunctionButtons();
-                dynamicDotNetTwain.Visible = false;
+                dsViewer.Visible = false;
                 panelAnnotations.Visible = false;
                 DisableControls(picboxReadBarcode);
                 DisableControls(picboxAddBarcode);
@@ -1224,22 +1385,22 @@ namespace DotNet_TWAIN_Demo
             switch(this.cbxViewMode.SelectedIndex)
             {
                 case 0:
-                    dynamicDotNetTwain.SetViewMode(-1,-1);
+                    dsViewer.SetViewMode(-1,-1);
                     break;
                 case 1:
-                    dynamicDotNetTwain.SetViewMode(2, 2);
+                    dsViewer.SetViewMode(2, 2);
                     break;
-                case 2: 
-                    dynamicDotNetTwain.SetViewMode(3, 3);
+                case 2:
+                    dsViewer.SetViewMode(3, 3);
                     break;
                 case 3:
-                    dynamicDotNetTwain.SetViewMode(4, 4);
+                    dsViewer.SetViewMode(4, 4);
                     break;
                 case 4:
-                    dynamicDotNetTwain.SetViewMode(5, 5);
+                    dsViewer.SetViewMode(5, 5);
                     break;
                 default:
-                    dynamicDotNetTwain.SetViewMode(-1, -1);
+                    dsViewer.SetViewMode(-1, -1);
                     break;
             }
             checkZoom();
@@ -1247,129 +1408,79 @@ namespace DotNet_TWAIN_Demo
 
         private void picboxFirst_Click(object sender, EventArgs e)
         {
-            if(dynamicDotNetTwain.HowManyImagesInBuffer > 0)
-                dynamicDotNetTwain.CurrentImageIndexInBuffer = (short)0;
+            if(m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0)
+                m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer = (short)0;
             checkImageCount();
         }
 
         private void picboxLast_Click(object sender, EventArgs e)
         {
-            if (dynamicDotNetTwain.HowManyImagesInBuffer > 0)
-                dynamicDotNetTwain.CurrentImageIndexInBuffer = (short)(dynamicDotNetTwain.HowManyImagesInBuffer - 1);
+            if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0)
+                m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer = (short)(m_ImageCore.ImageBuffer.HowManyImagesInBuffer - 1);
             checkImageCount();
         }
 
         private void picboxPrevious_Click(object sender, EventArgs e)
         {
-            if (dynamicDotNetTwain.HowManyImagesInBuffer > 0 && dynamicDotNetTwain.CurrentImageIndexInBuffer > 0)
-                --dynamicDotNetTwain.CurrentImageIndexInBuffer;
+            if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 && m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer > 0)
+                --m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer;
             checkImageCount();
         }
 
         private void picboxNext_Click(object sender, EventArgs e)
         {
-            if (dynamicDotNetTwain.HowManyImagesInBuffer > 0 &&
-                dynamicDotNetTwain.CurrentImageIndexInBuffer < dynamicDotNetTwain.HowManyImagesInBuffer - 1)
-                ++dynamicDotNetTwain.CurrentImageIndexInBuffer;
+            if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 &&
+                m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer < m_ImageCore.ImageBuffer.HowManyImagesInBuffer - 1)
+                ++m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer;
             checkImageCount();
-        }
-
-        private void dynamicDotNetTwain_OnMouseClick(short sImageIndex)
-        {
-            if (dynamicDotNetTwain.CurrentImageIndexInBuffer != currentImageIndex)
-                checkImageCount();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void dynamicDotNetTwain_OnPostAllTransfers()
-        {
-            CrossThreadOperationControl crossDelegate = delegate()
-                {
-                    dynamicDotNetTwain.Visible = true;
-                    checkImageCount();
-                    EnableControls(picboxScan);
-                };
-            this.Invoke(crossDelegate);
-        }
-
-        private void dynamicDotNetTwain_OnMouseDoubleClick(short sImageIndex)
-        {
-            try
-            {
-                Rectangle rc = dynamicDotNetTwain.GetSelectionRect(sImageIndex);
-
-                if (isToCrop && !rc.IsEmpty)
-                {
-                    cropPicture(sImageIndex, rc);
-                }
-                isToCrop = false;
-            }
-            catch
-            {
-            }
-            EnableAllFunctionButtons();
-        }
-
-        private void dynamicDotNetTwain_OnMouseRightClick(short sImageIndex)
-        {
-            if (isToCrop)
-                isToCrop = false;
-            dynamicDotNetTwain.ClearSelectionRect(sImageIndex);
-            EnableAllFunctionButtons();
-        }
-
-        private void dynamicDotNetTwain_OnImageAreaDeselected(short sImageIndex)
-        {
-            if (isToCrop)
-                isToCrop = false;
-            EnableAllFunctionButtons();
-            ShowSelectedImageArea();
         }
 
         private void cbxSource_SelectedIndexChanged(object sender, EventArgs e)
         {
-            short sIndex = (short)((ComboBox)(sender)).SelectedIndex;          
-            switch (dynamicDotNetTwain.GetSourceType(sIndex))
+            short sIndex = (short)((ComboBox)(sender)).SelectedIndex;
+
+            if (sIndex < m_TwainManager.SourceCount)
             {
-                case Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType.SDT_TWAIN:
-                    panelScan.Visible = true;
-                    panelGrab.Visible = false;
-                    lbUnknowSource.Visible = false;
-                    dynamicDotNetTwain.CloseSource();//when switching from webcam source to twain source, need to close webcam source.
-                    break;
-                case Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType.SDT_WEBCAM:
-                    panelScan.Visible = false;
-                    panelGrab.Visible = true;
-                    lbUnknowSource.Visible = false;
-                    //Initial media type list and webcam resolution list
-                    cbxMediaType.Items.Clear();
-                    cbxResolutionForWebcam.Items.Clear();
-                    dynamicDotNetTwain.IfDisableSourceAfterAcquire = false;//don't close video after grabbing an image.
-                    dynamicDotNetTwain.SelectSourceByIndex(sIndex);
-                    dynamicDotNetTwain.OpenSource();    //Open webcam source before getting the value of MediaTypeList and ResolutionForCamList
-                    List<string> lstMediaTypes = dynamicDotNetTwain.MediaTypeList;
-                    List<Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution> lstWebcamResolutions = dynamicDotNetTwain.ResolutionForCamList;
-                    if (lstMediaTypes != null)
-                        foreach (string strMediaType in lstMediaTypes)
-                            cbxMediaType.Items.Add(strMediaType);
-                    if (lstWebcamResolutions != null)
-                        foreach (Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution camResolution in lstWebcamResolutions)
-                            cbxResolutionForWebcam.Items.Add(camResolution.Width + " X " + camResolution.Height);
-                    if (cbxMediaType.Items.Count > 0)
-                        cbxMediaType.SelectedIndex = 0;
-                    if (cbxResolutionForWebcam.Items.Count > 0)
-                        cbxResolutionForWebcam.SelectedIndex = 0;
-                    //show error information
-                    if (dynamicDotNetTwain.ErrorCode != Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed)
-                        MessageBox.Show(dynamicDotNetTwain.ErrorString, "Webcam error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    break;
-                default:
-                    panelScan.Visible = false;
-                    panelGrab.Visible = false;
-                    lbUnknowSource.Visible = true;
-                    break;
+                panelScan.Visible = true;
+                panelGrab.Visible = false;
+                lbUnknowSource.Visible = false;
+                m_TwainManager.CloseSource();
+                if (m_Camera != null)
+                {
+                    m_Camera.Close();
+                }
+            }
+            else
+            {
+                m_Camera = m_CameraManager.SelectCamera((short)(sIndex - m_TwainManager.SourceCount));
+                if (m_CameraUI == null||m_CameraUI.IsDisposed)
+                {
+                    m_CameraUI = new CameraUI();
+                    if (m_CameraUI.Camera == m_Camera)
+                        return;
+                    else
+                    {
+                        if(m_Camera!=null)
+                            m_Camera.Close();
+                    }
+                }
+                m_CameraUI.Camera = m_Camera;
+                m_Camera.Open();
+                m_CameraUI.ClientSize = new Size(m_Camera.CurrentResolution.Width,m_Camera.CurrentResolution.Height);
+                if (m_CameraUI != null)
+                    m_CameraUI.Show();
+                panelScan.Visible = false;
+                panelGrab.Visible = true;
+                lbUnknowSource.Visible = false;
+                //Initial media type list and webcam resolution list
+                //cbxMediaType.Items.Clear();
+                cbxResolutionForWebcam.Items.Clear();
+                List<CamResolution> lstWebcamResolutions =m_Camera.SupportedResolutions;
+                if (lstWebcamResolutions != null)
+                    foreach (CamResolution camResolution in lstWebcamResolutions)
+                        cbxResolutionForWebcam.Items.Add(camResolution.Width + " X " + camResolution.Height);
+                if (cbxResolutionForWebcam.Items.Count > 0)
+                    cbxResolutionForWebcam.SelectedIndex = 0;
             }
         }
 
@@ -1398,9 +1509,18 @@ namespace DotNet_TWAIN_Demo
 
         private void picboxDeleteAnnotationA_Click(object sender, EventArgs e)
         {
-            List<Dynamsoft.DotNet.TWAIN.Annotation.AnnotationData> aryAnnotation;
-            if(dynamicDotNetTwain.GetSelectedAnnotationList(dynamicDotNetTwain.CurrentImageIndexInBuffer,out aryAnnotation))
-                dynamicDotNetTwain.DeleteAnnotations(dynamicDotNetTwain.CurrentImageIndexInBuffer,aryAnnotation);
+            List<AnnotationData> tempListAnnotationData = (List<AnnotationData>)m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation);
+            if (tempListAnnotationData != null)
+            {
+                List<AnnotationData> tempSelectedAnnotationData = new List<AnnotationData>();
+                tempSelectedAnnotationData = (List<AnnotationData>)m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation);
+                for (int i = tempSelectedAnnotationData.Count -1; i >=0 ; i--)
+                {
+                    if (tempSelectedAnnotationData[i].Selected == true)
+                        tempSelectedAnnotationData.RemoveAt(i);
+                }
+            }
+            m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation,tempListAnnotationData,true);
         }
 
         private void picboxLoadImage_Click(object sender, EventArgs e)
@@ -1408,8 +1528,6 @@ namespace DotNet_TWAIN_Demo
             openFileDialog.Filter = "All Support Files|*.JPG;*.JPEG;*.JPE;*.JFIF;*.BMP;*.PNG;*.TIF;*.TIFF;*GIF;*.PDF|JPEG|*.JPG;*.JPEG;*.JPE;*.Jfif|BMP|*.BMP|PNG|*.PNG|TIFF|*.TIF;*.TIFF|GIF|*.GIF|PDF|*.PDF";
             openFileDialog.FilterIndex = 0;
             openFileDialog.Multiselect = true;
-
-            dynamicDotNetTwain.IfAppendImage = true;
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -1422,22 +1540,17 @@ namespace DotNet_TWAIN_Demo
                         string strSuffix = strFileName.Substring(pos, strFileName.Length - pos).ToLower();
                         if (strSuffix.CompareTo(".pdf") == 0)
                         {
-			                this.dynamicDotNetTwain.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
-                            this.dynamicDotNetTwain.SetPDFResolution(200);
-                            this.dynamicDotNetTwain.LoadImage(strFileName);
-                            //this.dynamicDotNetTwain.ConvertPDFToImage(strFileName, 200);
-                            if (dynamicDotNetTwain.ErrorCode != Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed)
-                            {
-                                MessageBox.Show(dynamicDotNetTwain.ErrorString, "Loading image error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
+                            m_PDFRasterizer.ConvertMode = Dynamsoft.PDF.Enums.EnumConvertMode.enumCM_RENDERALL;
+                            m_PDFRasterizer.ConvertToImage(strFileName,"",200,this as IConvertCallback);
                         }
                         else
-                            dynamicDotNetTwain.LoadImage(strFileName);
+                            m_ImageCore.IO.LoadImage(strFileName);
                     }
                     else
-                        dynamicDotNetTwain.LoadImage(strFileName);
+                        m_ImageCore.IO.LoadImage(strFileName);
                 }
-                dynamicDotNetTwain.Visible = true;
+                //viewer1.Visible = true;
+                dsViewer.Visible = true;
             }
             checkImageCount();
         }
@@ -1543,7 +1656,7 @@ namespace DotNet_TWAIN_Demo
                 tbxMaxBarcodeReads.Focus();
             }
 
-            if (dynamicDotNetTwain.CurrentImageIndexInBuffer < 0)
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer < 0)
             {
                 MessageBox.Show("Please load an image before reading barcode!", "Index out of bounds", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -1552,7 +1665,7 @@ namespace DotNet_TWAIN_Demo
             try
             {
                 BarcodeReader reader = new BarcodeReader();
-                reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB";
+                reader.LicenseKeys = m_StrProductKey;
                 reader.ReaderOptions.MaxBarcodesToReadPerPage = iMaxBarcodesToRead;
                 switch (cbxBarcodeFormat.SelectedIndex)
                 {
@@ -1602,14 +1715,17 @@ namespace DotNet_TWAIN_Demo
                         break;
                 }
                 BarcodeResult[] aryResult = null;
-                Rectangle rect = dynamicDotNetTwain.GetSelectionRect(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+                Rectangle rect = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                 if (rect == Rectangle.Empty)
                 {
-                    int iWidth = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer).Width;
-                    int iHeight = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer).Height;
+
+
+                    int iWidth = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width;
+                    int iHeight = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height;
                     rect = new Rectangle(0, 0, iWidth, iHeight);
-                }
-                    aryResult = reader.DecodeBitmapRect((Bitmap)(dynamicDotNetTwain.GetImage(this.dynamicDotNetTwain.CurrentImageIndexInBuffer)),rect);
+                };
+                reader.AddRegion(rect.Left,rect.Top,rect.Right,rect.Bottom,false);
+                aryResult = reader.DecodeBitmap(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer));
                 if (aryResult == null)
                 {
                     string strResult = "The barcode for selected format is not found." + "\r\n";
@@ -1634,10 +1750,10 @@ namespace DotNet_TWAIN_Demo
 
         private void ShowSelectedImageArea()
         {
-            if (dynamicDotNetTwain.CurrentImageIndexInBuffer >= 0)
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0)
             {
-                Rectangle recSelArea = dynamicDotNetTwain.GetSelectionRect(dynamicDotNetTwain.CurrentImageIndexInBuffer);
-                Image imgCurrent = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer);
+                Rectangle recSelArea = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                Image imgCurrent = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                 if (recSelArea.IsEmpty)
                 {
                     tbxLeft.Text = "0";
@@ -1670,29 +1786,28 @@ namespace DotNet_TWAIN_Demo
         {
             if (picboxAddBarcode.Enabled)
             {
-                if (dynamicDotNetTwain.CurrentImageIndexInBuffer >= 0)
+                if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0)
                 {
                     if (tbxBarcodeContent.Text != "" && tbxBarcodeLocationX.Text != "" && tbxBarcodeLocationY.Text != "" && tbxBarcodeScale.Text != "")
                     {
-                        Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_39;
+                        Dynamsoft.Barcode.Enums.EnumBarcodeFormat barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_39;
                         switch (cbxGenBarcodeFormat.SelectedIndex)
                         {
                             case 0:
-                                barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_39;
+                                barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_39;
                                 break;
                             case 1:
-                                barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_128;
+                                barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_128;
                                 break;
                             case 2:
-                                barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.PDF417;
+                                barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.PDF417;
                                 break;
                             case 3:
-                                barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.QR_CODE;
+                                barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.QR_CODE;
                                 break;
                         }
-                        if (!dynamicDotNetTwain.AddBarcode(dynamicDotNetTwain.CurrentImageIndexInBuffer, barcodeformat, tbxBarcodeContent.Text,
-                            tbxHumanReadableText.Text, int.Parse(tbxBarcodeLocationX.Text), int.Parse(tbxBarcodeLocationY.Text), float.Parse(tbxBarcodeScale.Text)))
-                            MessageBox.Show(dynamicDotNetTwain.ErrorString, "Adding barcode error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Bitmap bit =  m_BarcodeGenerator.AddBarcode(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer), barcodeformat, tbxBarcodeContent.Text, tbxHumanReadableText.Text, int.Parse(tbxBarcodeLocationX.Text), int.Parse(tbxBarcodeLocationY.Text), float.Parse(tbxBarcodeScale.Text));
+                        m_ImageCore.ImageBuffer.SetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,bit);
                     }
                     else
                     {
@@ -1745,12 +1860,17 @@ namespace DotNet_TWAIN_Demo
         {
             if (picboxOCR.Enabled)
             {
-                if (dynamicDotNetTwain.CurrentImageIndexInBuffer >= 0)
+                if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0)
                 {
-                    dynamicDotNetTwain.OCRLanguage = languages[cbxSupportedLanguage.Text];
-                    dynamicDotNetTwain.OCRResultFormat = (Dynamsoft.DotNet.TWAIN.OCR.ResultFormat)cbxOCRResultFormat.SelectedIndex;
+                    m_Tesseract.Language = languages[cbxSupportedLanguage.Text];
+                    m_Tesseract.ResultFormat = (Dynamsoft.OCR.Enums.ResultFormat)cbxOCRResultFormat.SelectedIndex;
                     byte[] sbytes = null;
-                    sbytes = dynamicDotNetTwain.OCR(dynamicDotNetTwain.CurrentSelectedImageIndicesInBuffer);
+                    List<Bitmap> templistBitmap = new List<Bitmap>();
+                    for (short sCount = 0; sCount < dsViewer.CurrentSelectedImageIndicesInBuffer.Count; sCount++)
+                    {
+                        templistBitmap.Add(m_ImageCore.ImageBuffer.GetBitmap(dsViewer.CurrentSelectedImageIndicesInBuffer[sCount]));
+                    }
+                        sbytes = m_Tesseract.Recognize(templistBitmap);
 
                     if (sbytes != null && sbytes.Length > 0)
                     {
@@ -1768,11 +1888,6 @@ namespace DotNet_TWAIN_Demo
                             System.IO.File.WriteAllBytes(filedlg.FileName, sbytes);
                         }
                     }
-                    else
-                    {
-                        if (dynamicDotNetTwain.ErrorCode != 0)
-                            MessageBox.Show(dynamicDotNetTwain.ErrorString, "Performing OCR error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                 }
                 else
                     MessageBox.Show("Please load an image before doing OCR!", "Index out of bounds", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -1781,48 +1896,31 @@ namespace DotNet_TWAIN_Demo
 
         #endregion Perform OCR
 
-        private void dynamicDotNetTwain_OnImageAreaSelected(short sImageIndex, int left, int top, int right, int bottom)
-        {
-            ShowSelectedImageArea();
-        }
-
         private void picboxGrab_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.MediaType = cbxMediaType.Text;
+            dsViewer.Visible = true;
             if (cbxResolutionForWebcam.Text != null)
             {
-                string[] strWXH = cbxResolutionForWebcam.Text.Split(new char[]{' '});
+                string[] strWXH = cbxResolutionForWebcam.Text.Split(new char[] { ' ' });
                 if (strWXH.Length == 3)
                 {
                     try
                     {
-                        dynamicDotNetTwain.ResolutionForCam = new Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution(
+                        m_Camera.CurrentResolution = new CamResolution(
                             int.Parse(strWXH[0]), int.Parse(strWXH[2]));
+                        if (m_CameraUI != null && (!m_CameraUI.IsDisposed))
+                        {
+                            m_CameraUI.ClientSize = new Size(int.Parse(strWXH[0]), int.Parse(strWXH[2]));
+                        }
                     }
                     catch { }
                 }
             }
-
-            if (!dynamicDotNetTwain.AcquireImage())
-                MessageBox.Show(dynamicDotNetTwain.ErrorString, "Grab error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Bitmap tempbmp = m_Camera.GrabImage();
+            m_ImageCore.IO.LoadImage(tempbmp);
+            checkImageCount();
         }
-
-        private void dynamicDotNetTwain_OnSourceUIClose()
-        {
-            EnableControls(picboxScan);
-        }
-
-        private void cbxMediaType_SelectedIndexChanged(object sender,EventArgs e)
-        {
-            if (cbxMediaType.SelectedIndex >= 0)
-            {
-                try
-                {
-                    dynamicDotNetTwain.MediaType = cbxMediaType.Text;
-                }
-                catch { }
-            }
-        }
+        
 
         private void cbxResolutionForWebcam_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -1833,13 +1931,159 @@ namespace DotNet_TWAIN_Demo
                 {
                     try
                     {
-                        dynamicDotNetTwain.ResolutionForCam = new Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution(
-                            int.Parse(strWXH[0]), int.Parse(strWXH[2]));
+                        m_Camera.CurrentResolution = new CamResolution(int.Parse(strWXH[0]), int.Parse(strWXH[2]));
+                        if (m_CameraUI != null && (!m_CameraUI.IsDisposed))
+                        {
+                            m_CameraUI.ClientSize = new Size(int.Parse(strWXH[0]), int.Parse(strWXH[2]));
+                        }
                     }
                     catch { }
                 }
             }
         }
 
+
+        public void OnPostAllTransfers()
+        {
+            CrossThreadOperationControl crossDelegate = delegate()
+            {
+                dsViewer.Visible = true;
+                checkImageCount();
+                EnableControls(picboxScan);
+            };
+            this.Invoke(crossDelegate);
+        }
+
+        public bool OnPostTransfer(Bitmap bit)
+        {
+            m_ImageCore.IO.LoadImage(bit);
+            return true;
+        }
+
+        public void OnPreAllTransfers()
+        {
+        }
+
+        public bool OnPreTransfer()
+        {
+            return true;
+        }
+
+        public void OnSourceUIClose()
+        {
+            EnableControls(picboxScan);
+        }
+
+        public void OnTransferCancelled()
+        {
+        }
+
+        public void OnTransferError()
+        {
+        }
+
+        private void picboxClose_Click(object sender, EventArgs e)
+        {
+            if (m_TwainManager != null)
+            {
+                m_TwainManager.Dispose();
+            }
+            if (m_Camera != null)
+            {
+                m_Camera.Close();
+            }
+
+        }
+
+        public void LoadConvertResult(ConvertResult result)
+        {
+            m_ImageCore.IO.LoadImage(result.Image);
+            m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation,result.Annotations,true);
+        }
+
+        public object GetAnnotations(int iPageNumber)
+        {
+            if (chkMultiPage.Checked == true)
+            {
+                return m_ImageCore.ImageBuffer.GetMetaData((short)iPageNumber,EnumMetaDataType.enumAnnotation);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation);
+            }
+        }
+
+        public Bitmap GetImage(int iPageNumber)
+        {
+            if(chkMultiPage.Checked == true)
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap((short)iPageNumber);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+            }
+        }
+
+        public int GetPageCount()
+        {
+            if (chkMultiPage.Checked == true)
+            {
+                return m_ImageCore.ImageBuffer.HowManyImagesInBuffer;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        private void dsViewer_OnImageAreaDeselected(short sImageIndex)
+        {
+            if (isToCrop)
+                isToCrop = false;
+            EnableAllFunctionButtons();
+            ShowSelectedImageArea();
+        }
+
+        private void dsViewer_OnImageAreaSelected(short sImageIndex, int left, int top, int right, int bottom)
+        {
+            ShowSelectedImageArea();
+        }
+
+        private void dsViewer_OnMouseClick(short sImageIndex)
+        {
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer != currentImageIndex)
+            {
+                checkImageCount();
+            }
+        }
+
+        private void dsViewer_OnMouseDoubleClick(short sImageIndex)
+        {
+            try
+            {
+                Rectangle rc = dsViewer.GetSelectionRect(sImageIndex);
+
+                if (isToCrop && !rc.IsEmpty)
+                {
+                    cropPicture(sImageIndex, rc);
+                }
+                isToCrop = false;
+            }
+            catch
+            {
+            }
+            EnableAllFunctionButtons();
+        }
+
+        private void dsViewer_OnMouseRightClick(short sImageIndex)
+        {
+            if (isToCrop)
+                isToCrop = false;
+            dsViewer.ClearSelectionRect(sImageIndex);
+            EnableAllFunctionButtons();
+        }
+
     }
+
 }

@@ -1,27 +1,35 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Dynamsoft.DotNet.TWAIN.Enums.Barcode;
-using Dynamsoft.DotNet.TWAIN.Barcode;
-using System.Collections;
-using Dynamsoft.DotNet.TWAIN;
+using Dynamsoft.Core;
 using Dynamsoft.Barcode;
+using Dynamsoft.PDF;
+using Dynamsoft.Core.Enums;
+using System.IO;
+using System.Runtime.InteropServices;
 
-namespace BarcodeDemo
+namespace BarcodeReader
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form,Dynamsoft.PDF.IConvertCallback
     {
+        private ImageCore m_ImageCore = null;
+        private PDFRasterizer m_PDFRasterizer = null;
+        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
         public Form1()
         {
             InitializeComponent();
             InitializeUI();
-            this.dynamicDotNetTwain1.ScanInNewProcess = true;
-            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
+            m_ImageCore = new ImageCore();
+            dsViewer1.Bind(m_ImageCore);
+            dsViewer1.OnImageAreaSelected += viewer1_OnImageAreaSelected;
+            dsViewer1.OnImageAreaDeselected += viewer1_OnImageAreaDeselected;
+            m_PDFRasterizer = new PDFRasterizer(m_StrProductKey);
         }
+
 
         protected void InitializeUI()
         {
@@ -60,18 +68,8 @@ namespace BarcodeDemo
             if (pos != -1)
             {
                 imagesFolder = imagesFolder.Substring(0, imagesFolder.IndexOf(@"\", pos)) + @"\Samples\Bin\Images\BarcodeImages\";
-                strPDFDllFolder = strPDFDllFolder.Substring(0, strPDFDllFolder.IndexOf(@"\", pos)) + @"\Redistributable\Resources\PDF\";
-            }
-            else
-            {
-                pos = imagesFolder.LastIndexOf("\\");
-                imagesFolder = imagesFolder.Substring(0, imagesFolder.IndexOf(@"\", pos)) + @"\";
-                strPDFDllFolder = imagesFolder;
             }
 
-            dynamicDotNetTwain1.PDFRasterizerDllPath = strPDFDllFolder;
-            dynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = true;
-            dynamicDotNetTwain1.MaxImagesInBuffer = 64;
 
             //use this folder as starting point			
             filedlg.InitialDirectory = imagesFolder;
@@ -86,30 +84,28 @@ namespace BarcodeDemo
                         string strSuffix = strfilename.Substring(pos, strfilename.Length - pos).ToLower();
                         if (strSuffix.CompareTo(".pdf") == 0)
                         {
-			                this.dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
-                            this.dynamicDotNetTwain1.SetPDFResolution(200);
-			                this.dynamicDotNetTwain1.LoadImage(strfilename);
-                            //this.dynamicDotNetTwain1.ConvertPDFToImage(strfilename, 200);
+                            m_PDFRasterizer.ConvertMode = Dynamsoft.PDF.Enums.EnumConvertMode.enumCM_RENDERALL;
+                            m_PDFRasterizer.ConvertToImage(strfilename, "", 200, this as IConvertCallback);
                             continue;
                         }
                     }
-                    this.dynamicDotNetTwain1.LoadImage(strfilename);
+                    this.m_ImageCore.IO.LoadImage(strfilename);
                 }
-                dynamicDotNetTwain1_OnImageAreaDeselected(dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                viewer1_OnImageAreaDeselected(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (dynamicDotNetTwain1.CurrentImageIndexInBuffer < 0)
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer < 0)
             {
                 MessageBox.Show("Please load an image before reading barcode!", "Index out of bounds", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             try
             {
-                BarcodeReader reader = new BarcodeReader();
-                reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB";
+                Dynamsoft.Barcode.BarcodeReader reader = new Dynamsoft.Barcode.BarcodeReader();
+                reader.LicenseKeys = m_StrProductKey;
                 reader.ReaderOptions.MaxBarcodesToReadPerPage = int.Parse(tbxMaxNum.Text);
                 this.textBox1.Text = "";
                 switch (cbxFormat.SelectedIndex)
@@ -161,14 +157,15 @@ namespace BarcodeDemo
                 }
                 this.textBox1.Text = "Recognizing...";
                 BarcodeResult[] aryResult = null;
-                Rectangle rect = dynamicDotNetTwain1.GetSelectionRect(dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                Rectangle rect = dsViewer1.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                 if (rect == Rectangle.Empty)
                 {
-                    int iWidth = dynamicDotNetTwain1.GetImage(dynamicDotNetTwain1.CurrentImageIndexInBuffer).Width;
-                    int iHeight = dynamicDotNetTwain1.GetImage(dynamicDotNetTwain1.CurrentImageIndexInBuffer).Height;
+                    int iWidth = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width;
+                    int iHeight = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height;
                     rect = new Rectangle(0, 0, iWidth, iHeight);
                 }
-                aryResult = reader.DecodeBitmapRect((Bitmap)(dynamicDotNetTwain1.GetImage(this.dynamicDotNetTwain1.CurrentImageIndexInBuffer)), rect);
+                reader.AddRegion(rect.Left,rect.Top,rect.Right,rect.Bottom,false);
+                aryResult = reader.DecodeBitmap((Bitmap)(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)));
 
                 StringBuilder strText = new StringBuilder();
                 if (aryResult == null)
@@ -189,24 +186,25 @@ namespace BarcodeDemo
                     this.textBox1.Text = strText.ToString();
                 }
             }
-            catch(Exception exp)
+            catch (Exception exp)
             {
                 MessageBox.Show(exp.Message, "Decoding error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.textBox1.Text = "";
             }
         }
 
+
         private void dynamicDotNetTwain1_OnTopImageInTheViewChanged(short sImageIndex)
         {
-            if (dynamicDotNetTwain1.CurrentImageIndexInBuffer >= 0)
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0)
             {
-                Rectangle rect = dynamicDotNetTwain1.GetSelectionRect(dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                Rectangle rect = dsViewer1.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                 if (rect == Rectangle.Empty)
                 {
                     tbxLeft.Text = "0";
                     tbxTop.Text = "0";
-                    tbxRight.Text = dynamicDotNetTwain1.GetImage(dynamicDotNetTwain1.CurrentImageIndexInBuffer).Width.ToString();
-                    tbxBottom.Text = dynamicDotNetTwain1.GetImage(dynamicDotNetTwain1.CurrentImageIndexInBuffer).Height.ToString();
+                    tbxRight.Text = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width.ToString();
+                    tbxBottom.Text = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height.ToString();
                 }
                 else
                 {
@@ -218,7 +216,7 @@ namespace BarcodeDemo
             }
         }
 
-        private void dynamicDotNetTwain1_OnImageAreaSelected(short sImageIndex, int left, int top, int right, int bottom)
+        private void viewer1_OnImageAreaSelected(short sImageIndex, int left, int top, int right, int bottom)
         {
             tbxLeft.Text = left.ToString();
             tbxTop.Text = top.ToString();
@@ -226,14 +224,14 @@ namespace BarcodeDemo
             tbxBottom.Text = bottom.ToString();
         }
 
-        private void dynamicDotNetTwain1_OnImageAreaDeselected(short sImageIndex)
+        private void viewer1_OnImageAreaDeselected(short sImageIndex)
         {
             tbxLeft.Text = "0";
             tbxTop.Text = "0";
-            if (dynamicDotNetTwain1.CurrentImageIndexInBuffer >= 0)
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0)
             {
-                tbxRight.Text = dynamicDotNetTwain1.GetImage(dynamicDotNetTwain1.CurrentImageIndexInBuffer).Width.ToString();
-                tbxBottom.Text = dynamicDotNetTwain1.GetImage(dynamicDotNetTwain1.CurrentImageIndexInBuffer).Height.ToString();
+                tbxRight.Text = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width.ToString();
+                tbxBottom.Text = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height.ToString();
             }
             else
             {
@@ -244,9 +242,24 @@ namespace BarcodeDemo
 
         private void dynamicDotNetTwain1_OnPostAllTransfers()
         {
-            if(dynamicDotNetTwain1.CurrentImageIndexInBuffer >=0)
-            dynamicDotNetTwain1_OnImageAreaDeselected(dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0)
+                viewer1_OnImageAreaDeselected(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
         }
 
+
+
+        #region IConvertCallback Members
+
+        public void LoadConvertResult(ConvertResult result)
+        {
+            m_ImageCore.IO.LoadImage(result.Image);
+
+            if (result.Annotations != null)
+            {
+                m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation,result.Annotations,true);
+            }
+        }
+
+        #endregion
     }
 }

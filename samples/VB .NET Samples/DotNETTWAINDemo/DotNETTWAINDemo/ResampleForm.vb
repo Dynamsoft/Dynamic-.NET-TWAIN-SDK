@@ -1,145 +1,162 @@
-﻿Public Class ResampleForm
-    Dim m_width, m_height As Integer
-    Dim m_newWidth, m_newHeight As Integer
-    Dim m_flag As Boolean
-    Dim m_interpolation As Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod
+Imports Dynamsoft.Core.Enums
+Imports System.Collections.Generic
+Imports System.ComponentModel
+Imports System.Data
+Imports System.Drawing
+Imports System.Text
+Imports System.Windows.Forms
 
-    Public Sub InitResampleForm(ByVal iwidth As Integer, ByVal iheight As Integer)
-        Me.m_width = iwidth
-        Me.m_height = iheight
+Public Partial Class ResampleForm
+	Inherits Form
+	Private width As Integer, height As Integer
+	Private m_newWidth As Integer, m_newHeight As Integer
+	Private flag As Boolean
+	Private m_InterpolationMethod As EnumInterpolationMethod = EnumInterpolationMethod.BestQuality
+	Public Sub New()
+		InitializeComponent()
+	End Sub
 
-        Me.m_flag = False
-        Me.tbxWidth.Text = iwidth.ToString()
-        Me.tbxHeight.Text = iheight.ToString()
-        Me.cbxWidthType.SelectedIndex = 0
-        Me.cbxHeightType.SelectedIndex = 0
-        Me.cbxConstrainProportion.Checked = True
-        Me.cbxResampleType.SelectedIndex = 0
-        Me.m_flag = True
-    End Sub
+	Public Sub New(width As Integer, height As Integer)
+		InitializeComponent()
 
-    Public Function GetNewHeight() As Integer
-        If (cbxWidthType.SelectedIndex = 0) Then
-            GetNewHeight = Integer.Parse(tbxHeight.Text)
-        Else
-            GetNewHeight = Integer.Parse(tbxHeight.Text) * m_height / 100
-        End If
-    End Function
+		Me.width = width
+		Me.height = height
 
-    Public Function GetNewWidth() As Integer
-        If (cbxHeightType.SelectedIndex = 0) Then
-            GetNewWidth = Integer.Parse(tbxWidth.Text)
-        Else
-            GetNewWidth = Integer.Parse(tbxWidth.Text) * m_width / 100
-        End If
-    End Function
+		Me.flag = False
+		Me.tbxWidth.Text = width.ToString()
+		Me.tbxHeight.Text = height.ToString()
+		Me.cbxWidthType.SelectedIndex = 0
+		Me.cbxHeightType.SelectedIndex = 0
+		Me.cbxConstrainProportion.Checked = True
+		Me.cbxResampleType.SelectedIndex = 0
+		flag = True
+	End Sub
 
-    Public Function GetInterpolation() As Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod
-        Select Me.cbxResampleType.SelectedIndex
-            Case 0
-                m_interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.Bicubic
-            Case 1
-                m_interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.Bilinear
-            Case 2
-                m_interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.NearestNeighbour
-        End Select
-        GetInterpolation = m_interpolation
-    End Function
+	Public ReadOnly Property NewHeight() As Integer
+		Get
+			If cbxWidthType.SelectedIndex = 0 Then
+				Return Integer.Parse(tbxHeight.Text)
+			Else
+				Return Integer.Parse(tbxHeight.Text) * height \ 100
+			End If
+		End Get
+	End Property
 
-    Private Sub btnOk_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOk.Click
-        If (Integer.TryParse(tbxWidth.Text, m_newWidth) = False) Then
-            tbxWidth.Focus()
-            Return
-        End If
+	Public ReadOnly Property NewWidth() As Integer
+		Get
+			If cbxHeightType.SelectedIndex = 0 Then
+				Return Integer.Parse(tbxWidth.Text)
+			Else
+				Return Integer.Parse(tbxWidth.Text) * width \ 100
+			End If
+		End Get
+	End Property
 
-        If (Integer.TryParse(tbxHeight.Text, m_newHeight) = False) Then
-            tbxHeight.Focus()
-            Return
-        End If
+	Public ReadOnly Property Interpolation() As EnumInterpolationMethod
+		Get
+			Select Case Me.cbxResampleType.SelectedIndex
+				Case 0
+					m_InterpolationMethod = EnumInterpolationMethod.Bicubic
+					Exit Select
+				Case 1
+					m_InterpolationMethod = EnumInterpolationMethod.Bilinear
+					Exit Select
+				Case 2
+					m_InterpolationMethod = EnumInterpolationMethod.NearestNeighbour
+					Exit Select
+				Case 3
+					m_InterpolationMethod = EnumInterpolationMethod.BestQuality
+					Exit Select
+			End Select
+			Return m_InterpolationMethod
+		End Get
+	End Property
+	Private Sub btnOk_Click(sender As Object, e As EventArgs)
+		If Not Integer.TryParse(tbxWidth.Text, m_newWidth) Then
+			tbxWidth.Focus()
+			Return
+		End If
+		If Not Integer.TryParse(tbxHeight.Text, m_newHeight) Then
+			tbxHeight.Focus()
+			Return
+		End If
+		Me.DialogResult = DialogResult.OK
+		Me.Close()
+	End Sub
 
-        Me.DialogResult = DialogResult.OK
-        Me.Close()
-    End Sub
+	Private Sub cbxWidthType_SelectedIndexChanged(sender As Object, e As EventArgs)
+		If Me.cbxHeightType.SelectedIndex <> Me.cbxWidthType.SelectedIndex AndAlso flag Then
+			If cbxWidthType.SelectedIndex = 0 Then
+				If Integer.TryParse(tbxWidth.Text, m_newWidth) AndAlso Integer.TryParse(tbxHeight.Text, m_newHeight) Then
+					m_newHeight = m_newHeight * height \ 100
+					m_newWidth = m_newWidth * width \ 100
+					tbxWidth.Text = m_newWidth.ToString()
+					tbxHeight.Text = m_newHeight.ToString()
+				End If
+			Else
+				If Integer.TryParse(tbxWidth.Text, m_newWidth) AndAlso Integer.TryParse(tbxHeight.Text, m_newHeight) Then
+					m_newWidth = CInt(Math.Truncate(m_newWidth / CDbl(width) * 100))
+					m_newHeight = CInt(Math.Truncate(m_newHeight / CDbl(height) * 100))
+					tbxWidth.Text = m_newWidth.ToString()
+					tbxHeight.Text = m_newHeight.ToString()
+				End If
+			End If
 
-    Private Sub cbxWidthType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cbxWidthType.SelectedIndexChanged
-        If (Me.cbxHeightType.SelectedIndex <> Me.cbxWidthType.SelectedIndex And m_flag) Then
-            If (cbxWidthType.SelectedIndex = 0) Then
-                If (Integer.TryParse(tbxWidth.Text, m_newWidth) And Integer.TryParse(tbxHeight.Text, m_newHeight)) Then
-                    m_newHeight = m_newHeight * m_height / 100
-                    m_newWidth = m_newWidth * m_width / 100
-                    tbxWidth.Text = m_newWidth.ToString()
-                    tbxHeight.Text = m_newHeight.ToString()
-                End If
+			Me.cbxHeightType.SelectedIndex = Me.cbxWidthType.SelectedIndex
+		End If
+	End Sub
 
-            Else
-                If (Integer.TryParse(tbxWidth.Text, m_newWidth) And Integer.TryParse(tbxHeight.Text, m_newHeight)) Then
-                    m_newWidth = Convert.ToInt32(m_newWidth / m_width * 100)
-                    m_newHeight = Convert.ToInt32(m_newHeight / m_height * 100)
-                    tbxWidth.Text = m_newWidth.ToString()
-                    tbxHeight.Text = m_newHeight.ToString()
-                End If
-            End If
-            Me.cbxHeightType.SelectedIndex = Me.cbxWidthType.SelectedIndex
-        End If
-    End Sub
+	Private Sub cbxHeightType_SelectedIndexChanged(sender As Object, e As EventArgs)
+		If Me.cbxWidthType.SelectedIndex <> Me.cbxHeightType.SelectedIndex AndAlso flag Then
+			If cbxHeightType.SelectedIndex = 0 Then
+				If Integer.TryParse(tbxHeight.Text, m_newHeight) AndAlso Integer.TryParse(tbxWidth.Text, m_newWidth) Then
+					m_newWidth = m_newWidth * width \ 100
+					m_newHeight = m_newHeight * height \ 100
+					tbxWidth.Text = m_newWidth.ToString()
+					tbxHeight.Text = m_newHeight.ToString()
+				End If
+			Else
+				If Integer.TryParse(tbxHeight.Text, m_newHeight) Then
+					m_newHeight = CInt(Math.Truncate(m_newHeight / CDbl(height) * 100))
+					m_newWidth = CInt(Math.Truncate(m_newWidth / CDbl(width) * 100))
+					tbxWidth.Text = m_newWidth.ToString()
+					tbxHeight.Text = m_newHeight.ToString()
+				End If
+			End If
+			Me.cbxWidthType.SelectedIndex = Me.cbxHeightType.SelectedIndex
+		End If
+	End Sub
 
-    Private Sub cbxHeightType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cbxHeightType.SelectedIndexChanged
-        If (Me.cbxWidthType.SelectedIndex <> Me.cbxHeightType.SelectedIndex And m_flag) Then
-            If (cbxHeightType.SelectedIndex = 0) Then
-                If (Integer.TryParse(tbxHeight.Text, m_newHeight) And Integer.TryParse(tbxWidth.Text, m_newWidth)) Then
-                    m_newWidth = m_newWidth * m_width / 100
-                    m_newHeight = m_newHeight * m_height / 100
-                    tbxWidth.Text = m_newWidth.ToString()
-                    tbxHeight.Text = m_newHeight.ToString()
-                End If
+	Private Sub tbxWidth_KeyUp(sender As Object, e As KeyEventArgs)
+		If cbxConstrainProportion.Checked = True Then
+			If Integer.TryParse(tbxWidth.Text, m_newWidth) = True Then
+				Dim proportion As Double = width / CDbl(height)
+				If cbxWidthType.SelectedIndex = 0 Then
+					tbxHeight.Text = CInt(Math.Truncate(m_newWidth / proportion)).ToString()
+				End If
+				If cbxWidthType.SelectedIndex = 1 Then
+					tbxHeight.Text = m_newWidth.ToString()
+				End If
+			End If
+		End If
+	End Sub
 
-            Else
-                If (Integer.TryParse(tbxHeight.Text, m_newHeight)) Then
-                    m_newHeight = Convert.ToInt32(m_newHeight / m_height * 100)
-                    m_newWidth = Convert.ToInt32(m_newWidth / m_width * 100)
-                    tbxWidth.Text = m_newWidth.ToString()
-                    tbxHeight.Text = m_newHeight.ToString()
-                End If
-            End If
-            Me.cbxWidthType.SelectedIndex = Me.cbxHeightType.SelectedIndex
-        End If
-    End Sub
+	Private Sub tbxHeight_KeyUp(sender As Object, e As KeyEventArgs)
+		If cbxConstrainProportion.Checked = True Then
+			If Integer.TryParse(tbxHeight.Text, m_newHeight) = True Then
+				Dim proportion As Double = width / CDbl(height)
+				If cbxWidthType.SelectedIndex = 0 Then
+					tbxWidth.Text = CInt(Math.Truncate(m_newHeight * proportion)).ToString()
+				End If
+				If cbxWidthType.SelectedIndex = 1 Then
+					tbxWidth.Text = m_newHeight.ToString()
+				End If
+			End If
+		End If
+	End Sub
 
-    Private Sub tbxWidth_KeyUp(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles tbxWidth.KeyUp
-        If (cbxConstrainProportion.Checked = True) Then
-            If (Integer.TryParse(tbxWidth.Text, m_newWidth) = True) Then
-                Dim proportion As Double
-                proportion = m_width / m_height
-
-                If (cbxWidthType.SelectedIndex = 0) Then
-                    tbxHeight.Text = (Convert.ToInt32(m_newWidth / proportion)).ToString()
-                End If
-
-                If (cbxWidthType.SelectedIndex = 1) Then
-                    tbxHeight.Text = m_newWidth.ToString()
-                End If
-            End If
-        End If
-    End Sub
-
-    Private Sub tbxHeight_KeyUp(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles tbxHeight.KeyUp
-        If (cbxConstrainProportion.Checked = True) Then
-            If (Integer.TryParse(tbxHeight.Text, m_newHeight) = True) Then
-                Dim proportion As Double
-                proportion = m_width / m_height
-                If (cbxWidthType.SelectedIndex = 0) Then
-                    tbxWidth.Text = (Convert.ToInt32(m_newHeight * proportion)).ToString()
-                End If
-  
-                If (cbxWidthType.SelectedIndex = 1) Then
-                    tbxWidth.Text = m_newHeight.ToString()
-                End If
-            End If
-        End If
-    End Sub
-
-    Private Sub btnCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCancel.Click
-        Me.DialogResult = DialogResult.Cancel
-        Me.Close()
-    End Sub
+	Private Sub btnCancel_Click(sender As Object, e As EventArgs)
+		Me.DialogResult = DialogResult.Cancel
+		Me.Close()
+	End Sub
 End Class

@@ -1,22 +1,38 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Dynamsoft.Core;
+using Dynamsoft.Barcode;
+using Dynamsoft.PDF;
+using Dynamsoft.Core.Enums;
+using System.IO;
+using System.Runtime.InteropServices;
 
-namespace AddBarcodeDemo
+
+namespace BarcodeGenerator
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form,ISave,IConvertCallback
     {
-        Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat barcodeformat;
-
+        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private ImageCore m_ImageCore = null;
+        Dynamsoft.Barcode.Enums.EnumBarcodeFormat barcodeformat;
+        private Dynamsoft.Barcode.BarcodeGenerator m_Generator = null;
+        private PDFCreator m_PDFCreator = null;
+        private PDFRasterizer m_PDFRasterizer = null;
         public Form1()
         {
             InitializeComponent();
+            m_ImageCore = new ImageCore();
+            dsViewer1.Bind(m_ImageCore);
+            
             Initialization();
-            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
+            m_Generator = new Dynamsoft.Barcode.BarcodeGenerator(m_StrProductKey);
+            m_PDFCreator = new PDFCreator(m_StrProductKey);
+            m_PDFRasterizer = new PDFRasterizer(m_StrProductKey);
         }
 
         protected void Initialization()
@@ -36,29 +52,7 @@ namespace AddBarcodeDemo
             this.txtBarocdeLocationY.Text = "0";
             this.txtHumanReadableTxt.Text = "Dynamsoft";
             this.txtBarcodeScale.Text = "1";
-            
-            string strDllFolder = Application.ExecutablePath;
-            strDllFolder = strDllFolder.Replace("/", "\\");
-            string strPDFDllFolder = strDllFolder;
-            int pos = strDllFolder.LastIndexOf("\\Samples\\");
-            if (pos != -1)
-            {
-                strDllFolder = strDllFolder.Substring(0, strDllFolder.IndexOf(@"\", pos)) + @"\Redistributable\Resources\Barcode Generator\";
-                strPDFDllFolder = strPDFDllFolder.Substring(0, strPDFDllFolder.IndexOf(@"\", pos)) + @"\Redistributable\Resources\PDF\";
-            }
-            else
-            {
-                pos = strDllFolder.LastIndexOf("\\");
-                strDllFolder = strDllFolder.Substring(0, strDllFolder.IndexOf(@"\", pos)) + @"\";
-                strPDFDllFolder = strDllFolder;
-            }
 
-            dynamicDotNetTwain1.BarcodeDllPath = strDllFolder;
-
-            dynamicDotNetTwain1.PDFRasterizerDllPath = strPDFDllFolder;
-            dynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = true;
-            dynamicDotNetTwain1.MaxImagesInBuffer = 64;
-            dynamicDotNetTwain1.ScanInNewProcess = true;
         }
 
         private void btnLoadImage_Click(object sender, EventArgs e)
@@ -80,20 +74,15 @@ namespace AddBarcodeDemo
                             string strSuffix = strfilename.Substring(pos, strfilename.Length - pos).ToLower();
                             if (strSuffix.CompareTo(".pdf") == 0)
                             {
-				                this.dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
-                            	this.dynamicDotNetTwain1.SetPDFResolution(200);
-				                this.dynamicDotNetTwain1.LoadImage(strfilename);
-                                //this.dynamicDotNetTwain1.ConvertPDFToImage(strfilename, 200);
-                                continue;
+                                m_PDFRasterizer.ConvertToImage(strfilename,"",200,this as IConvertCallback);
                             }
                         }
-                        this.dynamicDotNetTwain1.LoadImage(strfilename);
+                        m_ImageCore.IO.LoadImage(strfilename);
                     }
                 }
             }
             catch
             {
-                MessageBox.Show(this.dynamicDotNetTwain1.ErrorString);
             }
         }
 
@@ -101,15 +90,16 @@ namespace AddBarcodeDemo
         {
             try
             {
-                if (dynamicDotNetTwain1.HowManyImagesInBuffer > 0)
+                if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0)
                 {
                     this.labMsg.Text = "";
                     this.labmsg2.Text = "";
 
                     if (txtBarcodeContent.Text != "" && txtBarcodeLocationX.Text != "" && txtBarocdeLocationY.Text != "" && txtBarcodeScale.Text != "")
                     {
-                        dynamicDotNetTwain1.AddBarcode(dynamicDotNetTwain1.CurrentImageIndexInBuffer, barcodeformat, txtBarcodeContent.Text,
+                        Bitmap temp = m_Generator.AddBarcode(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer), barcodeformat, txtBarcodeContent.Text,
                             txtHumanReadableTxt.Text, int.Parse(txtBarcodeLocationX.Text), int.Parse(txtBarocdeLocationY.Text), float.Parse(txtBarcodeScale.Text));
+                         m_ImageCore.ImageBuffer.SetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,temp);
                     }
                     else
                     {
@@ -152,7 +142,6 @@ namespace AddBarcodeDemo
             }
             catch
             {
-                MessageBox.Show(this.dynamicDotNetTwain1.ErrorString);
             }
         }
 
@@ -160,7 +149,7 @@ namespace AddBarcodeDemo
         {
             try
             {
-                if (dynamicDotNetTwain1.HowManyImagesInBuffer > 0)
+                if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0)
                 {
                     this.labMsg.Text = "";
                     this.labmsg2.Text = "";
@@ -205,35 +194,40 @@ namespace AddBarcodeDemo
 
                         if (rdbBMP.Checked == true)
                         {
-                            this.dynamicDotNetTwain1.SaveAsBMP(strFilename, this.dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            m_ImageCore.IO.SaveAsBMP(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
 
                         if (rdbJPEG.Checked == true)
                         {
-                            this.dynamicDotNetTwain1.SaveAsJPEG(strFilename, this.dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            m_ImageCore.IO.SaveAsJPEG(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
 
                         if (rdbPNG.Checked == true)
                         {
-                            this.dynamicDotNetTwain1.SaveAsPNG(strFilename, this.dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            m_ImageCore.IO.SaveAsPNG(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
 
                         if (rdbTIFF.Checked == true)
                         {
+                            List<short> tempListIndex = new List<short>();
                             if (chbMultiPageTIFF.Checked == true)
                             {
-                                this.dynamicDotNetTwain1.SaveAllAsMultiPageTIFF(strFilename);
+                                for (short sIndex = 0; sIndex < m_ImageCore.ImageBuffer.HowManyImagesInBuffer; sIndex++)
+                                {
+                                    tempListIndex.Add(sIndex);
+                                }
                             }
                             else
-                                this.dynamicDotNetTwain1.SaveAsTIFF(strFilename, dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            {
+                                tempListIndex.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                            }
+
+                            m_ImageCore.IO.SaveAsTIFF(strFilename, tempListIndex);
                         }
 
                         if (rdbPDF.Checked == true)
                         {
-                            if (chbMultiPagePDF.Checked == true)
-                                dynamicDotNetTwain1.SaveAllAsPDF(strFilename);
-                            else
-                                dynamicDotNetTwain1.SaveAsPDF(strFilename, dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            m_PDFCreator.Save(this as ISave, strFilename);
                         }
                     }
                 }
@@ -244,9 +238,9 @@ namespace AddBarcodeDemo
                     this.labmsg2.Location = new Point(this.groupBox4.Size.Width / 2 - this.labmsg2.Size.Width / 2, this.labmsg2.Location.Y);
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                MessageBox.Show(this.dynamicDotNetTwain1.ErrorString);
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -295,16 +289,16 @@ namespace AddBarcodeDemo
             switch (cmbBarcodeFormat.SelectedIndex)
             {
                 case 0:
-                    barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_39;
+                    barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_39;
                     break;
                 case 1:
-                    barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_128;
+                    barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_128;
                     break;
                 case 2:
-                    barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.PDF417;
+                    barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.PDF417;
                     break;
                 case 3:
-                    barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.QR_CODE;
+                    barcodeformat =  Dynamsoft.Barcode.Enums.EnumBarcodeFormat.QR_CODE;
                     break;
             }
         }
@@ -330,5 +324,63 @@ namespace AddBarcodeDemo
             if (e.KeyChar == '\b' || e.KeyChar == '.') e.Handled = false;
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+
+        }
+
+
+        #region ISave Members
+
+        public object GetAnnotations(int iPageNumber)
+        {
+            if (chbMultiPagePDF.Checked)
+            {
+                return m_ImageCore.ImageBuffer.GetMetaData((short)iPageNumber, EnumMetaDataType.enumAnnotation);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation);
+            }
+        }
+
+        public Bitmap GetImage(int iPageNumber)
+        {
+            if (chbMultiPagePDF.Checked)
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap((short)iPageNumber);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+            }
+        }
+
+        public int GetPageCount()
+        {
+            if (chbMultiPagePDF.Checked)
+            {
+                return m_ImageCore.ImageBuffer.HowManyImagesInBuffer;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        #endregion
+
+        #region IConvertCallback Members
+
+        public void LoadConvertResult(ConvertResult result)
+        {
+            m_ImageCore.IO.LoadImage(result.Image);
+            if(result.Annotations!=null)
+            {
+                m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation,result.Annotations,true);
+            }
+        }
+        #endregion
     }
 }

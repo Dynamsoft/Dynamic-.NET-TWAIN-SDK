@@ -10,13 +10,17 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Dynamsoft.Core;
+using Dynamsoft.PDF;
+using Dynamsoft.Core.Enums;
+
 
 namespace WpfControlsDemo
 {
     /// <summary>
     /// Interaction logic for SaveWindow.xaml
     /// </summary>
-    public partial class SaveWindow : Window
+    public partial class SaveWindow : Window,ISave
     {
         public SaveWindow()
         {
@@ -32,18 +36,27 @@ namespace WpfControlsDemo
             this.chkMultiPage.IsEnabled = false;
         }
 
-        private Dynamsoft.DotNet.TWAIN.Wpf.DynamicDotNetTwain twain = null;
-
-        public Dynamsoft.DotNet.TWAIN.Wpf.DynamicDotNetTwain TWAIN
+        private ImageCore m_ImageCore = null; 
+        public ImageCore Core
         {
-            set { 
-                twain = value;            
+            set 
+            {
+                m_ImageCore = value;
+            }
+        }
+
+        private PDFCreator m_PDFCreator = null;
+        public PDFCreator PDFCreator
+        {
+            set
+            {
+                m_PDFCreator = value;
             }
         }
 
         private void lbSave_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (twain.HowManyImagesInBuffer == 0)
+            if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer == 0)
             {
                 MessageBox.Show("There is no images in the buffer.");
                 return;
@@ -75,7 +88,14 @@ namespace WpfControlsDemo
                     saveFileDialog.DefaultExt = "jpg";
                     if ((bool)saveFileDialog.ShowDialog().GetValueOrDefault() == true)
                     {
-                        twain.SaveAsJPEG(saveFileDialog.FileName, twain.CurrentImageIndexInBuffer);
+                        try
+                        {
+                            m_ImageCore.IO.SaveAsJPEG(saveFileDialog.FileName, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
                     }
                 }
                 if ((bool)rbBMP.IsChecked.GetValueOrDefault() == true)
@@ -84,7 +104,7 @@ namespace WpfControlsDemo
                     saveFileDialog.DefaultExt = "bmp";
                     if ((bool)saveFileDialog.ShowDialog().GetValueOrDefault() == true)
                     {
-                        twain.SaveAsBMP(saveFileDialog.FileName, twain.CurrentImageIndexInBuffer);
+                        m_ImageCore.IO.SaveAsBMP(saveFileDialog.FileName,m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                     }
                 }
                 if ((bool)rbPNG.IsChecked.GetValueOrDefault() == true)
@@ -93,7 +113,7 @@ namespace WpfControlsDemo
                     saveFileDialog.DefaultExt = "png";
                     if ((bool)saveFileDialog.ShowDialog().GetValueOrDefault() == true)
                     {
-                        twain.SaveAsPNG(saveFileDialog.FileName, twain.CurrentImageIndexInBuffer);
+                        m_ImageCore.IO.SaveAsPNG(saveFileDialog.FileName,m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                     }
                 }
                 if ((bool)rbTIFF.IsChecked.GetValueOrDefault() == true)
@@ -103,14 +123,19 @@ namespace WpfControlsDemo
                     if ((bool)saveFileDialog.ShowDialog().GetValueOrDefault() == true)
                     {
                         // Multi page TIFF
+                        List<short> tempListIndex = new List<short>();
                         if (chkMultiPage.IsChecked == true)
                         {
-                            twain.SaveAllAsMultiPageTIFF(saveFileDialog.FileName);
+                            for (short sIndex = 0; sIndex < m_ImageCore.ImageBuffer.HowManyImagesInBuffer; sIndex++)
+                            {
+                                tempListIndex.Add(sIndex);
+                            }
                         }
                         else
                         {
-                            twain.SaveAsTIFF(saveFileDialog.FileName, twain.CurrentImageIndexInBuffer);
+                            tempListIndex.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
+                        m_ImageCore.IO.SaveAsTIFF(saveFileDialog.FileName, tempListIndex);
                     }
                 }
                 if ((bool)rbPDF.IsChecked.GetValueOrDefault() == true)
@@ -119,15 +144,8 @@ namespace WpfControlsDemo
                     saveFileDialog.DefaultExt = "pdf";
                     if ((bool)saveFileDialog.ShowDialog().GetValueOrDefault() == true)
                     {
-                        // Multi page PDF
-                        if (chkMultiPage.IsChecked == true)
-                        {
-                            twain.SaveAllAsPDF(saveFileDialog.FileName);
-                        }
-                        else
-                        {
-                            twain.SaveAsPDF(saveFileDialog.FileName, twain.CurrentImageIndexInBuffer);
-                        }
+                        m_PDFCreator.Save(this as ISave,saveFileDialog.FileName);
+                        
                     }
                 }
             }
@@ -222,5 +240,38 @@ namespace WpfControlsDemo
             this.chkMultiPage.IsChecked = bChecked;
             this.chkMultiPage.IsEnabled = bChecked;
         }
+
+        #region ISave Members
+
+        public object GetAnnotations(int iPageNumber)
+        {
+            return null;
+        }
+
+        public System.Drawing.Bitmap GetImage(int iPageNumber)
+        {
+            if (chkMultiPage.IsChecked == true)
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap((short)iPageNumber);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap((short)m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+            }
+        }
+
+        public int GetPageCount()
+        {
+            if(chkMultiPage.IsChecked == true)
+            {
+                return m_ImageCore.ImageBuffer.HowManyImagesInBuffer;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        #endregion
     }
 }

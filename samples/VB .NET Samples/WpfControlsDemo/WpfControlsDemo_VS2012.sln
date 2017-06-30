@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "WpfControlsDemo", "WpfControlsDemo\WpfControlsDemo_VS2012.vbproj", "{5202D954-94FF-44E9-B417-FDE61F7BD3D8}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "WpfControlsDemo", "WpfControlsDemo\WpfControlsDemo_Vs2012.vbproj", "{F0CFF92D-F06B-4278-92E1-E937F19F50B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,14 +11,14 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5202D954-94FF-44E9-B417-FDE61F7BD3D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5202D954-94FF-44E9-B417-FDE61F7BD3D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5202D954-94FF-44E9-B417-FDE61F7BD3D8}.Debug|x86.ActiveCfg = Debug|x86
-		{5202D954-94FF-44E9-B417-FDE61F7BD3D8}.Debug|x86.Build.0 = Debug|x86
-		{5202D954-94FF-44E9-B417-FDE61F7BD3D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5202D954-94FF-44E9-B417-FDE61F7BD3D8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5202D954-94FF-44E9-B417-FDE61F7BD3D8}.Release|x86.ActiveCfg = Release|x86
-		{5202D954-94FF-44E9-B417-FDE61F7BD3D8}.Release|x86.Build.0 = Release|x86
+		{F0CFF92D-F06B-4278-92E1-E937F19F50B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0CFF92D-F06B-4278-92E1-E937F19F50B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0CFF92D-F06B-4278-92E1-E937F19F50B7}.Debug|x86.ActiveCfg = Debug|x86
+		{F0CFF92D-F06B-4278-92E1-E937F19F50B7}.Debug|x86.Build.0 = Debug|x86
+		{F0CFF92D-F06B-4278-92E1-E937F19F50B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0CFF92D-F06B-4278-92E1-E937F19F50B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0CFF92D-F06B-4278-92E1-E937F19F50B7}.Release|x86.ActiveCfg = Release|x86
+		{F0CFF92D-F06B-4278-92E1-E937F19F50B7}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

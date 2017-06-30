@@ -4,13 +4,13 @@
     Title="ScanWindow" Height="300" Width="300" ResizeMode="CanMinimize">
     <Grid>
         <Label Height="28" Margin="34,20,124,0" Name="label1" VerticalAlignment="Top" Content="Select Source"/>
-        <ComboBox Height="23" Margin="39,46,37,0" Name="cbxSources" VerticalAlignment="Top" />
+        <ComboBox Height="23" Margin="39,46,37,0" Name="cbxSources" VerticalAlignment="Top"/>
         <CheckBox Height="16" Margin="40,85,0,0" Name="ckbShowUI" VerticalAlignment="Top" Content="Show UI" HorizontalAlignment="Left" Width="64" />
         <CheckBox Height="16" Margin="125,85,106,0" Name="ckbADF" VerticalAlignment="Top" Content="ADF"/>
         <CheckBox Height="16" Margin="0,85,37,0" Name="ckbDuplex" VerticalAlignment="Top" Content="Duplex" HorizontalAlignment="Right" Width="62" />
         <GroupBox Header="Pixel Type" Margin="39,113,37,83" Name="groupBox1">
             <StackPanel Orientation="Horizontal">
-                <RadioButton Height="16" Name="rbBW" Content="B&amp;W" Margin="15,0,5,0"/>
+                <RadioButton Height="16" Name="rbBW" Content="B&amp;W" Margin="15,0,5,0"/> 
                 <RadioButton Height="16" Name="rbGrey" Content="Gray" IsChecked="True" Margin="5,0"/>
                 <RadioButton Height="16" Name="rbColorful" Content="Color" Margin="5,0"/>
             </StackPanel>

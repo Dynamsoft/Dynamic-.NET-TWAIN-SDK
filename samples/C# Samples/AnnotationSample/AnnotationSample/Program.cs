@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace AnnotationSample
+namespace Annotation_Samples
 {
     static class Program
     {

@@ -1,3 +1,6 @@
+using Dynamsoft.Core;
+using Dynamsoft.Core.Enums;
+using Dynamsoft.TWAIN;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -5,65 +8,106 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Dynamsoft.TWAIN.Interface;
+using Dynamsoft.PDF;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace ShowInfoAndSaveImage
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form,IAcquireCallback,ISave
     {
-        Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat sImageType;
+        EnumImageFileFormat sImageType;
+        private TwainManager m_TwainManager = null;
+        private ImageCore m_ImageCore = null;
+        private Dynamsoft.PDF.PDFCreator m_PDFCreator = null;
+        private String m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
         public Form1()
         {
             InitializeComponent();
-
+            m_TwainManager = new TwainManager(m_StrProductKey);
+            m_ImageCore = new ImageCore();
+            dsViewer1.Bind(m_ImageCore);
+            dsViewer1.SetViewMode(1, 1);
             BMPradio.Checked = true;
             sImageType = 0;
             MultiTIFF.Enabled = false;
             MultiPDF.Enabled = false;
+            m_PDFCreator = new PDFCreator(m_StrProductKey);
+            m_RefreshInfo = new RefreshInfo(ShowImageInfo); 
 
-            dynamicDotNetTwain.ScanInNewProcess = true;
-            this.dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
-            this.dynamicDotNetTwain.SetViewMode(1,1);
         }
+
+
+        private delegate void RefreshInfo(int strImageXResolution,int strImageYResolution,int strImageWidth,int strImageLength,string strImageBitsPerixel,string strImagePixelType,
+                                        string strImageLayoutFrameLeft,string strImageLayoutFrameTop,string strImageLayoutFrameRight,string strImageLayoutFrameBottom,
+                                        string strImageLayoutDocumentNumber,string strImageLayoutPageNumber,string strImageLayoutFrameNumber);
+
+
+        private RefreshInfo m_RefreshInfo;
 
         public string GetImageSize()
         {
             string ImageSize = "";
-            if (dynamicDotNetTwain.HowManyImagesInBuffer != 0)
+            if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer != 0)
             {
-                ImageSize = dynamicDotNetTwain.GetImageSizeWithSpecifiedType(dynamicDotNetTwain.CurrentImageIndexInBuffer, sImageType).ToString();
+                ImageSize = m_ImageCore.IO.GetImageSizeWithSpecifiedType(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, sImageType).ToString();
             }
             return ImageSize;
         }
-  
+
         private void btnScan_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.IfDisableSourceAfterAcquire = true;
-            if (dynamicDotNetTwain.SelectSource())
-                dynamicDotNetTwain.AcquireImage();
+
+            List<string> tempList = new List<string>();
+            for (int i = 0; i < m_TwainManager.SourceCount; i++)
+            {
+                tempList.Add(m_TwainManager.SourceNameItems((short)i));
+            }
+            SourceListWrapper tempSourceListWrapper = new SourceListWrapper(tempList);
+
+            int iSelectIndex = tempSourceListWrapper.SelectSource();
+            if (iSelectIndex == -1)
+            {
+                return;
+            }
+            else
+            {
+                m_TwainManager.IfDisableSourceAfterAcquire = true;
+                m_TwainManager.IfShowUI = true;
+                m_TwainManager.SelectSourceByIndex((short)iSelectIndex);
+                m_TwainManager.AcquireImage(this as IAcquireCallback);
+            }
         }
 
         private void TIFFradio_CheckedChanged(object sender, EventArgs e)
         {
             MultiTIFF.Enabled = true;
             MultiPDF.Enabled = false;
-            sImageType = Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_TIF;
+            sImageType = EnumImageFileFormat.WEBTW_TIF;
             txtFileSize.Text = GetImageSize();
         }
 
+        private byte[] m_PDFFileBytes = null;
         private void PDFradio_CheckedChanged(object sender, EventArgs e)
         {
             MultiTIFF.Enabled = false;
             MultiPDF.Enabled = true;
-            sImageType = Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_PDF;
-            txtFileSize.Text = GetImageSize();
-        }
+            m_PDFFileBytes = null;
+            m_PDFFileBytes = m_PDFCreator.SaveAsBytes(this as ISave);
+            txtFileSize.Text = "0";
+            if (m_PDFFileBytes != null)
+            {
+                txtFileSize.Text = m_PDFFileBytes.Length.ToString();
+            }
 
+        }
 
         private void BMPradio_CheckedChanged(object sender, EventArgs e)
         {
             MultiTIFF.Enabled = false;
             MultiPDF.Enabled = false;
-            sImageType = Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_BMP;
+            sImageType = EnumImageFileFormat.WEBTW_BMP;
             txtFileSize.Text = GetImageSize();
 
         }
@@ -72,7 +116,7 @@ namespace ShowInfoAndSaveImage
         {
             MultiTIFF.Enabled = false;
             MultiPDF.Enabled = false;
-            sImageType =  Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_JPG;
+            sImageType = EnumImageFileFormat.WEBTW_JPG;
             txtFileSize.Text = GetImageSize();
         }
 
@@ -80,7 +124,7 @@ namespace ShowInfoAndSaveImage
         {
             MultiTIFF.Enabled = false;
             MultiPDF.Enabled = false;
-            sImageType =  Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_PNG;
+            sImageType = EnumImageFileFormat.WEBTW_PNG;
             txtFileSize.Text = GetImageSize();
         }
 
@@ -94,88 +138,96 @@ namespace ShowInfoAndSaveImage
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (this.dynamicDotNetTwain.HowManyImagesInBuffer > 0)
+            try
             {
-                string strFile = "";
-                if (BMPradio.Checked == true)
+                if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0)
                 {
-                    dlgFileSave.Filter = "BMP File (*.bmp)|*.bmp";
-                }
-                else if (JPEGradio.Checked == true)
-                {
-                    dlgFileSave.Filter = "JPEG File (*.jpg)|*.jpg";
-                }
-                else if (PNGradio.Checked == true)
-                {
-                    dlgFileSave.Filter = "PNG File (*.png)|*.png";
-                }
-                else if (TIFFradio.Checked == true)
-                {
-                    dlgFileSave.Filter = "TIFF File (*.tif)|*.tif";
-                }
-                else if (PDFradio.Checked == true)
-                {
-                    dlgFileSave.Filter = "PDF File (*.pdf)|*.pdf";
-                }
-                dlgFileSave.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
-                dlgFileSave.FileName = "";
-                if (dlgFileSave.ShowDialog() == DialogResult.OK)
-                {
-                    strFile = dlgFileSave.FileName;
-
-
+                    string strFile = "";
                     if (BMPradio.Checked == true)
                     {
-                        dynamicDotNetTwain.SaveAsBMP(strFile, dynamicDotNetTwain.CurrentImageIndexInBuffer);
+                        dlgFileSave.Filter = "BMP File (*.bmp)|*.bmp";
                     }
                     else if (JPEGradio.Checked == true)
                     {
-
-                        dynamicDotNetTwain.SaveAsJPEG(strFile, dynamicDotNetTwain.CurrentImageIndexInBuffer);
+                        dlgFileSave.Filter = "JPEG File (*.jpg)|*.jpg";
                     }
                     else if (PNGradio.Checked == true)
                     {
-
-                        dynamicDotNetTwain.SaveAsPNG(strFile, dynamicDotNetTwain.CurrentImageIndexInBuffer);
+                        dlgFileSave.Filter = "PNG File (*.png)|*.png";
                     }
                     else if (TIFFradio.Checked == true)
                     {
-
-                        if (MultiTIFF.Checked == true)
-                        {
-                            dynamicDotNetTwain.SaveAllAsMultiPageTIFF(strFile);
-                        }
-                        else
-                        {
-                            dynamicDotNetTwain.SaveAsTIFF(strFile, dynamicDotNetTwain.CurrentImageIndexInBuffer);
-                        }
+                        dlgFileSave.Filter = "TIFF File (*.tif)|*.tif";
                     }
                     else if (PDFradio.Checked == true)
                     {
-                        dynamicDotNetTwain.IfSaveAnnotations = true;
-                        if (MultiPDF.Checked == true)
+                        dlgFileSave.Filter = "PDF File (*.pdf)|*.pdf";
+                    }
+                    dlgFileSave.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
+                    dlgFileSave.FileName = "";
+                    if (dlgFileSave.ShowDialog() == DialogResult.OK)
+                    {
+                        strFile = dlgFileSave.FileName;
+
+
+                        if (BMPradio.Checked == true)
                         {
-                            dynamicDotNetTwain.SaveAllAsPDF(strFile);
+                            m_ImageCore.IO.SaveAsBMP(strFile, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
-                        else
+                        else if (JPEGradio.Checked == true)
                         {
-                            dynamicDotNetTwain.SaveAsPDF(strFile, dynamicDotNetTwain.CurrentImageIndexInBuffer);
+
+                            m_ImageCore.IO.SaveAsJPEG(strFile, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                        }
+                        else if (PNGradio.Checked == true)
+                        {
+
+                            m_ImageCore.IO.SaveAsPNG(strFile, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                        }
+                        else if (TIFFradio.Checked == true)
+                        {
+                            List<short> tempImageIndex = new List<short>();
+                            if (MultiTIFF.Checked == true)
+                            {
+                                for (short sIndex = 0; sIndex < m_ImageCore.ImageBuffer.HowManyImagesInBuffer; sIndex++)
+                                {
+                                    tempImageIndex.Add(sIndex);
+                                }
+                            }
+                            else
+                            {
+                                tempImageIndex.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                            }
+
+                            m_ImageCore.IO.SaveAsTIFF(strFile, tempImageIndex);
+                        }
+                        else if (PDFradio.Checked == true)
+                        {
+                            m_PDFCreator.Save(this as ISave, strFile);
                         }
                     }
                 }
-            }      
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            
         }
 
         private void btnRemove_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain.RemoveImage(dynamicDotNetTwain.CurrentImageIndexInBuffer);
-            btnScan.Enabled = true;
+            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer != -1)
+            {
+                m_ImageCore.ImageBuffer.RemoveImage(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                btnScan.Enabled = true;
+            }
         }
-
 
         private void Clear()
         {
-            dynamicDotNetTwain.RemoveAllImages();
+            m_ImageCore.ImageBuffer.RemoveAllImages();
             edtXResolution.Text = "";
             edtYResolution.Text = "";
             edtWidth.Text = "";
@@ -195,37 +247,34 @@ namespace ShowInfoAndSaveImage
         }
 
         private void dynamicDotNetTwain_OnPostTransfer()
-        {           
-            if (dynamicDotNetTwain.HowManyImagesInBuffer >= dynamicDotNetTwain.MaxImagesInBuffer)
+        {
+            if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer >= m_ImageCore.ImageBuffer.MaxImagesInBuffer)
             {
                 btnScan.Enabled = false;
             }
         }
 
-
-        private void ShowImageInfo()
+        private void ShowImageInfo(int strImageXResolution, int strImageYResolution, int strImageWidth, int strImageLength, string strImageBitsPerixel, string strImagePixelType, string strImageLayoutFrameLeft, string strImageLayoutFrameTop, string strImageLayoutFrameRight, string strImageLayoutFrameBottom,string strDocumentNumber,string strPageNumber,string strFrameNumber)
         {
-            edtXResolution.Text = dynamicDotNetTwain.ImageXResolution.ToString();
-            edtYResolution.Text = dynamicDotNetTwain.ImageYResolution.ToString();
-            edtWidth.Text = dynamicDotNetTwain.ImageWidth.ToString();
-            edtLength.Text = dynamicDotNetTwain.ImageLength.ToString();
-            edtBitsPerPixel.Text = dynamicDotNetTwain.ImageBitsPerPixel.ToString();
-            edtPixelType.Text = dynamicDotNetTwain.ImagePixelType.ToString();
+            edtXResolution.Text = strImageXResolution.ToString();
+            edtYResolution.Text = strImageYResolution.ToString();
+            edtWidth.Text = strImageWidth.ToString();
+            edtLength.Text = strImageLength.ToString();
+            edtBitsPerPixel.Text = strImageLength.ToString();
+            edtPixelType.Text = strImagePixelType.ToString();
+            edtFrameLeft.Text = strImageLayoutFrameLeft.ToString();
+            edtFrameTop.Text = strImageLayoutFrameTop.ToString();
+            edtFrameRight.Text = strImageLayoutFrameRight.ToString();
+            edtFrameBottom.Text = strImageLayoutFrameBottom.ToString();
 
-            edtFrameLeft.Text = dynamicDotNetTwain.ImageLayoutFrameLeft.ToString();
-            edtFrameTop.Text = dynamicDotNetTwain.ImageLayoutFrameTop.ToString();
-            edtFrameRight.Text = dynamicDotNetTwain.ImageLayoutFrameRight.ToString();
-            edtFrameBottom.Text = dynamicDotNetTwain.ImageLayoutFrameBottom.ToString();
-            edtDocNumber.Text = dynamicDotNetTwain.ImageLayoutDocumentNumber.ToString();
-            edtPageNumber.Text = dynamicDotNetTwain.ImageLayoutPageNumber.ToString();
-            edtFrameNumber.Text = dynamicDotNetTwain.ImageLayoutFrameNumber.ToString();
+
+            edtDocNumber.Text = strDocumentNumber;
+            edtPageNumber.Text = strPageNumber;
+            edtFrameNumber.Text = strFrameNumber;
+            edtPageNumber.Text = m_TwainManager.ImageLayoutPageNumber.ToString();
+            edtFrameNumber.Text = m_TwainManager.ImageLayoutFrameNumber.ToString();
 
             txtFileSize.Text = GetImageSize();
-        }
-
-        private void dynamicDotNetTwain_OnPostAllTransfers()
-        {
-            ShowImageInfo();
         }
 
         private void dynamicDotNetTwain_OnPreAllTransfers()
@@ -233,9 +282,95 @@ namespace ShowInfoAndSaveImage
             Clear();
         }
 
-        private void dynamicDotNetTwain_OnTopImageInTheViewChanged(short sIndex)
+        public void LoadConvertResult(ConvertResult result)
         {
-            ShowImageInfo();
+        }
+
+        public void OnPostAllTransfers()
+        {
+            this.BeginInvoke(m_RefreshInfo, (int)m_TwainManager.ImageXResolution,
+                            (int)m_TwainManager.ImageYResolution,
+                            (int)m_TwainManager.ImageWidth,
+                            (int)m_TwainManager.ImageLength,
+                            m_TwainManager.ImageBitsPerPixel.ToString(),
+                            m_TwainManager.ImagePixelType.ToString(),
+                            m_TwainManager.GetImageLayout().Left.ToString(),
+                            m_TwainManager.GetImageLayout().Top.ToString(),
+                            m_TwainManager.GetImageLayout().Right.ToString(),
+                            m_TwainManager.GetImageLayout().Bottom.ToString(),
+                            m_TwainManager.ImageLayoutDocumentNumber.ToString(),
+                            m_TwainManager.ImageLayoutPageNumber.ToString(),
+                            m_TwainManager.ImageLayoutFrameNumber.ToString()
+                            );
+            Console.WriteLine("OnPostAllTransfer");
+        }
+
+        public bool OnPostTransfer(Bitmap bit)
+        {
+            m_ImageCore.ImageBuffer.RemoveAllImages();
+            m_ImageCore.IO.LoadImage(bit);
+            return true;
+        }
+
+        public void OnPreAllTransfers()
+        {
+        }
+
+        public bool OnPreTransfer()
+        {
+            return true;
+        }
+
+        public void OnSourceUIClose()
+        {
+        }
+
+        public void OnTransferCancelled()
+        {
+        }
+
+        public void OnTransferError()
+        {
+        }
+
+        public object GetAnnotations(int iPageNumber)
+        {
+            if (MultiPDF.Checked)
+            {
+                return m_ImageCore.ImageBuffer.GetMetaData((short)iPageNumber,EnumMetaDataType.enumAnnotation);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation);
+            }
+        }
+
+        public Bitmap GetImage(int iPageNumber)
+        {
+            if (MultiPDF.Checked)
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap((short)iPageNumber);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+            }
+        }
+
+        public int GetPageCount()
+        {
+            if (MultiPDF.Checked)
+            {
+                return m_ImageCore.ImageBuffer.HowManyImagesInBuffer;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            m_TwainManager.Dispose();
         }
     }
 }

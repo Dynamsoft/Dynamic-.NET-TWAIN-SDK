@@ -1,160 +1,119 @@
-﻿Imports Dynamsoft.DotNet.TWAIN
-Imports Dynamsoft.DotNet.TWAIN.Enums
-Imports System.Drawing
+Imports System.Collections.Generic
+Imports System.Linq
+Imports System.Text
 Imports System.Windows
+Imports System.Windows.Controls
+Imports System.Windows.Data
+Imports System.Windows.Documents
+Imports System.Windows.Input
+Imports System.Windows.Media
+Imports System.Windows.Media.Imaging
+Imports System.Windows.Navigation
+Imports System.Windows.Shapes
+Imports Dynamsoft.Core
+Imports Dynamsoft.UVC
+Imports System.Windows.Interop
+Imports System.Drawing
+Imports System.IO
+Imports System.Runtime.InteropServices
+Imports Dynamsoft.Common
+
+''' <summary>
+''' Interaction logic for Window1.xaml
+''' </summary>
 Namespace WpfWebcamDemo
     Partial Public Class Window1
         Inherits Window
-        Private m_iRotate As Integer
-        Private m_dDesignWidth As Double = 898
+        Private m_iRotate As Integer = 0
+        Private m_StrProductKey As String
+        Private m_ImageCore As ImageCore = Nothing
+        Private m_CameraManager As CameraManager = Nothing
+        Private m_Camera As Camera = Nothing
         Public Sub New()
             InitializeComponent()
-            Me.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
-            Me.ResizeMode = System.Windows.ResizeMode.CanMinimize
-            Me.dynamicDotNetTwain1.IfShowUI = True
-            Me.chkContainer.IsChecked = False
-            Me.dynamicDotNetTwain1.SupportedDeviceType = EnumSupportedDeviceType.SDT_WEBCAM
+            m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+            m_ImageCore = New ImageCore()
+            dSViewer1.Bind(m_ImageCore)
+            m_CameraManager = New CameraManager(m_StrProductKey)
+            AddHandler Me.cbxSources.SelectionChanged, AddressOf cbxSources_SelectionChanged
             cbxSources.SelectedIndex = 0
+
+            AddHandler Me.Loaded, New RoutedEventHandler(AddressOf Window1_Loaded)
+
+            AddHandler Me.cbxSources.SelectionChanged, New SelectionChangedEventHandler(AddressOf cbxSources_SelectionChanged)
         End Sub
 
-        Private Sub btnCaptureImage_Click(ByVal sender As Object, ByVal e As RoutedEventArgs)
-            Try
 
-                If (cbxSources.Items.Count > 0) Then
-                    dynamicDotNetTwain1.AcquireImage()
-                Else
-                MessageBox.Show("No webcam source detected!")
+
+        Private Sub cbxSources_SelectionChanged(sender As Object, e As SelectionChangedEventArgs)
+            If m_CameraManager.GetCameraNames() IsNot Nothing Then
+                If DirectCast(sender, ComboBox).SelectedIndex >= 0 AndAlso DirectCast(sender, ComboBox).SelectedIndex < m_CameraManager.GetCameraNames().Count Then
+                    m_Camera = m_CameraManager.SelectCamera(CShort(cbxSources.SelectedIndex))
+                    Dim windowHandle As IntPtr = New WindowInteropHelper(Me).Handle
+                    m_Camera.SetVideoContainer(windowHandle)
+                    m_Camera.Open()
+                    ResizeVideoWindow()
                 End If
+            End If
 
-            Catch ex As Exception
-                MessageBox.Show(ex.Message)
-            End Try
         End Sub
 
-        Private Sub btnRemoveAllImage_Click(ByVal sender As Object, ByVal e As RoutedEventArgs)
-            dynamicDotNetTwain1.RemoveAllImages()
-        End Sub
-
-        Private Sub Window_Loaded(ByVal sender As Object, ByVal e As RoutedEventArgs)
+        Private Sub Window1_Loaded(sender As Object, e As RoutedEventArgs)
             Try
-                AddHandler cbxSources.DropDownOpened, AddressOf cbxSources_DropDownOpened
-                Me.chkContainer.IsChecked = True
-                Dim i As Short
-                For i = 0 To dynamicDotNetTwain1.SourceCount - 1
-                    Dim SourceCountName = dynamicDotNetTwain1.SourceNameItems(i)
-                    If (SourceCountName Is Nothing) Then
-                    Else
-                        cbxSources.Items.Add(SourceCountName)
+                If m_CameraManager.GetCameraNames() IsNot Nothing Then
+                    For Each temp As String In m_CameraManager.GetCameraNames()
+                        Me.cbxSources.Items.Add(temp)
+                    Next
+                    If cbxSources.Items.Count > 0 Then
+                        cbxSources.SelectedIndex = 0
                     End If
-                Next
-                If (cbxSources.Items.Count > 0) Then
-                    cbxSources.SelectedIndex = 0
+
                 End If
-                For i = 0 To 3
-                    Dim sRotateType As String = (90 * i).ToString + "°"
-                    cbxRotateType.Items.Add(sRotateType)
-                Next
-                cbxRotateType.SelectedIndex = 0
             Catch exp As Exception
+                MessageBox.Show(exp.Message)
             End Try
         End Sub
 
-        Private Sub cbxSources_SelectionChanged(ByVal sender As Object, ByVal e As EventArgs) Handles cbxSources.SelectionChanged
-            If (cbxSources.SelectedIndex >= 0& & cbxSources.SelectedIndex < dynamicDotNetTwain1.SourceCount) Then
-                dynamicDotNetTwain1.SelectSourceByIndex(cbxSources.SelectedIndex)
-                m_iRotate = 0
-                cbxRotateType.SelectedIndex = 0
-                dynamicDotNetTwain1.RotateVideo(EnumVideoRotateType.Rotate_0)
-                dynamicDotNetTwain1.OpenSource()
-                ResizeVideoWindow(m_iRotate)
+        Private Sub btnCaptureImage_Click(sender As Object, e As RoutedEventArgs)
+            If m_Camera IsNot Nothing Then
+                Dim windowHandle As IntPtr = New WindowInteropHelper(Me).Handle
+                m_Camera.SetVideoContainer(windowHandle)
+                m_Camera.Open()
+                ResizeVideoWindow()
+                Dim temp As Bitmap = m_Camera.GrabImage()
+                m_ImageCore.IO.LoadImage(temp)
             End If
         End Sub
 
-        Private Sub chkContainer_Checked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkContainer.Checked
-            Me.border1.Visibility = Windows.Visibility.Visible
-            Me.image1.Visibility = Windows.Visibility.Visible
-            Me.Width = m_dDesignWidth
-            chkFocus.IsEnabled = True
-            dynamicDotNetTwain1.SetVideoContainer(image1)
-            ResizeVideoWindow(m_iRotate)
+        Private Sub btnRemoveAllImage_Click(sender As Object, e As RoutedEventArgs)
+            m_ImageCore.ImageBuffer.RemoveAllImages()
         End Sub
 
-        Private Sub chkContainer_Unchecked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkContainer.Unchecked
-            Me.border1.Visibility = Windows.Visibility.Hidden
-            Me.image1.Visibility = Windows.Visibility.Hidden
-            Me.Width = m_dDesignWidth - Me.border1.ActualWidth - 45
-            chkFocus.IsChecked = False
-            chkFocus.IsEnabled = False
-            dynamicDotNetTwain1.SetVideoContainer(Nothing)
+        Private Sub button1_Click(sender As Object, e As RoutedEventArgs)
+            If m_Camera IsNot Nothing Then
+                Dim windowHandle As IntPtr = New WindowInteropHelper(Me).Handle
+                m_Camera.SetVideoContainer(windowHandle)
+                m_Camera.Open()
+                ResizeVideoWindow()
+            End If
         End Sub
 
-        Private Sub ResizeVideoWindow(ByVal iRotate As Integer)
-            If (chkContainer.IsChecked = True) Then
-                Dim camResolution As Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution = dynamicDotNetTwain1.ResolutionForCam
-                If ((camResolution Is Nothing)) Then
-                Else
-                    If (camResolution.Width > 0 And camResolution.Height > 0) Then
-                        If (iRotate Mod 2 = 0) Then
-                            Dim iVideoWidth As Double = border1.Width
-                            Dim iVideoHeight As Double = border1.Width * camResolution.Height / camResolution.Width
-                            If (iVideoHeight < border1.ActualHeight) Then
-                                image1.Width = border1.Width
-                                image1.Height = iVideoHeight
-                                image1.Margin = New Thickness(0, (border1.ActualHeight - iVideoHeight) / 2, 0, 0)
-                            End If
-                        Else
-                            Dim iVideoHeight As Double = border1.Height
-                            Dim iVideoWidth As Double = border1.Height * camResolution.Height / camResolution.Width
-                            If (iVideoWidth < border1.Width) Then
-                                image1.Height = border1.Height
-                                image1.Width = iVideoWidth
-                                image1.Margin = New Thickness((border1.ActualWidth - iVideoWidth) / 2, 0, 0, 0)
-                            End If
-                        End If
-                    End If
+        Private Sub button2_Click(sender As Object, e As RoutedEventArgs)
+            If m_Camera IsNot Nothing Then
+                m_Camera.Close()
+            End If
+        End Sub
+
+        Private Sub ResizeVideoWindow()
+            If m_Camera IsNot Nothing Then
+                Dim tempCamResolution As CamResolution = m_Camera.CurrentResolution
+                If tempCamResolution IsNot Nothing Then
+                    Dim iVideoWidth As Double = border1.Width
+                    Dim iVideoHeight As Double = border1.Width * tempCamResolution.Height / tempCamResolution.Width
+                    m_Camera.ResizeVideoWindow(CInt(Math.Truncate(border1.Margin.Left + border1.BorderThickness.Left)), CInt(Math.Truncate(border1.Margin.Top + (border1.ActualHeight - iVideoHeight) / 2)), CInt(Math.Truncate(iVideoWidth - border1.BorderThickness.Left - border1.BorderThickness.Right)), CInt(Math.Truncate(iVideoHeight)))
                 End If
             End If
-
-
-        End Sub
-
-        Private Sub image1_MouseLeftButtonDown(ByVal sender As Object, ByVal e As MouseButtonEventArgs) Handles image1.MouseLeftButtonDown
-            If (chkFocus.IsChecked) Then
-                chkContainer.IsChecked = True
-                chkContainer.IsEnabled = False
-                Dim wpFocus As System.Windows.Point = e.GetPosition(e.Source)
-                Dim rectRect As System.Windows.Rect = New System.Windows.Rect(wpFocus.X - 25, wpFocus.Y - 25, 50, 50)
-                dynamicDotNetTwain1.FocusOnArea(rectRect)
-            Else
-                chkContainer.IsEnabled = True
-            End If
-        End Sub
-
-        'Private Sub chkFocus_Checked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkFocus.Checked
-        '    'chkContainer.IsChecked = True
-        '    'chkContainer.IsEnabled = False
-        'End Sub
-
-        'Private Sub chkFocus_Unchecked(ByVal sender As Object, ByVal e As RoutedEventArgs) Handles chkFocus.Unchecked
-        '    'chkContainer.IsEnabled = True
-        'End Sub
-
-        'Private Sub cbxRotateType_DropDownClosed(sender As Object, e As EventArgs) Handles cbxRotateType.DropDownClosed
-        '    m_iRotate = cbxRotateType.SelectedIndex
-        '    dynamicDotNetTwain1.RotateVideo(CType(System.Enum.Parse(GetType(Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType), Val(cbxRotateType.SelectedIndex)), Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType))
-        '    ResizeVideoWindow(m_iRotate)
-        'End Sub
-        Private Sub cbxRotateType_SelectionChaanged(sender As Object, e As EventArgs) Handles cbxRotateType.SelectionChanged
-            m_iRotate = cbxRotateType.SelectedIndex
-            dynamicDotNetTwain1.RotateVideo(CType(System.Enum.Parse(GetType(Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType), Val(cbxRotateType.SelectedIndex)), Dynamsoft.DotNet.TWAIN.Enums.EnumVideoRotateType))
-            ResizeVideoWindow(m_iRotate)
-        End Sub
-
-        Private Sub cbxSources_DropDownOpened(sender As Object, e As EventArgs)
-            RemoveHandler cbxSources.SelectionChanged, AddressOf cbxSources_SelectionChanged
-            cbxSources.SelectedIndex = -1
-            AddHandler cbxSources.SelectionChanged, AddressOf cbxSources_SelectionChanged
-
         End Sub
     End Class
 End Namespace
+

@@ -1,149 +1,167 @@
-﻿Public Class Form1
-    Dim m_strServerName, m_strPort, m_strActionPage As String
+Imports Dynamsoft.TWAIN
+Imports System.Collections.Generic
+Imports System.ComponentModel
+Imports System.Data
+Imports System.Drawing
+Imports System.Text
+Imports System.Windows.Forms
+Imports Dynamsoft.TWAIN.Interface
+Imports Dynamsoft.Core
+Imports Dynamsoft.PDF
+Imports Dynamsoft.Core.Enums
+Imports System.Runtime.InteropServices
+Imports System.IO
 
-    Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-        m_strServerName = "www.dynamsoft.com"
-        m_strPort = "80"
-        m_strActionPage = "/demo/DNT/SaveToDB.aspx"
+
+
+Partial Public Class Form1
+    Inherits Form
+    Implements IAcquireCallback
+    Implements ISave
+    Private m_TwainManager As TwainManager = Nothing
+    Private m_ImageCore As ImageCore = Nothing
+    Private m_strServerName As String = "www.dynamsoft.com"
+    Private m_strPort As String = "80"
+    Private m_strActionPage As String = "/demo/DNT/SaveToDB.aspx"
+    Private m_StrProductKey As String
+
+    Public Sub New()
+        InitializeComponent()
+        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_TwainManager = New TwainManager(m_StrProductKey)
+        m_ImageCore = New ImageCore()
+        dsViewer1.Bind(m_ImageCore)
         Me.txtboxServer.Text = m_strServerName
         Me.txtboxPort.Text = m_strPort
         Me.txtboxActionPage.Text = m_strActionPage
         Me.txtboxFileName.Text = "DNT_Image"
         Me.rdbtnJPEG.Checked = True
         Me.chkboxMultiPage.Enabled = False
-        dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
-        dynamicDotNetTwain1.ScanInNewProcess = True
-        dynamicDotNetTwain1.SupportedDeviceType = Dynamsoft.DotNet.TWAIN.Enums.EnumSupportedDeviceType.SDT_ALL ' enable capturing images from both scanners and webcams
-        Dim lngNum As Integer
-        dynamicDotNetTwain1.OpenSourceManager()
-        For lngNum = 0 To dynamicDotNetTwain1.SourceCount - 1
-            cmbSource.Items.Add(dynamicDotNetTwain1.SourceNameItems(Convert.ToInt16(lngNum))) ' display the available imaging devices
-        Next
 
-        If (lngNum > 0) Then
+        Dim lngNum As Integer
+        m_TwainManager.OpenSourceManager()
+        For lngNum = 0 To m_TwainManager.SourceCount - 1
+            ' display the available imaging devices
+            cmbSource.Items.Add(m_TwainManager.SourceNameItems(Convert.ToInt16(lngNum)))
+        Next
+        If lngNum > 0 Then
             cmbSource.SelectedIndex = 0
         End If
-
     End Sub
 
-    Private Sub btnScan_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnScan.Click
-        dynamicDotNetTwain1.IfAppendImage = True
-        AcquireImage() ' acquire images
+
+
+    Private Sub btnScan_Click(sender As Object, e As EventArgs)
+        m_ImageCore.ImageBuffer.IfAppendImage = True
+        AcquireImage()
     End Sub
 
     Private Sub AcquireImage()
         Try
-            dynamicDotNetTwain1.SelectSourceByIndex(Convert.ToInt16(cmbSource.SelectedIndex))
-            dynamicDotNetTwain1.IfShowUI = chkboxIfShowUI.Checked
-            dynamicDotNetTwain1.OpenSource()
-            dynamicDotNetTwain1.IfDisableSourceAfterAcquire = True
+            m_TwainManager.SelectSourceByIndex(Convert.ToInt16(cmbSource.SelectedIndex))
+            m_TwainManager.IfShowUI = chkboxIfShowUI.Checked
+            m_TwainManager.OpenSource()
+            m_TwainManager.IfDisableSourceAfterAcquire = True
 
-            dynamicDotNetTwain1.IfShowUI = chkboxIfShowUI.Checked
+            m_TwainManager.IfShowUI = chkboxIfShowUI.Checked
 
-            Dim result As Boolean
-            result = dynamicDotNetTwain1.AcquireImage()
-            If (result = False And dynamicDotNetTwain1.ErrorCode <> 0) Then
-                Me.txtboxErrMessage.AppendText(dynamicDotNetTwain1.ErrorString & vbCrLf)
-            End If
-        Catch ex As Exception
-            Me.txtboxErrMessage.AppendText(ex.Message & vbCrLf)
+            m_TwainManager.AcquireImage(TryCast(Me, IAcquireCallback))
+        Catch exp As Exception
+            Me.txtboxErrMessage.AppendText(exp.Message)
+            Me.txtboxErrMessage.AppendText(vbCr & vbLf)
         End Try
 
     End Sub
-       
 
-    Private Sub dynamicDotNetTwain1_OnMouseClick(ByVal sImageIndex As System.Int16) Handles dynamicDotNetTwain1.OnMouseClick
-        dynamicDotNetTwain1.CurrentImageIndexInBuffer = sImageIndex
+    Private Sub dynamicDotNetTwain1_OnMouseClick(sImageIndex As Short)
+        m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer = sImageIndex
     End Sub
 
-    Private Sub btnUpload_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnUpload.Click
+    Private Sub btnUpload_Click(sender As Object, e As EventArgs)
         Try
-            dynamicDotNetTwain1.IfShowCancelDialogWhenImageTransfer = True
-            Dim strImageName, strActionPage, strFileName, strHTTPServer As String
-            strImageName = ""
-            strHTTPServer = Me.txtboxServer.Text ' the name or the IP of your HTTP Server
+            Dim strImageName As String = ""
+            Dim strHTTPServer As String = Me.txtboxServer.Text
+            ' the name or the IP of your HTTP Server
             If strHTTPServer = "" Then
-                Me.txtboxErrMessage.AppendText("The HTTP server cannot be empty." & vbCrLf)
+                Me.txtboxErrMessage.AppendText("The HTTP server cannot be empty." & vbCr & vbLf)
                 Return
             End If
             If txtboxPort.Text = "" Then
-                Me.txtboxErrMessage.AppendText("The HTTP port cannot be empty." & vbCrLf)
+                Me.txtboxErrMessage.AppendText("The HTTP port cannot be empty." & vbCr & vbLf)
                 Return
             Else
                 Try
-                    dynamicDotNetTwain1.HTTPPort = Integer.Parse(txtboxPort.Text)  'the port number of the HTTP Server
-                Catch ex As Exception
-                    Me.txtboxErrMessage.AppendText("The HTTP port cannot be empty." & vbCrLf)
+                    'the port number of the HTTP Server
+                    m_ImageCore.Net.HTTPPort = Integer.Parse(txtboxPort.Text)
+                Catch
+                    Me.txtboxErrMessage.AppendText("Invalid HTTP port." & vbCr & vbLf)
                     Return
                 End Try
             End If
-            strActionPage = Me.txtboxActionPage.Text  ' receive the uploaded images on the server side
+            Dim strActionPage As String = Me.txtboxActionPage.Text
+            ' receive the uploaded images on the server side
             If strActionPage = "" Then
-                Me.txtboxErrMessage.AppendText("The action page cannot be empty." & vbCrLf)
+                Me.txtboxErrMessage.AppendText("The action page cannot be empty." & vbCr & vbLf)
                 Return
             End If
-            strFileName = Me.txtboxFileName.Text
+            Dim strFileName As String = Me.txtboxFileName.Text
             If strFileName = "" Then
-                Me.txtboxErrMessage.AppendText("The file name cannot be empty." & vbCrLf)
+                Me.txtboxErrMessage.AppendText("The file name cannot be empty." & vbCr & vbLf)
                 Return
             End If
-            dynamicDotNetTwain1.HTTPUserName = Me.txtboxName.Text 'user name for logging into HTTP Server
-            dynamicDotNetTwain1.HTTPPassword = Me.txtboxPwd.Text
-            dynamicDotNetTwain1.SetHTTPFormField("ExtraTxt", Me.txtboxExtraTxt.Text) ' pass extra text parameters when uploading image
 
-            If (rdbtnJPEG.Checked) Then
-                strImageName = strFileName + ".jpg"
-                dynamicDotNetTwain1.HTTPUploadThroughPostEx(strHTTPServer, dynamicDotNetTwain1.CurrentImageIndexInBuffer, strActionPage, strImageName, Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_JPG)
+            m_ImageCore.Net.HTTPUserName = Me.txtboxName.Text
+            'user name for logging into HTTP Server
+            m_ImageCore.Net.HTTPPassword = Me.txtboxPwd.Text
+            m_ImageCore.Net.SetHTTPFormField("ExtraTxt", Me.txtboxExtraTxt.Text)
+            ' pass extra text parameters when uploading image
 
+            Dim tempImageIndexList As New List(Of Short)()
+            tempImageIndexList.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+            If rdbtnJPEG.Checked Then
+                strImageName = strFileName & ".jpg"
+
+                m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName, tempImageIndexList, Dynamsoft.Core.Enums.EnumImageFileFormat.WEBTW_JPG)
             End If
-
-            If (rdbtnPNG.Checked) Then
-                strImageName = strFileName + ".png"
-                dynamicDotNetTwain1.HTTPUploadThroughPostEx(strHTTPServer, dynamicDotNetTwain1.CurrentImageIndexInBuffer, strActionPage, strImageName, Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_PNG)
+            If rdbtnPNG.Checked Then
+                strImageName = strFileName & ".png"
+                m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName, tempImageIndexList, Dynamsoft.Core.Enums.EnumImageFileFormat.WEBTW_PNG)
             End If
-
-            If (rdbtnPDF.Checked) Then
-                strImageName = strFileName + ".pdf"
-                If (chkboxMultiPage.Checked) Then
-                    dynamicDotNetTwain1.HTTPUploadAllThroughPostAsPDF(strHTTPServer, strActionPage, strImageName) ' save the captured images as a multi-page PDF file
+            If rdbtnPDF.Checked Then
+                strImageName = strFileName & ".pdf"
+                Dim tempCreator As New PDFCreator(m_StrProductKey)
+                Dim tempPDFBytes As [Byte]() = tempCreator.SaveAsBytes(TryCast(Me, ISave))
+                m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName, tempPDFBytes)
+            End If
+            If rdbtnTIFF.Checked Then
+                strImageName = strFileName & ".tif"
+                If chkboxMultiPage.Checked Then
+                    tempImageIndexList.Clear()
+                    For i As Short = 0 To m_ImageCore.ImageBuffer.HowManyImagesInBuffer - 1
+                        tempImageIndexList.Add(i)
+                    Next
+                    m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName, tempImageIndexList, Dynamsoft.Core.Enums.EnumImageFileFormat.WEBTW_TIF)
                 Else
-                    dynamicDotNetTwain1.HTTPUploadThroughPostEx(strHTTPServer, dynamicDotNetTwain1.CurrentImageIndexInBuffer, strActionPage, strImageName, Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_PDF)
+                    m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName, tempImageIndexList, Dynamsoft.Core.Enums.EnumImageFileFormat.WEBTW_TIF)
                 End If
             End If
-
-            If (rdbtnTIFF.Checked) Then
-                strImageName = strFileName + ".tif"
-                If (chkboxMultiPage.Checked) Then
-                    dynamicDotNetTwain1.HTTPUploadAllThroughPostAsMultiPageTIFF(strHTTPServer, strActionPage, strImageName)
-                Else
-                    dynamicDotNetTwain1.HTTPUploadThroughPostEx(strHTTPServer, dynamicDotNetTwain1.CurrentImageIndexInBuffer, strActionPage, strImageName, Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_TIF)
+            If m_ImageCore.Net.HTTPPostResponseString = "" Then
+                Me.txtboxErrMessage.AppendText("Image uploaded to DB successfully. " & vbCr & vbLf)
+                If strHTTPServer.Trim().ToLower().CompareTo(m_strServerName.Trim().ToLower()) = 0 AndAlso txtboxPort.Text.Trim().ToLower().CompareTo(m_strPort.Trim().ToLower()) = 0 AndAlso strActionPage.Trim().ToLower().CompareTo(m_strActionPage.Trim().ToLower()) = 0 Then
+                    Dim objSuccessInfo As New SuccessInfo(strImageName)
+                    objSuccessInfo.ShowDialog()
                 End If
-            End If
-
-            If (dynamicDotNetTwain1.ErrorCode <> Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed) Then
-                Me.txtboxErrMessage.Text += dynamicDotNetTwain1.ErrorString
-                Me.txtboxErrMessage.Text += vbCrLf
             Else
-                If dynamicDotNetTwain1.HTTPPostResponseString = "" Then
-                    Me.txtboxErrMessage.AppendText("Image uploaded to DB successfully. " & vbCrLf)
-                    If (strHTTPServer.Trim().ToLower().CompareTo(m_strServerName.Trim().ToLower()) = 0 And _
-                       txtboxPort.Text.Trim().ToLower().CompareTo(m_strPort.Trim().ToLower()) = 0 And _
-                       strActionPage.Trim().ToLower().CompareTo(m_strActionPage.Trim().ToLower()) = 0) Then
-                        Dim objSuccessInfo As New SuccessInfo()
-                        objSuccessInfo.SetSuccessInfo(strImageName)
-                        objSuccessInfo.ShowDialog()
-                    End If
-                Else
-                    Me.txtboxErrMessage.AppendText("Image uploaded to DB unsuccessfully. You can check DynamicDotNetTwain.HTTPPostResponseString for more information." & vbCrLf)
-                End If
+                Me.txtboxErrMessage.AppendText("Image uploaded to DB unsuccessfully. You can check DynamicDotNetTwain.HTTPPostResponseString for more information. " & vbCr & vbLf)
             End If
-        Catch ex As Exception
-            Me.txtboxErrMessage.AppendText(ex.Message & vbCrLf)
+        Catch exp As Exception
+            Me.txtboxErrMessage.AppendText(exp.Message)
+            Me.txtboxErrMessage.AppendText(vbCr & vbLf)
         End Try
     End Sub
 
-    Private Sub rdbtnPDF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbtnPDF.CheckedChanged
-        If (rdbtnPDF.Checked) Then
+    Private Sub rdbtnPDF_CheckedChanged(sender As Object, e As EventArgs)
+        If rdbtnPDF.Checked Then
             Me.chkboxMultiPage.Enabled = True
             Me.chkboxMultiPage.Checked = True
         Else
@@ -152,8 +170,8 @@
         End If
     End Sub
 
-    Private Sub rdbtnTIFF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbtnTIFF.CheckedChanged
-        If (rdbtnTIFF.Checked) Then
+    Private Sub rdbtnTIFF_CheckedChanged(sender As Object, e As EventArgs)
+        If rdbtnTIFF.Checked Then
             Me.chkboxMultiPage.Enabled = True
             Me.chkboxMultiPage.Checked = True
         Else
@@ -162,18 +180,67 @@
         End If
     End Sub
 
-    Private Sub dynamicDotNetTwain1_OnPostTransfer() Handles dynamicDotNetTwain1.OnPostTransfer
-        If (dynamicDotNetTwain1.ErrorCode = 0) Then
-            Me.txtboxErrMessage.AppendText("Image acquired successfully. " & vbCrLf)
-        End If
-    End Sub
-
-    Private Sub txtboxServer_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtboxServer.TextChanged
-        Dim strHTTPServer As String : strHTTPServer = Me.txtboxServer.Text
-        If (strHTTPServer.Trim().ToLower().CompareTo(m_strServerName.Trim().ToLower()) = 0) Then
+    Private Sub txtboxServer_TextChanged(sender As Object, e As EventArgs)
+        Dim strHTTPServer As String = Me.txtboxServer.Text
+        If strHTTPServer.Trim().ToLower().CompareTo(m_strServerName.Trim().ToLower()) = 0 Then
             lbNote.Visible = True
         Else
             lbNote.Visible = False
         End If
+    End Sub
+
+    Public Sub OnPostAllTransfers() Implements IAcquireCallback.OnPostAllTransfers
+    End Sub
+
+    Public Function OnPostTransfer(bit As Bitmap) As Boolean Implements IAcquireCallback.OnPostTransfer
+        m_ImageCore.IO.LoadImage(bit)
+        Me.txtboxErrMessage.AppendText("Image acquired successfully. " & vbCr & vbLf)
+        Return True
+    End Function
+
+    Public Sub OnPreAllTransfers() Implements IAcquireCallback.OnPreAllTransfers
+    End Sub
+
+    Public Function OnPreTransfer() As Boolean Implements IAcquireCallback.OnPreTransfer
+        Return True
+    End Function
+
+    Public Sub OnSourceUIClose() Implements IAcquireCallback.OnSourceUIClose
+    End Sub
+
+    Public Sub OnTransferCancelled() Implements IAcquireCallback.OnTransferCancelled
+    End Sub
+
+    Public Sub OnTransferError() Implements IAcquireCallback.OnTransferError
+    End Sub
+
+    Public Function GetAnnotations(iPageNumber As Integer) As Object Implements ISave.GetAnnotations
+        If chkboxMultiPage.Checked Then
+            Return m_ImageCore.ImageBuffer.GetMetaData(CShort(iPageNumber), EnumMetaDataType.enumAnnotation)
+        Else
+            Return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation)
+        End If
+
+    End Function
+
+    Public Function GetImage(iPageNumber As Integer) As Bitmap Implements ISave.GetImage
+        If chkboxMultiPage.Checked Then
+            Return m_ImageCore.ImageBuffer.GetBitmap(CShort(iPageNumber))
+        Else
+            Return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+        End If
+
+    End Function
+
+    Public Function GetPageCount() As Integer Implements ISave.GetPageCount
+        If chkboxMultiPage.Checked Then
+            Return m_ImageCore.ImageBuffer.HowManyImagesInBuffer
+        Else
+            Return 1
+        End If
+    End Function
+
+    Private Sub Form1_FormClosed(sender As Object, e As FormClosedEventArgs)
+        Me.m_TwainManager.Dispose()
     End Sub
 End Class

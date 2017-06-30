@@ -1,4 +1,4 @@
-﻿namespace PDFReaderDemo
+﻿namespace Rasterizer
 {
     partial class Form1
     {
@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dynamicDotNetTwain1 = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
             this.btnLoadPDF = new System.Windows.Forms.Button();
@@ -44,28 +43,10 @@
             this.rdbPNG = new System.Windows.Forms.RadioButton();
             this.rdbJPEG = new System.Windows.Forms.RadioButton();
             this.rdbBMP = new System.Windows.Forms.RadioButton();
+            this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // dynamicDotNetTwain1
-            // 
-            this.dynamicDotNetTwain1.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain1.AnnotationPen = null;
-            this.dynamicDotNetTwain1.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain1.AnnotationTextFont = null;
-            this.dynamicDotNetTwain1.IfShowPrintUI = false;
-            this.dynamicDotNetTwain1.IfThrowException = false;
-            this.dynamicDotNetTwain1.Location = new System.Drawing.Point(-1, 1);
-            this.dynamicDotNetTwain1.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain1.Name = "dynamicDotNetTwain1";
-            this.dynamicDotNetTwain1.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFXConformance = ((uint)(0u));
-            this.dynamicDotNetTwain1.Size = new System.Drawing.Size(258, 313);
-            this.dynamicDotNetTwain1.TabIndex = 0;
             // 
             // groupBox1
             // 
@@ -230,16 +211,25 @@
             this.rdbBMP.TabStop = true;
             this.rdbBMP.Text = "BMP";
             this.rdbBMP.UseVisualStyleBackColor = true;
-            this.rdbBMP.CheckedChanged += new System.EventHandler(this.rdbBMP_CheckedChanged);
+            this.rdbBMP.Click += new System.EventHandler(this.rdbBMP_CheckedChanged);
+            // 
+            // dsViewer1
+            // 
+            this.dsViewer1.Location = new System.Drawing.Point(12, 12);
+            this.dsViewer1.Name = "dsViewer1";
+            this.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dsViewer1.SelectionRectAspectRatio = 0;
+            this.dsViewer1.Size = new System.Drawing.Size(249, 292);
+            this.dsViewer1.TabIndex = 3;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(544, 316);
+            this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.dynamicDotNetTwain1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "Form1";
@@ -254,7 +244,7 @@
 
         #endregion
 
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain1;
+
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnLoadPDF;
         private System.Windows.Forms.ComboBox cmbPDFResolution;
@@ -270,6 +260,7 @@
         private System.Windows.Forms.RadioButton rdbPDF;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label labMsg;
+        private Dynamsoft.Forms.DSViewer dsViewer1;
     }
 }
 

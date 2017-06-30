@@ -1,4 +1,4 @@
-﻿namespace AddBarcodeDemo
+﻿namespace BarcodeGenerator
 {
     partial class Form1
     {
@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dynamicDotNetTwain1 = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnLoadImage = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -58,32 +57,12 @@
             this.rdbJPEG = new System.Windows.Forms.RadioButton();
             this.rdbBMP = new System.Windows.Forms.RadioButton();
             this.label7 = new System.Windows.Forms.Label();
+            this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // dynamicDotNetTwain1
-            // 
-            this.dynamicDotNetTwain1.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain1.AnnotationPen = null;
-            this.dynamicDotNetTwain1.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain1.AnnotationTextFont = null;
-            this.dynamicDotNetTwain1.IfShowCancelDialogWhenImageTransfer = false;
-            this.dynamicDotNetTwain1.IfShowPrintUI = false;
-            this.dynamicDotNetTwain1.IfThrowException = false;
-            this.dynamicDotNetTwain1.Location = new System.Drawing.Point(0, 1);
-            this.dynamicDotNetTwain1.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain1.Name = "dynamicDotNetTwain1";
-            this.dynamicDotNetTwain1.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFXConformance = ((uint)(0u));
-            this.dynamicDotNetTwain1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.dynamicDotNetTwain1.Size = new System.Drawing.Size(339, 454);
-            this.dynamicDotNetTwain1.TabIndex = 0;
             // 
             // groupBox1
             // 
@@ -158,7 +137,6 @@
             this.txtBarcodeScale.Name = "txtBarcodeScale";
             this.txtBarcodeScale.Size = new System.Drawing.Size(133, 20);
             this.txtBarcodeScale.TabIndex = 9;
-            this.txtBarcodeScale.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBarcodeScale_KeyPress);
             // 
             // txtHumanReadableTxt
             // 
@@ -211,7 +189,6 @@
             this.txtBarocdeLocationY.Name = "txtBarocdeLocationY";
             this.txtBarocdeLocationY.Size = new System.Drawing.Size(73, 20);
             this.txtBarocdeLocationY.TabIndex = 3;
-            this.txtBarocdeLocationY.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBarocdeLocationY_KeyPress);
             // 
             // txtBarcodeLocationX
             // 
@@ -219,7 +196,6 @@
             this.txtBarcodeLocationX.Name = "txtBarcodeLocationX";
             this.txtBarcodeLocationX.Size = new System.Drawing.Size(73, 20);
             this.txtBarcodeLocationX.TabIndex = 2;
-            this.txtBarcodeLocationX.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBarcodeLocationX_KeyPress);
             // 
             // label4
             // 
@@ -323,7 +299,7 @@
             this.rdbPDF.TabStop = true;
             this.rdbPDF.Text = "PDF";
             this.rdbPDF.UseVisualStyleBackColor = true;
-            this.rdbPDF.CheckedChanged += new System.EventHandler(this.rdbPDF_CheckedChanged);
+            this.rdbPDF.Click += new System.EventHandler(this.rdbPDF_CheckedChanged);
             // 
             // rdbTIFF
             // 
@@ -335,7 +311,7 @@
             this.rdbTIFF.TabStop = true;
             this.rdbTIFF.Text = "TIFF";
             this.rdbTIFF.UseVisualStyleBackColor = true;
-            this.rdbTIFF.CheckedChanged += new System.EventHandler(this.rdbTIFF_CheckedChanged);
+            this.rdbTIFF.Click += new System.EventHandler(this.rdbTIFF_CheckedChanged);
             // 
             // rdbPNG
             // 
@@ -347,7 +323,7 @@
             this.rdbPNG.TabStop = true;
             this.rdbPNG.Text = "PNG";
             this.rdbPNG.UseVisualStyleBackColor = true;
-            this.rdbPNG.CheckedChanged += new System.EventHandler(this.rdbPNG_CheckedChanged);
+            this.rdbPNG.Click += new System.EventHandler(this.rdbPNG_CheckedChanged);
             // 
             // rdbJPEG
             // 
@@ -359,7 +335,7 @@
             this.rdbJPEG.TabStop = true;
             this.rdbJPEG.Text = "JPEG";
             this.rdbJPEG.UseVisualStyleBackColor = true;
-            this.rdbJPEG.CheckedChanged += new System.EventHandler(this.rdbJPEG_CheckedChanged);
+            this.rdbJPEG.Click += new System.EventHandler(this.rdbJPEG_CheckedChanged);
             // 
             // rdbBMP
             // 
@@ -371,7 +347,7 @@
             this.rdbBMP.TabStop = true;
             this.rdbBMP.Text = "BMP";
             this.rdbBMP.UseVisualStyleBackColor = true;
-            this.rdbBMP.CheckedChanged += new System.EventHandler(this.rdbBMP_CheckedChanged);
+            this.rdbBMP.Click += new System.EventHandler(this.rdbBMP_CheckedChanged);
             // 
             // label7
             // 
@@ -380,18 +356,27 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(293, 13);
             this.label7.TabIndex = 4;
-            this.label7.Text = "Note: PDF Rasterizer add-on is used when loading PDF files.";
+            this.label7.Text = "Note: PDF library is used when loading PDF files.";
+            // 
+            // dsViewer1
+            // 
+            this.dsViewer1.Location = new System.Drawing.Point(12, 12);
+            this.dsViewer1.Name = "dsViewer1";
+            this.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dsViewer1.SelectionRectAspectRatio = 0;
+            this.dsViewer1.Size = new System.Drawing.Size(327, 443);
+            this.dsViewer1.TabIndex = 5;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(622, 474);
+            this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.dynamicDotNetTwain1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "Form1";
@@ -410,7 +395,7 @@
 
         #endregion
 
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain1;
+
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnLoadImage;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -440,6 +425,7 @@
         private System.Windows.Forms.Label labMsg;
         private System.Windows.Forms.Label labmsg2;
         private System.Windows.Forms.Label label7;
+        private Dynamsoft.Forms.DSViewer dsViewer1;
     }
 }
 

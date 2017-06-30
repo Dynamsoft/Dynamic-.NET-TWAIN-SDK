@@ -28,28 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dynamicDotNetTwain1 = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
             this.btnSetCapability = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
             this.SuspendLayout();
-            // 
-            // dynamicDotNetTwain1
-            // 
-            this.dynamicDotNetTwain1.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain1.AnnotationPen = null;
-            this.dynamicDotNetTwain1.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain1.AnnotationTextFont = null;
-            this.dynamicDotNetTwain1.IfShowPrintUI = false;
-            this.dynamicDotNetTwain1.Location = new System.Drawing.Point(12, 28);
-            this.dynamicDotNetTwain1.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain1.Name = "dynamicDotNetTwain1";
-            this.dynamicDotNetTwain1.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain1.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain1.Size = new System.Drawing.Size(327, 276);
-            this.dynamicDotNetTwain1.TabIndex = 0;
             // 
             // btnSetCapability
             // 
@@ -81,29 +64,40 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // dsViewer1
+            // 
+            this.dsViewer1.Location = new System.Drawing.Point(12, 12);
+            this.dsViewer1.Name = "dsViewer1";
+            this.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dsViewer1.SelectionRectAspectRatio = 0D;
+            this.dsViewer1.Size = new System.Drawing.Size(331, 307);
+            this.dsViewer1.TabIndex = 5;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(355, 393);
+            this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.btnSetCapability);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.dynamicDotNetTwain1);
-		this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-		this.MaximizeBox = false;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Custom Capability Demo";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain1;
+
         private System.Windows.Forms.Button btnSetCapability;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private Dynamsoft.Forms.DSViewer dsViewer1;
     }
 }
 

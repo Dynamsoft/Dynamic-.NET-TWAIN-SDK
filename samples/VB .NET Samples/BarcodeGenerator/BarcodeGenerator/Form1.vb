@@ -1,12 +1,44 @@
-﻿Option Strict Off
-Option Explicit On
+Imports System.Collections.Generic
+Imports System.ComponentModel
+Imports System.Data
+Imports System.Drawing
+Imports System.Text
+Imports System.Windows.Forms
+Imports Dynamsoft.Core
+Imports Dynamsoft.Barcode
+Imports Dynamsoft.PDF
+Imports Dynamsoft.Core.Enums
+Imports System.Runtime.InteropServices
+Imports System.IO
 
-Public Class Form1
 
-    Dim barcodeformat As String
+Partial Public Class Form1
+    Inherits Form
+    Implements ISave
+    Implements IConvertCallback
+    Private m_StrProductKey As String
+    Private m_ImageCore As ImageCore = Nothing
+    Private barcodeformat As Dynamsoft.Barcode.Enums.EnumBarcodeFormat
+    Private m_Generator As Dynamsoft.Barcode.BarcodeGenerator = Nothing
+    Private m_PDFCreator As PDFCreator = Nothing
+    Private m_PDFRasterizer As PDFRasterizer = Nothing
+    Public Sub New()
+        InitializeComponent()
+        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_ImageCore = New ImageCore()
+        dsViewer1.Bind(m_ImageCore)
 
-    Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        Initialization()
+        m_Generator = New Dynamsoft.Barcode.BarcodeGenerator(m_StrProductKey)
+        m_PDFCreator = New PDFCreator(m_StrProductKey)
+        m_PDFRasterizer = New PDFRasterizer(m_StrProductKey)
+    End Sub
 
+
+
+
+
+    Protected Sub Initialization()
         Me.Icon = New Icon(GetType(Form), "wfc.ico")
         Me.cmbBarcodeFormat.DropDownStyle = ComboBoxStyle.DropDownList
         Me.cmbBarcodeFormat.Items.Add("CODE_39")
@@ -19,240 +51,279 @@ Public Class Form1
 
         Me.txtBarcodeContent.Text = "Dynamsoft"
         Me.txtBarcodeLocationX.Text = "0"
-        Me.txtBarcodeLocationY.Text = "0"
+        Me.txtBarocdeLocationY.Text = "0"
         Me.txtHumanReadableTxt.Text = "Dynamsoft"
         Me.txtBarcodeScale.Text = "1"
 
-        Dim strDllPath As String
-        Dim m_strCurrentDirectory As String
-        m_strCurrentDirectory = Application.ExecutablePath
-        Dim strPDFDllPath As String
-        Dim pos As Integer
-        pos = m_strCurrentDirectory.LastIndexOf("\Samples\")
-        If (pos <> -1) Then
-            m_strCurrentDirectory = m_strCurrentDirectory.Substring(0, m_strCurrentDirectory.IndexOf("\", pos)) + "\"
-            strDllPath = m_strCurrentDirectory + "Redistributable\Resources\Barcode Generator\"
-            strPDFDllPath = m_strCurrentDirectory + "Redistributable\Resources\PDF\"
-        Else
-            pos = m_strCurrentDirectory.LastIndexOf("\")
-            m_strCurrentDirectory = m_strCurrentDirectory.Substring(0, m_strCurrentDirectory.IndexOf("\", pos)) + "\"
-            strDllPath = m_strCurrentDirectory
-            strPDFDllPath = m_strCurrentDirectory
-        End If
-        DynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
-        DynamicDotNetTwain1.BarcodeDllPath = strDllPath
-        DynamicDotNetTwain1.PDFRasterizerDllPath = strPDFDllPath
-        DynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = True
-        DynamicDotNetTwain1.MaxImagesInBuffer = 64
-        DynamicDotNetTwain1.ScanInNewProcess = True
 
     End Sub
 
-    Private Sub btnLoadImage_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnLoadImage.Click
+    Private Sub btnLoadImage_Click(sender As Object, e As EventArgs)
         Try
-            Dim openfiledlg As New OpenFileDialog
-            openfiledlg.Filter = "All Support Files|*.JPG;*.JPEG;*.JPE;*.JFIF;*.BMP;*.PNG;*.TIF;*.TIFF;*.PDF;*.GIF|JPEG|*.JPG;*.JPEG;*.JPE;*.Jfif|BMP|*.BMP|PNG|*.PNG|TIFF|*.TIF;*.TIFF|PDF|*.PDF|GIF|*.GIF"
-            openfiledlg.FilterIndex = 0
-            openfiledlg.Multiselect = True
+            Dim openfdlg As New OpenFileDialog()
+            openfdlg.Filter = "All Support Files|*.JPG;*.JPEG;*.JPE;*.JFIF;*.BMP;*.PNG;*.TIF;*.TIFF;*.PDF;*.GIF|JPEG|*.JPG;*.JPEG;*.JPE;*.Jfif|BMP|*.BMP|PNG|*.PNG|TIFF|*.TIF;*.TIFF|PDF|*.PDF|GIF|*.GIF"
+            openfdlg.FilterIndex = 0
+            openfdlg.Multiselect = True
 
-            Dim strfilename As String
-            If (openfiledlg.ShowDialog() = DialogResult.OK) Then
-                For Each strfilename In openfiledlg.FileNames
-                    Dim pos As Integer
-                    pos = strfilename.LastIndexOf(".")
-                    If (pos <> -1) Then
-                        Dim strSuffix As String
-                        strSuffix = strfilename.Substring(pos, strfilename.Length - pos).ToLower()
-                        If (strSuffix.CompareTo(".pdf") = 0) Then
-                            DynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
-                            DynamicDotNetTwain1.SetPDFResolution(200)
-                            DynamicDotNetTwain1.LoadImage(strfilename)
-                            'DynamicDotNetTwain1.ConvertPDFToImage(strfilename, 200)
-                            Continue For
+            If openfdlg.ShowDialog() = DialogResult.OK Then
+                For Each strfilename As String In openfdlg.FileNames
+                    Dim pos As Integer = strfilename.LastIndexOf(".")
+                    If pos <> -1 Then
+                        Dim strSuffix As String = strfilename.Substring(pos, strfilename.Length - pos).ToLower()
+                        If strSuffix.CompareTo(".pdf") = 0 Then
+                            m_PDFRasterizer.ConvertToImage(strfilename, "", 200, TryCast(Me, IConvertCallback))
                         End If
                     End If
-                    Me.DynamicDotNetTwain1.LoadImage(strfilename)
+                    m_ImageCore.IO.LoadImage(strfilename)
                 Next
             End If
-        Catch ex As Exception
-            MessageBox.Show(Me.DynamicDotNetTwain1.ErrorString)
-        End Try    
+        Catch
+        End Try
     End Sub
 
-    Private Sub btnSave_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSave.Click
+    Private Sub btnAddBarcode_Click(sender As Object, e As EventArgs)
         Try
-            If (Me.DynamicDotNetTwain1.HowManyImagesInBuffer > 0) Then
-
+            If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 Then
                 Me.labMsg.Text = ""
-                Me.labMsg2.Text = ""
-                Dim dlgFileSave As New SaveFileDialog
-                Dim strFile As String 'The file name use to save the acquired image
+                Me.labmsg2.Text = ""
 
-                If (rdbBMP.Checked = True) Then
-                    dlgFileSave.Filter = "BMP File (*.bmp)|*.bmp"
-                ElseIf (rdbJPEG.Checked = True) Then
-                    dlgFileSave.Filter = "JPEG File (*.jpg)|*.jpg"
-                ElseIf (rdbPNG.Checked = True) Then
-                    dlgFileSave.Filter = "PNG File (*.png)|*.png"
-                ElseIf (rdbTIFF.Checked = True) Then
-                    dlgFileSave.Filter = "TIFF File (*.tif)|*.tif"
+                If txtBarcodeContent.Text <> "" AndAlso txtBarcodeLocationX.Text <> "" AndAlso txtBarocdeLocationY.Text <> "" AndAlso txtBarcodeScale.Text <> "" Then
+                    Dim temp As Bitmap = m_Generator.AddBarcode(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer), barcodeformat, txtBarcodeContent.Text, txtHumanReadableTxt.Text, Integer.Parse(txtBarcodeLocationX.Text), Integer.Parse(txtBarocdeLocationY.Text), _
+                        Single.Parse(txtBarcodeScale.Text))
+                    m_ImageCore.ImageBuffer.SetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, temp)
                 Else
-                    dlgFileSave.Filter = "PDF File (*.pdf)|*.pdf"
-                End If
-
-                dlgFileSave.InitialDirectory = CurDir()
-                dlgFileSave.FileName = ""
-                If (dlgFileSave.ShowDialog() = DialogResult.OK) Then
-                    strFile = dlgFileSave.FileName
-                    If (rdbBMP.Checked = True) Then
-                        DynamicDotNetTwain1.SaveAsBMP(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
-
-                    ElseIf (rdbJPEG.Checked = True) Then
-                        DynamicDotNetTwain1.SaveAsJPEG(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
-
-                    ElseIf (rdbPNG.Checked = True) Then
-                        DynamicDotNetTwain1.SaveAsPNG(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
-
-                    ElseIf (rdbTIFF.Checked = True) Then
-                        If (chbMultiPageTIFF.CheckState = 1) Then
-                            DynamicDotNetTwain1.SaveAllAsMultiPageTIFF(strFile)
-                        Else
-                            DynamicDotNetTwain1.SaveAsTIFF(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
-                        End If
-                    Else
-                        If (chbMultiPagePDF.CheckState = 1) Then
-                            DynamicDotNetTwain1.SaveAllAsPDF(strFile)
-                        Else
-                            DynamicDotNetTwain1.SaveAsPDF(strFile, DynamicDotNetTwain1.CurrentImageIndexInBuffer)
-                        End If
-                    End If
-                End If
-            Else
-                Me.labMsg2.ForeColor = Color.Red
-                Me.labMsg2.Text = "Please load an image first"
-                Me.labMsg2.Location = New Point(Me.GroupBox4.Size.Width / 2 - Me.labMsg2.Size.Width / 2, Me.labMsg2.Location.Y)
-            End If
-        Catch ex As Exception
-            MessageBox.Show(Me.DynamicDotNetTwain1.ErrorString)
-        End Try 
-    End Sub
-
-    Private Sub btnAddBarcode_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAddBarcode.Click
-        Try
-            If (Me.DynamicDotNetTwain1.HowManyImagesInBuffer > 0) Then
-                Me.labMsg.Text = ""
-                Me.labMsg2.Text = ""
-                If (txtBarcodeContent.Text <> "" And txtBarcodeLocationX.Text <> "" And txtBarcodeLocationY.Text <> "" And txtBarcodeScale.Text <> "") Then
-                    DynamicDotNetTwain1.AddBarcode(DynamicDotNetTwain1.CurrentImageIndexInBuffer, barcodeformat, txtBarcodeContent.Text, txtHumanReadableTxt.Text, CInt(txtBarcodeLocationX.Text), CInt(txtBarcodeLocationY.Text), CDbl(txtBarcodeScale.Text))
-                Else
-                    If (txtBarcodeContent.Text = "") Then
+                    If txtBarcodeContent.Text = "" Then
                         txtBarcodeContent.Focus()
                         Me.labMsg.ForeColor = Color.Red
                         Me.labMsg.Text = "BarcodeContent can not be empty"
-                        Me.labMsg.Location = New Point(Me.GroupBox2.Size.Width / 2 - Me.labMsg.Size.Width / 2, Me.labMsg.Location.Y)
-                    End If
-                    If (txtBarcodeLocationX.Text = "") Then
+                        Me.labMsg.Location = New Point(Me.groupBox2.Size.Width \ 2 - Me.labMsg.Size.Width \ 2, Me.labMsg.Location.Y)
+                    ElseIf txtBarcodeLocationX.Text = "" Then
                         txtBarcodeLocationX.Focus()
                         Me.labMsg.ForeColor = Color.Red
                         Me.labMsg.Text = "BarcodeLocationX can not be empty"
-                        Me.labMsg.Location = New Point(Me.GroupBox2.Size.Width / 2 - Me.labMsg.Size.Width / 2, Me.labMsg.Location.Y)
-                    End If
-                    If (txtBarcodeLocationY.Text = "") Then
-                        txtBarcodeLocationY.Focus()
+                        Me.labMsg.Location = New Point(Me.groupBox2.Size.Width \ 2 - Me.labMsg.Size.Width \ 2, Me.labMsg.Location.Y)
+                    ElseIf txtBarocdeLocationY.Text = "" Then
+                        txtBarocdeLocationY.Focus()
                         Me.labMsg.ForeColor = Color.Red
                         Me.labMsg.Text = "BarcodeLocationY can not be empty"
-                        Me.labMsg.Location = New Point(Me.GroupBox2.Size.Width / 2 - Me.labMsg.Size.Width / 2, Me.labMsg.Location.Y)
-                    End If
-                    If (txtBarcodeScale.Text = "") Then
+                        Me.labMsg.Location = New Point(Me.groupBox2.Size.Width \ 2 - Me.labMsg.Size.Width \ 2, Me.labMsg.Location.Y)
+                    ElseIf txtBarcodeScale.Text = "" Then
                         txtBarcodeScale.Focus()
                         Me.labMsg.ForeColor = Color.Red
                         Me.labMsg.Text = "BarcodeScale can not be empty"
-                        Me.labMsg.Location = New Point(Me.GroupBox2.Size.Width / 2 - Me.labMsg.Size.Width / 2, Me.labMsg.Location.Y)
+                        Me.labMsg.Location = New Point(Me.groupBox2.Size.Width \ 2 - Me.labMsg.Size.Width \ 2, Me.labMsg.Location.Y)
                     End If
                 End If
             Else
                 Me.labMsg.ForeColor = Color.Red
                 Me.labMsg.Text = "Please load an image first"
-                Me.labMsg.Location = New Point(Me.GroupBox2.Size.Width / 2 - Me.labMsg.Size.Width / 2, Me.labMsg.Location.Y)
+                Me.labMsg.Location = New Point(Me.groupBox2.Size.Width \ 2 - Me.labMsg.Size.Width \ 2, Me.labMsg.Location.Y)
+            End If
+        Catch
+        End Try
+    End Sub
+
+    Private Sub btnSave_Click(sender As Object, e As EventArgs)
+        Try
+            If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 Then
+                Me.labMsg.Text = ""
+                Me.labmsg2.Text = ""
+                Dim savefdlg As New SaveFileDialog()
+                savefdlg.InitialDirectory = System.IO.Directory.GetCurrentDirectory()
+                savefdlg.FileName = ""
+
+                If rdbBMP.Checked = True Then
+
+                    savefdlg.Filter = "BMP File(*.bmp)| *.bmp"
+                End If
+
+                If rdbJPEG.Checked = True Then
+
+                    savefdlg.Filter = "JPEG File(*.jpeg)| *.jpeg"
+                End If
+
+                If rdbPNG.Checked = True Then
+
+                    savefdlg.Filter = "PNG File(*.png) | *.png"
+                End If
+
+                If rdbTIFF.Checked = True Then
+
+                    savefdlg.Filter = "TIFF File(*.tiff)| *.tiff"
+                End If
+
+                If rdbPDF.Checked = True Then
+
+                    savefdlg.Filter = "PDF File(*.pdf)| *.pdf"
+                End If
+
+                If savefdlg.ShowDialog() = DialogResult.OK Then
+
+                    Dim strFilename As String = savefdlg.FileName
+
+                    If rdbBMP.Checked = True Then
+                        m_ImageCore.IO.SaveAsBMP(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                    End If
+
+                    If rdbJPEG.Checked = True Then
+                        m_ImageCore.IO.SaveAsJPEG(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                    End If
+
+                    If rdbPNG.Checked = True Then
+                        m_ImageCore.IO.SaveAsPNG(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                    End If
+
+                    If rdbTIFF.Checked = True Then
+                        Dim tempListIndex As New List(Of Short)()
+                        If chbMultiPageTIFF.Checked = True Then
+                            For sIndex As Short = 0 To m_ImageCore.ImageBuffer.HowManyImagesInBuffer - 1
+                                tempListIndex.Add(sIndex)
+                            Next
+                        Else
+                            tempListIndex.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                        End If
+
+                        m_ImageCore.IO.SaveAsTIFF(strFilename, tempListIndex)
+                    End If
+
+                    If rdbPDF.Checked = True Then
+                        m_PDFCreator.Save(TryCast(Me, ISave), strFilename)
+                    End If
+                End If
+            Else
+                Me.labmsg2.ForeColor = Color.Red
+                Me.labmsg2.Text = "Please load an image first"
+                Me.labmsg2.Location = New Point(Me.groupBox4.Size.Width \ 2 - Me.labmsg2.Size.Width \ 2, Me.labmsg2.Location.Y)
             End If
         Catch ex As Exception
-            MessageBox.Show(Me.DynamicDotNetTwain1.ErrorString)
-        End Try      
+            MessageBox.Show(ex.Message)
+        End Try
+        
     End Sub
 
-    Private Sub rdbBMP_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbBMP.CheckedChanged
+    Private Sub rdbBMP_CheckedChanged(sender As Object, e As EventArgs)
         chbMultiPagePDF.Checked = False
         chbMultiPagePDF.Enabled = False
         chbMultiPageTIFF.Checked = False
         chbMultiPageTIFF.Enabled = False
     End Sub
 
-    Private Sub rdbJPEG_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbJPEG.CheckedChanged
+    Private Sub rdbJPEG_CheckedChanged(sender As Object, e As EventArgs)
         chbMultiPagePDF.Checked = False
         chbMultiPagePDF.Enabled = False
         chbMultiPageTIFF.Checked = False
         chbMultiPageTIFF.Enabled = False
     End Sub
 
-    Private Sub rdbPNG_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbPNG.CheckedChanged
+    Private Sub rdbPNG_CheckedChanged(sender As Object, e As EventArgs)
         chbMultiPagePDF.Checked = False
         chbMultiPagePDF.Enabled = False
         chbMultiPageTIFF.Checked = False
         chbMultiPageTIFF.Enabled = False
     End Sub
 
-    Private Sub rdbTIFF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbTIFF.CheckedChanged
+    Private Sub rdbTIFF_CheckedChanged(sender As Object, e As EventArgs)
         chbMultiPagePDF.Checked = False
         chbMultiPagePDF.Enabled = False
         chbMultiPageTIFF.Checked = True
         chbMultiPageTIFF.Enabled = True
     End Sub
 
-    Private Sub rdbPDF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbPDF.CheckedChanged
+    Private Sub rdbPDF_CheckedChanged(sender As Object, e As EventArgs)
         chbMultiPagePDF.Checked = True
         chbMultiPagePDF.Enabled = True
         chbMultiPageTIFF.Checked = False
         chbMultiPageTIFF.Enabled = False
     End Sub
 
-    Private Sub cmbBarcodeFormat_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmbBarcodeFormat.SelectedIndexChanged
-        Select Case (Me.cmbBarcodeFormat.SelectedIndex)
+    Private Sub cmbBarcodeFormat_SelectedIndexChanged(sender As Object, e As EventArgs)
+        Select Case cmbBarcodeFormat.SelectedIndex
             Case 0
-                barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_39
+                barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_39
+                Exit Select
             Case 1
-                barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_128
+                barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_128
+                Exit Select
             Case 2
-                barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.PDF417
+                barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.PDF417
+                Exit Select
             Case 3
-                barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.QR_CODE
+                barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.QR_CODE
+                Exit Select
         End Select
     End Sub
 
-    Private Sub txtBarcodeLocationX_KeyPress(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtBarcodeLocationX.KeyPress
-        If Char.IsDigit(e.KeyChar) Or e.KeyChar = Chr(8) Then
-            e.Handled = False
-        Else
+    Private Sub txtBarcodeLocationX_KeyPress(sender As Object, e As KeyPressEventArgs)
+        Dim array As Byte() = System.Text.Encoding.[Default].GetBytes(e.KeyChar.ToString())
+        If Not Char.IsDigit(e.KeyChar) OrElse array.LongLength = 2 Then
             e.Handled = True
+        End If
+        If e.KeyChar = ControlChars.Back Then
+            e.Handled = False
         End If
     End Sub
 
-    Private Sub txtBarcodeLocationY_KeyPress(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtBarcodeLocationY.KeyPress
-        If Char.IsDigit(e.KeyChar) Or e.KeyChar = Chr(8) Then
-            e.Handled = False
-        Else
+    Private Sub txtBarocdeLocationY_KeyPress(sender As Object, e As KeyPressEventArgs)
+        Dim array As Byte() = System.Text.Encoding.[Default].GetBytes(e.KeyChar.ToString())
+        If Not Char.IsDigit(e.KeyChar) OrElse array.LongLength = 2 Then
             e.Handled = True
+        End If
+        If e.KeyChar = ControlChars.Back Then
+            e.Handled = False
         End If
     End Sub
 
-    Private Sub txtBarcodeScale_KeyPress(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtBarcodeScale.KeyPress
-        If Char.IsDigit(e.KeyChar) Or e.KeyChar = Chr(8) Or e.KeyChar = "." Then
-            If e.KeyChar = "." And InStr(txtBarcodeScale.Text, ".") > 0 Then
-                e.Handled = True
-            Else
-                e.Handled = False
-            End If
-        Else
+    Private Sub txtBarcodeScale_KeyPress(sender As Object, e As KeyPressEventArgs)
+        Dim array As Byte() = System.Text.Encoding.[Default].GetBytes(e.KeyChar.ToString())
+        If Not Char.IsDigit(e.KeyChar) OrElse array.LongLength = 2 Then
             e.Handled = True
         End If
+        If e.KeyChar = ControlChars.Back OrElse e.KeyChar = "."c Then
+            e.Handled = False
+        End If
     End Sub
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs)
+
+
+    End Sub
+
+
+#Region "ISave Members"
+
+    Public Function GetAnnotations(iPageNumber As Integer) As Object Implements ISave.GetAnnotations
+        If chbMultiPagePDF.Checked Then
+            Return m_ImageCore.ImageBuffer.GetMetaData(CShort(iPageNumber), EnumMetaDataType.enumAnnotation)
+        Else
+            Return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation)
+        End If
+    End Function
+
+    Public Function GetImage(iPageNumber As Integer) As Bitmap Implements ISave.GetImage
+        If chbMultiPagePDF.Checked Then
+            Return m_ImageCore.ImageBuffer.GetBitmap(CShort(iPageNumber))
+        Else
+            Return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+        End If
+    End Function
+
+    Public Function GetPageCount() As Integer Implements ISave.GetPageCount
+        If chbMultiPagePDF.Checked Then
+            Return m_ImageCore.ImageBuffer.HowManyImagesInBuffer
+        Else
+            Return 1
+        End If
+    End Function
+
+#End Region
+
+#Region "IConvertCallback Members"
+
+    Public Sub LoadConvertResult(result As ConvertResult) Implements IConvertCallback.LoadConvertResult
+        m_ImageCore.IO.LoadImage(result.Image)
+        If result.Annotations IsNot Nothing Then
+            m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, result.Annotations, True)
+        End If
+    End Sub
+#End Region
 End Class

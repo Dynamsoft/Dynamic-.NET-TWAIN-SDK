@@ -1,4 +1,4 @@
-namespace ShowInfoAndSaveImage
+﻿namespace ShowInfoAndSaveImage
 {
     partial class Form1
     {
@@ -70,7 +70,7 @@ namespace ShowInfoAndSaveImage
             this.btnRemove = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.dlgFileSave = new System.Windows.Forms.SaveFileDialog();
-            this.dynamicDotNetTwain = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
+            this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -373,7 +373,6 @@ namespace ShowInfoAndSaveImage
             this.BMPradio.TabStop = true;
             this.BMPradio.Text = "BMP";
             this.BMPradio.UseVisualStyleBackColor = true;
-            this.BMPradio.MouseClick += new System.Windows.Forms.MouseEventHandler(this.BMPradio_MouseClick);
             this.BMPradio.CheckedChanged += new System.EventHandler(this.BMPradio_CheckedChanged);
             // 
             // JPEGradio
@@ -500,33 +499,21 @@ namespace ShowInfoAndSaveImage
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
-            // dynamicDotNetTwain
+            // dsViewer1
             // 
-            this.dynamicDotNetTwain.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain.AnnotationPen = null;
-            this.dynamicDotNetTwain.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain.AnnotationTextFont = null;
-            this.dynamicDotNetTwain.IfShowPrintUI = false;
-            this.dynamicDotNetTwain.Location = new System.Drawing.Point(12, 12);
-            this.dynamicDotNetTwain.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain.Name = "dynamicDotNetTwain";
-            this.dynamicDotNetTwain.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain.Size = new System.Drawing.Size(237, 436);
-            this.dynamicDotNetTwain.TabIndex = 10;
-            this.dynamicDotNetTwain.OnPostAllTransfers += new Dynamsoft.DotNet.TWAIN.Delegate.OnPostAllTransfersHandler(this.dynamicDotNetTwain_OnPostAllTransfers);
-            this.dynamicDotNetTwain.OnPreAllTransfers += new Dynamsoft.DotNet.TWAIN.Delegate.OnPreAllTransfersHandler(this.dynamicDotNetTwain_OnPreAllTransfers);
-            this.dynamicDotNetTwain.OnPostTransfer += new Dynamsoft.DotNet.TWAIN.Delegate.OnPostTransferHandler(this.dynamicDotNetTwain_OnPostTransfer);
-            this.dynamicDotNetTwain.OnTopImageInTheViewChanged += new Dynamsoft.DotNet.TWAIN.Delegate.OnTopImageInTheViewChangedHandler(this.dynamicDotNetTwain_OnTopImageInTheViewChanged);
+            this.dsViewer1.Location = new System.Drawing.Point(2, 2);
+            this.dsViewer1.Name = "dsViewer1";
+            this.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dsViewer1.SelectionRectAspectRatio = 0;
+            this.dsViewer1.Size = new System.Drawing.Size(259, 446);
+            this.dsViewer1.TabIndex = 10;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(649, 502);
-            this.Controls.Add(this.dynamicDotNetTwain);
+            this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnRemove);
             this.Controls.Add(this.groupBox3);
@@ -537,6 +524,7 @@ namespace ShowInfoAndSaveImage
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Show Image Info and Save Scanned Images";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -548,6 +536,7 @@ namespace ShowInfoAndSaveImage
         }
 
         #endregion
+
 
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TextBox edtFrameNumber;
@@ -591,7 +580,7 @@ namespace ShowInfoAndSaveImage
         private System.Windows.Forms.Button btnRemove;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.SaveFileDialog dlgFileSave;
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain;
+        private Dynamsoft.Forms.DSViewer dsViewer1;
     }
 }
 

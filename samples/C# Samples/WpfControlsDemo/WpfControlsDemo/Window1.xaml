@@ -1,8 +1,7 @@
 ﻿<Window x:Class="WpfControlsDemo.Window1"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:Dynamsoft="clr-namespace:Dynamsoft.DotNet.TWAIN.Wpf;assembly=DynamicDotNetTwain.Wpf"
-    Title="WpfControlsDemo" Height="698" Width="898" WindowStyle="None" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderBrush="#FFAEAEAE" BorderThickness="1" ResizeMode="CanMinimize">
+    Title="WpfControlsDemo" Height="698" Width="898" WindowStyle="None" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderBrush="#FFAEAEAE" BorderThickness="1" ResizeMode="CanMinimize" xmlns:my="clr-namespace:Dynamsoft.WPF;assembly=Dynamsoft.WPF.Viewer">
     <Window.Resources>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Template">
@@ -88,7 +87,7 @@
         </Canvas>
 
         <Border Grid.Column="1" Grid.Row="2" BorderBrush="#FFAEAEAE" BorderThickness="1,0">
-            <Dynamsoft:DynamicDotNetTwain x:Name="dynamicDotNetTwainThum" Background="#FFF4F4F4"/>
+            <my:DSViewer Margin="0,0,0,0" Name="dsViewerThum"  Background="#FFF4F4F4" />
         </Border>
         
         <Grid Grid.Column="2" Grid.Row="2">
@@ -97,7 +96,7 @@
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="#FFAEAEAE">
-                <Dynamsoft:DynamicDotNetTwain x:Name="dynamicDotNetTwainView" Background="#FFE6E6E6" />
+                <my:DSViewer Margin="0,0,0,0" Name="dsViewer" />
             </Border>
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10, 0">
                 <Button Name="btnFirst" Width="50" Height="25" Tag="first" ToolTip="First Image" Margin="10, 0" Click="First_Click"/>
@@ -111,7 +110,7 @@
         </Grid>
         
         <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="0,1,0,0" BorderBrush="#FFAEAEAE">
-            <TextBlock HorizontalAlignment="Stretch" Background="#FFE6E5EA" Text="Note: PDF Rasterizer add-on is used when loading PDF files.          @2016 Dynamsoft Corporation. All rights reserved." TextAlignment="Right"/>
+            <TextBlock HorizontalAlignment="Stretch" Background="#FFE6E5EA" Text="Note: PDF library is used when loading PDF files.          @2017 Dynamsoft Corporation. All rights reserved." TextAlignment="Right"/>
         </Border>
     
     </Grid>

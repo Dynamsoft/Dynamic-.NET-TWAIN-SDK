@@ -1,66 +1,143 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Dynamsoft.TWAIN;
+using Dynamsoft.Core;
+using Dynamsoft.TWAIN.Enums;
+using Dynamsoft.TWAIN.Interface;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace CustomCapabilityDemo
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form,IAcquireCallback
     {
+        private TwainManager m_TwainManager = null;
+        private ImageCore m_ImageCore = null;
+        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
         public Form1()
         {
             InitializeComponent();
-            this.dynamicDotNetTwain1.ScanInNewProcess = true;
-            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
+            m_ImageCore = new ImageCore();
+            m_TwainManager = new TwainManager(m_StrProductKey);
+            dsViewer1.Bind(m_ImageCore);
         }
 
         private void btnSetCapability_Click(object sender, EventArgs e)
         {
-            if (dynamicDotNetTwain1.SelectSource())
+            List<string> tempList = new List<string>();
+            for (int i = 0; i <= m_TwainManager.SourceCount - 1; i++)
             {
-                dynamicDotNetTwain1.OpenSource();
-                //If you wish to make use of a scanner property not included in our SDK, 
-                //you just need to specify its capability code. 
-                //The default CAP code in this section is 0x:8001. 
-                dynamicDotNetTwain1.Capability = (Dynamsoft.DotNet.TWAIN.Enums.TWCapability)0x8001;  //Custom CAP 0x:8001
-                dynamicDotNetTwain1.CapType = Dynamsoft.DotNet.TWAIN.Enums.TWCapType.TWON_ONEVALUE;
-                dynamicDotNetTwain1.CapValue = 0;
-                bool bRet = dynamicDotNetTwain1.CapSet();
-                double dblValue = dynamicDotNetTwain1.CapValue;
-                if (bRet)
-                    MessageBox.Show("Successful.");
-                else
-                    MessageBox.Show("Failed.\r\n" + dynamicDotNetTwain1.ErrorString);
+                tempList.Add(m_TwainManager.SourceNameItems(Convert.ToInt16(i)));
             }
-            
+            SourceListWrapper tempSourceListWrapper = new SourceListWrapper(tempList);
+            int iSelectIndex = tempSourceListWrapper.SelectSource();
+            if (iSelectIndex == -1)
+            {
+                return;
+            }
+            else
+            {
+                m_TwainManager.SelectSourceByIndex(iSelectIndex);
+                m_TwainManager.OpenSource();
+
+                m_TwainManager.Capability = (Dynamsoft.TWAIN.Enums.TWCapability)0x8001;
+                m_TwainManager.CapType = Dynamsoft.TWAIN.Enums.TWCapType.TWON_ONEVALUE;
+                m_TwainManager.CapValue = 1;
+                bool bRet = m_TwainManager.CapSet();
+                double dblValue = m_TwainManager.CapValue;
+                if (bRet)
+                {
+                    MessageBox.Show("Successful.");
+                }
+                else
+                {
+                    MessageBox.Show("Failed.");
+                }
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (dynamicDotNetTwain1.SelectSource())
+            List<string> tempList = new List<string>();
+            for (int i = 0; i <= m_TwainManager.SourceCount - 1; i++)
             {
-                dynamicDotNetTwain1.OpenSource();
+                tempList.Add(m_TwainManager.SourceNameItems(Convert.ToInt16(i)));
+            }
+            SourceListWrapper tempSourceListWrapper = new SourceListWrapper(tempList);
+            int iSelectIndex = tempSourceListWrapper.SelectSource();
+            if (iSelectIndex == -1)
+            {
+                return;
+            }
+            else
+            {
+                m_TwainManager.SelectSourceByIndex(iSelectIndex);
+                m_TwainManager.OpenSource();
 
-                dynamicDotNetTwain1.Capability = (Dynamsoft.DotNet.TWAIN.Enums.TWCapability)0x8002; //Custom CAP0x:8002
-                dynamicDotNetTwain1.CapType = Dynamsoft.DotNet.TWAIN.Enums.TWCapType.TWON_ONEVALUE;
-                dynamicDotNetTwain1.CapValue = 1;
-                bool bRet = dynamicDotNetTwain1.CapSet();
-                double dblValue = dynamicDotNetTwain1.CapValue;
+                m_TwainManager.Capability = (Dynamsoft.TWAIN.Enums.TWCapability)0x8002;
+                m_TwainManager.CapType = Dynamsoft.TWAIN.Enums.TWCapType.TWON_ONEVALUE;
+                m_TwainManager.CapValue = 1;
+                bool bRet = m_TwainManager.CapSet();
+                double dblValue = m_TwainManager.CapValue;
                 if (bRet)
+                {
                     MessageBox.Show("Successful.");
+                }
                 else
-                    MessageBox.Show("Failed.\r\n" + dynamicDotNetTwain1.ErrorString);
+                {
+                    MessageBox.Show("Failed.");
+                }
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain1.IfShowUI = true;
-            dynamicDotNetTwain1.IfDisableSourceAfterAcquire = true;
-            dynamicDotNetTwain1.AcquireImage();
+
+            m_TwainManager.IfDisableSourceAfterAcquire = true;
+            m_TwainManager.IfShowUI = true;
+            m_TwainManager.AcquireImage(this as IAcquireCallback);
+        }
+
+        public void OnPostAllTransfers()
+        {
+        }
+
+        public bool OnPostTransfer(Bitmap bit)
+        {
+            m_ImageCore.IO.LoadImage(bit);
+            return true;
+        }
+
+        public void OnPreAllTransfers()
+        {
+
+        }
+
+        public bool OnPreTransfer()
+        {
+            return true;
+        }
+
+        public void OnSourceUIClose()
+        {
+        }
+
+        public void OnTransferCancelled()
+        {
+        }
+
+        public void OnTransferError()
+        {
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            m_TwainManager.Dispose();
         }
     }
 }

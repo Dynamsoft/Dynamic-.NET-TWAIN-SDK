@@ -1,24 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TheMinimumSystem", "TheMinimumSystem\TheMinimumSystem_VS2012.vbproj", "{58E9EB0C-4B47-40AF-9532-473E27D9220F}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TheMinimumSystem", "TheMinimumSystem\TheMinimumSystem_VS2012.vbproj", "{48427DA5-C767-4C8D-B2BB-4D3399D7A6D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{58E9EB0C-4B47-40AF-9532-473E27D9220F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{58E9EB0C-4B47-40AF-9532-473E27D9220F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{58E9EB0C-4B47-40AF-9532-473E27D9220F}.Debug|x86.ActiveCfg = Debug|x86
-		{58E9EB0C-4B47-40AF-9532-473E27D9220F}.Debug|x86.Build.0 = Debug|x86
-		{58E9EB0C-4B47-40AF-9532-473E27D9220F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{58E9EB0C-4B47-40AF-9532-473E27D9220F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{58E9EB0C-4B47-40AF-9532-473E27D9220F}.Release|x86.ActiveCfg = Release|x86
-		{58E9EB0C-4B47-40AF-9532-473E27D9220F}.Release|x86.Build.0 = Release|x86
+		{48427DA5-C767-4C8D-B2BB-4D3399D7A6D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48427DA5-C767-4C8D-B2BB-4D3399D7A6D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48427DA5-C767-4C8D-B2BB-4D3399D7A6D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48427DA5-C767-4C8D-B2BB-4D3399D7A6D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

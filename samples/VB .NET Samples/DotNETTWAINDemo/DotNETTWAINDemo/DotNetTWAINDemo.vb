@@ -1,4 +1,3 @@
-﻿Imports System
 Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.Data
@@ -6,186 +5,186 @@ Imports System.Drawing
 Imports System.Text
 Imports System.Windows.Forms
 Imports System.Runtime.InteropServices
+
 Imports System.Threading
-Imports Dynamsoft.DotNet.TWAIN
+Imports Dynamsoft.Barcode
+Imports Dynamsoft.TWAIN
+Imports Dynamsoft.Core
+Imports Dynamsoft.UVC
+Imports Dynamsoft.OCR
+Imports Dynamsoft.PDF
+Imports Dynamsoft.Core.Annotation
+Imports Dynamsoft.TWAIN.Interface
+Imports Dynamsoft.Core.Enums
+Imports System.IO
+Imports Dynamsoft.Common
 
-    Public Class DotNetTWAINDemo
 
-        ' For move the window
-        Dim mouse_offset As System.Drawing.Point
-        ' For move the annotation form
-        Dim mouse_offset2 As System.Drawing.Point
-    Dim currentImageIndex As Integer
-    Public Delegate Sub CrossThreadOperationControl()
-        Dim isToCrop As Boolean
-    Dim infoLabel As Label
+Partial Public Class DotNetTWAINDemo
+    Inherits Form
+    Implements IAcquireCallback
+    Implements IConvertCallback
+    Implements ISave
+    ' For move the window
+    Private mouse_offset As Point
+    ' For move the annotation form
+    Private mouse_offset2 As Point
+    Private currentImageIndex As Integer = -1
+    Private Delegate Sub CrossThreadOperationControl()
+    Private isToCrop As Boolean = False
+    Private infoLabel As Label
 
-    Friend WithEvents RoundedRectanglePanel1 As DotNET_TWAIN_Demo.RoundedRectanglePanel
-    Friend WithEvents RoundedRectanglePanel3 As DotNET_TWAIN_Demo.RoundedRectanglePanel
-    Friend WithEvents RoundedRectanglePanel2 As DotNET_TWAIN_Demo.RoundedRectanglePanel
-    Friend WithEvents RoundedRectanglePanel4 As DotNET_TWAIN_Demo.RoundedRectanglePanel
-    Friend WithEvents thLoadImage As DotNET_TWAIN_Demo.TabHead
-    Friend WithEvents thAcquireImage As DotNET_TWAIN_Demo.TabHead
-    Friend WithEvents thReadBarcode As DotNET_TWAIN_Demo.TabHead
-    Friend WithEvents thAddBarcode As DotNET_TWAIN_Demo.TabHead
-    Friend WithEvents thOCR As DotNET_TWAIN_Demo.TabHead
-    Friend WithEvents thSaveImage As DotNET_TWAIN_Demo.TabHead
-    Sub New()
+    Private roundedRectanglePanelSaveImage As RoundedRectanglePanel
+    Private roundedRectanglePanelAcquireLoad As RoundedRectanglePanel
+    Private roundedRectanglePanelBarcode As RoundedRectanglePanel
+    Private roundedRectanglePanelOCR As RoundedRectanglePanel
+    Private thSaveImage As TabHead
+    Private thOCR As TabHead
+    Private thAddBarcode As TabHead
+    Private thReadBarcode As TabHead
+    Private thLoadImage As TabHead
+    Private thAcquireImage As TabHead
 
-        ' This call is required by the Windows Form Designer.
+    ''' <summary>
+    ''' Click to minimize the form
+    ''' </summary>
+    Protected Overrides ReadOnly Property CreateParams() As CreateParams
+        Get
+            Const WS_MINIMIZEBOX As Integer = &H20000
+            Dim cp As CreateParams = MyBase.CreateParams
+            cp.Style = cp.Style Or WS_MINIMIZEBOX
+            Return cp
+        End Get
+    End Property
+    Private m_StrProductKey As String
+    Private m_TwainManager As TwainManager = Nothing
+    Private m_ImageCore As ImageCore = Nothing
+    Private m_CameraManager As CameraManager = Nothing
+    Private m_PDFRasterizer As PDFRasterizer = Nothing
+    Private m_PDFCreator As PDFCreator = Nothing
+    Private m_Tesseract As Tesseract = Nothing
+    Private m_BarcodeReader As BarcodeReader = Nothing
+    Private m_BarcodeGenerator As BarcodeGenerator = Nothing
+
+    Private m_Camera As Camera = Nothing
+
+    Public Sub New()
         InitializeComponent()
-
-        ' Add any initialization after the InitializeComponent() call.
         InitializeComponentForCustomControl()
+        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_TwainManager = New TwainManager(m_StrProductKey)
+        m_ImageCore = New ImageCore()
+        m_CameraManager = New CameraManager(m_StrProductKey)
+        m_PDFRasterizer = New PDFRasterizer(m_StrProductKey)
+        m_PDFCreator = New PDFCreator(m_StrProductKey)
+        m_Tesseract = New Tesseract(m_StrProductKey)
+        m_BarcodeReader = New BarcodeReader(m_StrProductKey)
+        m_BarcodeGenerator = New BarcodeGenerator(m_StrProductKey)
+
+        dsViewer.Bind(m_ImageCore)
+
+        ' Draw the background for the main form
+        DrawBackground()
+
+        Initialization()
     End Sub
 
+
     Private Sub InitializeComponentForCustomControl()
-        Me.RoundedRectanglePanel1 = New DotNET_TWAIN_Demo.RoundedRectanglePanel
-        Me.RoundedRectanglePanel2 = New DotNET_TWAIN_Demo.RoundedRectanglePanel
-        Me.RoundedRectanglePanel3 = New DotNET_TWAIN_Demo.RoundedRectanglePanel
-        Me.RoundedRectanglePanel4 = New DotNET_TWAIN_Demo.RoundedRectanglePanel
-        Me.thLoadImage = New DotNET_TWAIN_Demo.TabHead
-        Me.thAcquireImage = New DotNET_TWAIN_Demo.TabHead
-        Me.thReadBarcode = New DotNET_TWAIN_Demo.TabHead
-        Me.thAddBarcode = New DotNET_TWAIN_Demo.TabHead
-        Me.thOCR = New DotNET_TWAIN_Demo.TabHead
-        Me.thSaveImage = New DotNET_TWAIN_Demo.TabHead
 
-        Me.RoundedRectanglePanel1.SuspendLayout()
-        Me.RoundedRectanglePanel2.SuspendLayout()
-        Me.RoundedRectanglePanel3.SuspendLayout()
-        Me.RoundedRectanglePanel4.SuspendLayout()
+        Me.roundedRectanglePanelSaveImage = New RoundedRectanglePanel()
+        Me.roundedRectanglePanelAcquireLoad = New RoundedRectanglePanel()
+        Me.roundedRectanglePanelBarcode = New RoundedRectanglePanel()
+        Me.roundedRectanglePanelOCR = New RoundedRectanglePanel()
+        Me.thSaveImage = New TabHead()
+        Me.thOCR = New TabHead()
+        Me.thAddBarcode = New TabHead()
+        Me.thReadBarcode = New TabHead()
+        Me.thLoadImage = New TabHead()
+        Me.thAcquireImage = New TabHead()
 
-        '
-        'RoundedRectanglePanel1
-        '
-        Me.RoundedRectanglePanel1.AutoSize = True
-        Me.RoundedRectanglePanel1.BackgroundImage = CType(My.Resources.Resources.ResourceManager.GetObject("RoundedRectanglePanel1.BackgroundImage"), System.Drawing.Image)
-        Me.RoundedRectanglePanel1.Controls.Add(Me.panelLoad)
-        Me.RoundedRectanglePanel1.Controls.Add(Me.panelAcquire)
-        Me.RoundedRectanglePanel1.Controls.Add(Me.thLoadImage)
-        Me.RoundedRectanglePanel1.Controls.Add(Me.thAcquireImage)
-        Me.RoundedRectanglePanel1.Location = New System.Drawing.Point(12, 12)
-        Me.RoundedRectanglePanel1.Margin = New System.Windows.Forms.Padding(12, 12, 12, 0)
-        Me.RoundedRectanglePanel1.Name = "RoundedRectanglePanel1"
-        Me.RoundedRectanglePanel1.Padding = New System.Windows.Forms.Padding(1)
-        Me.RoundedRectanglePanel1.Size = New System.Drawing.Size(250, 270)
-        Me.RoundedRectanglePanel1.TabIndex = 0
-        '
-        'RoundedRectanglePanel2
-        '
-        Me.RoundedRectanglePanel2.AutoSize = True
-        Me.RoundedRectanglePanel2.BackgroundImage = CType(My.Resources.Resources.ResourceManager.GetObject("RoundedRectanglePanel2.BackgroundImage"), System.Drawing.Image)
-        Me.RoundedRectanglePanel2.Controls.Add(Me.panelAddBarcode)
-        Me.RoundedRectanglePanel2.Controls.Add(Me.panelReadBarcode)
-        Me.RoundedRectanglePanel2.Controls.Add(Me.thAddBarcode)
-        Me.RoundedRectanglePanel2.Controls.Add(Me.thReadBarcode)
-        Me.RoundedRectanglePanel2.Location = New System.Drawing.Point(286, 12)
-        Me.RoundedRectanglePanel2.Margin = New System.Windows.Forms.Padding(12, 12, 12, 0)
-        Me.RoundedRectanglePanel2.Name = "RoundedRectanglePanel2"
-        Me.RoundedRectanglePanel2.Padding = New System.Windows.Forms.Padding(1)
-        Me.RoundedRectanglePanel2.Size = New System.Drawing.Size(250, 362)
-        Me.RoundedRectanglePanel2.TabIndex = 3
-        '
-        'RoundedRectanglePanel3
-        '
-        Me.RoundedRectanglePanel3.AutoSize = True
-        Me.RoundedRectanglePanel3.BackgroundImage = CType(My.Resources.Resources.ResourceManager.GetObject("RoundedRectanglePanel3.BackgroundImage"), System.Drawing.Image)
-        Me.RoundedRectanglePanel3.Controls.Add(Me.panelOCR)
-        Me.RoundedRectanglePanel3.Controls.Add(Me.thOCR)
-        Me.RoundedRectanglePanel3.Location = New System.Drawing.Point(286, 386)
-        Me.RoundedRectanglePanel3.Margin = New System.Windows.Forms.Padding(12, 12, 12, 0)
-        Me.RoundedRectanglePanel3.Name = "RoundedRectanglePanel3"
-        Me.RoundedRectanglePanel3.Padding = New System.Windows.Forms.Padding(1)
-        Me.RoundedRectanglePanel3.Size = New System.Drawing.Size(250, 224)
-        Me.RoundedRectanglePanel3.TabIndex = 2
-        '
-        'RoundedRectanglePanel4
-        '
-        Me.RoundedRectanglePanel4.AutoSize = True
-        Me.RoundedRectanglePanel4.BackgroundImage = CType(My.Resources.Resources.ResourceManager.GetObject("RoundedRectanglePanel4.BackgroundImage"), System.Drawing.Image)
-        Me.RoundedRectanglePanel4.Controls.Add(Me.panelSaveImage)
-        Me.RoundedRectanglePanel4.Controls.Add(Me.thSaveImage)
-        Me.RoundedRectanglePanel4.Location = New System.Drawing.Point(560, 12)
-        Me.RoundedRectanglePanel4.Margin = New System.Windows.Forms.Padding(12)
-        Me.RoundedRectanglePanel4.Name = "RoundedRectanglePanel4"
-        Me.RoundedRectanglePanel4.Padding = New System.Windows.Forms.Padding(1)
-        Me.RoundedRectanglePanel4.Size = New System.Drawing.Size(253, 252)
-        Me.RoundedRectanglePanel4.TabIndex = 4
-        '
-        'thLoadImage
-        '
-        Me.thLoadImage.BackColor = System.Drawing.Color.Transparent
-        Me.thLoadImage.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.thLoadImage.Image = CType(My.Resources.Resources.ResourceManager.GetObject("thLoadImage.Image"), System.Drawing.Image)
-        Me.thLoadImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.thLoadImage.Index = 1
-        Me.thLoadImage.Location = New System.Drawing.Point(125, 1)
-        Me.thLoadImage.Margin = New System.Windows.Forms.Padding(0)
-        Me.thLoadImage.MultiTabHead = True
-        Me.thLoadImage.Name = "thLoadImage"
-        Me.thLoadImage.Size = New System.Drawing.Size(124, 40)
-        Me.thLoadImage.State = DotNET_TWAIN_Demo.TabHead.TabHeadState.FOLDED
-        Me.thLoadImage.TabIndex = 1
-        Me.thLoadImage.Text = "Load Files"
-        Me.thLoadImage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'thAcquireImage
-        '
-        Me.thAcquireImage.BackColor = System.Drawing.Color.Transparent
-        Me.thAcquireImage.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.thAcquireImage.Image = CType(My.Resources.Resources.ResourceManager.GetObject("thAcquireImage.Image"), System.Drawing.Image)
-        Me.thAcquireImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.thAcquireImage.Index = 0
-        Me.thAcquireImage.Location = New System.Drawing.Point(1, 1)
-        Me.thAcquireImage.Margin = New System.Windows.Forms.Padding(0)
-        Me.thAcquireImage.MultiTabHead = True
-        Me.thAcquireImage.Name = "thAcquireImage"
-        Me.thAcquireImage.Size = New System.Drawing.Size(124, 40)
-        Me.thAcquireImage.State = DotNET_TWAIN_Demo.TabHead.TabHeadState.SELECTED
-        Me.thAcquireImage.TabIndex = 0
-        Me.thAcquireImage.Text = "Acquire Image"
-        Me.thAcquireImage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'thAddBarcode
-        '
-        Me.thAddBarcode.BackColor = System.Drawing.Color.Transparent
-        Me.thAddBarcode.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.thAddBarcode.Image = CType(My.Resources.Resources.ResourceManager.GetObject("thAddBarcode.Image"), System.Drawing.Image)
-        Me.thAddBarcode.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.thAddBarcode.Index = 3
-        Me.thAddBarcode.Location = New System.Drawing.Point(125, 1)
-        Me.thAddBarcode.Margin = New System.Windows.Forms.Padding(0)
-        Me.thAddBarcode.MultiTabHead = True
-        Me.thAddBarcode.Name = "thAddBarcode"
-        Me.thAddBarcode.Size = New System.Drawing.Size(124, 40)
-        Me.thAddBarcode.State = DotNET_TWAIN_Demo.TabHead.TabHeadState.ALLFOLDED
-        Me.thAddBarcode.TabIndex = 1
-        Me.thAddBarcode.Text = "Add Barcode"
-        Me.thAddBarcode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'thReadBarcode
-        '
-        Me.thReadBarcode.BackColor = System.Drawing.Color.Transparent
-        Me.thReadBarcode.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.thReadBarcode.Image = CType(My.Resources.Resources.ResourceManager.GetObject("thReadBarcode.Image"), System.Drawing.Image)
-        Me.thReadBarcode.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.thReadBarcode.Index = 2
-        Me.thReadBarcode.Location = New System.Drawing.Point(1, 1)
-        Me.thReadBarcode.Margin = New System.Windows.Forms.Padding(0)
-        Me.thReadBarcode.MultiTabHead = True
-        Me.thReadBarcode.Name = "thReadBarcode"
-        Me.thReadBarcode.Size = New System.Drawing.Size(124, 40)
-        Me.thReadBarcode.State = DotNET_TWAIN_Demo.TabHead.TabHeadState.ALLFOLDED
-        Me.thReadBarcode.TabIndex = 0
-        Me.thReadBarcode.Text = "Read Barcode"
-        Me.thReadBarcode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'thOCR
-        '
-        Me.thOCR.BackColor = System.Drawing.Color.Transparent
-        Me.thOCR.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.thOCR.Image = CType(My.Resources.Resources.ResourceManager.GetObject("thOCR.Image"), System.Drawing.Image)
+        Me.roundedRectanglePanelSaveImage.SuspendLayout()
+        Me.roundedRectanglePanelAcquireLoad.SuspendLayout()
+        Me.roundedRectanglePanelBarcode.SuspendLayout()
+        Me.roundedRectanglePanelOCR.SuspendLayout()
+        ' 
+        ' roundedRectanglePanelSaveImage
+        ' 
+        Me.roundedRectanglePanelSaveImage.AutoSize = True
+        Me.roundedRectanglePanelSaveImage.BackgroundImage = DirectCast(My.Resources.ResourceManager.GetObject("roundedRectanglePanelSaveImage.BackgroundImage"), System.Drawing.Image)
+        Me.roundedRectanglePanelSaveImage.Controls.Add(Me.panelSaveImage)
+        Me.roundedRectanglePanelSaveImage.Controls.Add(Me.thSaveImage)
+        Me.roundedRectanglePanelSaveImage.Location = New System.Drawing.Point(12, 904)
+        Me.roundedRectanglePanelSaveImage.Margin = New System.Windows.Forms.Padding(12, 12, 12, 0)
+        Me.roundedRectanglePanelSaveImage.Name = "roundedRectanglePanelSaveImage"
+        Me.roundedRectanglePanelSaveImage.Padding = New System.Windows.Forms.Padding(1)
+        Me.roundedRectanglePanelSaveImage.Size = New System.Drawing.Size(250, 252)
+        ' 
+        ' roundedRectanglePanelAcquireLoad
+        ' 
+        Me.roundedRectanglePanelAcquireLoad.AutoSize = True
+        Me.roundedRectanglePanelAcquireLoad.BackColor = System.Drawing.SystemColors.Control
+        Me.roundedRectanglePanelAcquireLoad.BackgroundImage = DirectCast(My.Resources.ResourceManager.GetObject("roundedRectanglePanelAcquireLoad.BackgroundImage"), System.Drawing.Image)
+        Me.roundedRectanglePanelAcquireLoad.Controls.Add(Me.panelLoad)
+        Me.roundedRectanglePanelAcquireLoad.Controls.Add(Me.panelAcquire)
+        Me.roundedRectanglePanelAcquireLoad.Controls.Add(Me.thLoadImage)
+        Me.roundedRectanglePanelAcquireLoad.Controls.Add(Me.thAcquireImage)
+        Me.roundedRectanglePanelAcquireLoad.Location = New System.Drawing.Point(12, 12)
+        Me.roundedRectanglePanelAcquireLoad.Margin = New System.Windows.Forms.Padding(12, 12, 12, 0)
+        Me.roundedRectanglePanelAcquireLoad.Name = "roundedRectanglePanelAcquireLoad"
+        Me.roundedRectanglePanelAcquireLoad.Padding = New System.Windows.Forms.Padding(1)
+        Me.roundedRectanglePanelAcquireLoad.Size = New System.Drawing.Size(250, 270)
+        Me.roundedRectanglePanelAcquireLoad.TabIndex = 0
+        ' 
+        ' roundedRectanglePanelBarcode
+        ' 
+        Me.roundedRectanglePanelBarcode.AutoSize = True
+        Me.roundedRectanglePanelBarcode.BackgroundImage = DirectCast(My.Resources.ResourceManager.GetObject("roundedRectanglePanelBarcode.BackgroundImage"), System.Drawing.Image)
+        Me.roundedRectanglePanelBarcode.Controls.Add(Me.panelAddBarcode)
+        Me.roundedRectanglePanelBarcode.Controls.Add(Me.panelReadBarcode)
+        Me.roundedRectanglePanelBarcode.Controls.Add(Me.thAddBarcode)
+        Me.roundedRectanglePanelBarcode.Controls.Add(Me.thReadBarcode)
+        Me.roundedRectanglePanelBarcode.Location = New System.Drawing.Point(12, 294)
+        Me.roundedRectanglePanelBarcode.Margin = New System.Windows.Forms.Padding(12, 12, 12, 0)
+        Me.roundedRectanglePanelBarcode.Name = "roundedRectanglePanelBarcode"
+        Me.roundedRectanglePanelBarcode.Padding = New System.Windows.Forms.Padding(1)
+        Me.roundedRectanglePanelBarcode.Size = New System.Drawing.Size(250, 362)
+        Me.roundedRectanglePanelBarcode.TabIndex = 1
+        ' 
+        ' roundedRectanglePanelOCR
+        ' 
+        Me.roundedRectanglePanelOCR.AutoSize = True
+        Me.roundedRectanglePanelOCR.BackgroundImage = DirectCast(My.Resources.ResourceManager.GetObject("roundedRectanglePanelOCR.BackgroundImage"), System.Drawing.Image)
+        Me.roundedRectanglePanelOCR.Controls.Add(Me.panelOCR)
+        Me.roundedRectanglePanelOCR.Controls.Add(Me.thOCR)
+        Me.roundedRectanglePanelOCR.Location = New System.Drawing.Point(12, 668)
+        Me.roundedRectanglePanelOCR.Margin = New System.Windows.Forms.Padding(12, 12, 12, 0)
+        Me.roundedRectanglePanelOCR.Name = "roundedRectanglePanelOCR"
+        Me.roundedRectanglePanelOCR.Padding = New System.Windows.Forms.Padding(1)
+        Me.roundedRectanglePanelOCR.Size = New System.Drawing.Size(250, 224)
+        Me.roundedRectanglePanelOCR.TabIndex = 2
+        ' 
+        ' thSaveImage
+        ' 
+        Me.thSaveImage.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
+        Me.thSaveImage.Image = DirectCast(My.Resources.ResourceManager.GetObject("thSaveImage.Image"), System.Drawing.Image)
+        Me.thSaveImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.thSaveImage.Index = 5
+        Me.thSaveImage.Location = New System.Drawing.Point(1, 1)
+        Me.thSaveImage.Margin = New System.Windows.Forms.Padding(0)
+        Me.thSaveImage.MultiTabHead = False
+        Me.thSaveImage.Name = "thSaveImage"
+        Me.thSaveImage.Size = New System.Drawing.Size(248, 40)
+        Me.thSaveImage.State = TabHead.TabHeadState.ALLFOLDED
+        Me.thSaveImage.TabIndex = 73
+        Me.thSaveImage.Text = "Save Image"
+        Me.thSaveImage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        AddHandler Me.thSaveImage.Click, New System.EventHandler(AddressOf Me.TabHead_Click)
+        ' 
+        ' thOCR
+        ' 
+        Me.thOCR.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
+        Me.thOCR.Image = DirectCast(My.Resources.ResourceManager.GetObject("thOCR.Image"), System.Drawing.Image)
         Me.thOCR.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.thOCR.Index = 4
         Me.thOCR.Location = New System.Drawing.Point(1, 1)
@@ -193,85 +192,125 @@ Imports Dynamsoft.DotNet.TWAIN
         Me.thOCR.MultiTabHead = False
         Me.thOCR.Name = "thOCR"
         Me.thOCR.Size = New System.Drawing.Size(248, 40)
-        Me.thOCR.State = DotNET_TWAIN_Demo.TabHead.TabHeadState.ALLFOLDED
+        Me.thOCR.State = TabHead.TabHeadState.ALLFOLDED
         Me.thOCR.TabIndex = 0
         Me.thOCR.Text = "OCR"
         Me.thOCR.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'thSaveImage
-        '
-        Me.thSaveImage.BackColor = System.Drawing.Color.Transparent
-        Me.thSaveImage.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.thSaveImage.Image = CType(My.Resources.Resources.ResourceManager.GetObject("thSaveImage.Image"), System.Drawing.Image)
-        Me.thSaveImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.thSaveImage.Index = 5
-        Me.thSaveImage.Location = New System.Drawing.Point(1, 1)
-        Me.thSaveImage.MultiTabHead = False
-        Me.thSaveImage.Name = "thSaveImage"
-        Me.thSaveImage.Size = New System.Drawing.Size(248, 40)
-        Me.thSaveImage.State = DotNET_TWAIN_Demo.TabHead.TabHeadState.ALLFOLDED
-        Me.thSaveImage.TabIndex = 0
-        Me.thSaveImage.Text = "Save Image"
-        Me.thSaveImage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        AddHandler Me.thOCR.Click, New System.EventHandler(AddressOf Me.TabHead_Click)
+        ' 
+        ' thAddBarcode
+        ' 
+        Me.thAddBarcode.BackColor = System.Drawing.Color.Transparent
+        Me.thAddBarcode.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
+        Me.thAddBarcode.Image = DirectCast(My.Resources.ResourceManager.GetObject("thAddBarcode.Image"), System.Drawing.Image)
+        Me.thAddBarcode.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.thAddBarcode.Index = 3
+        Me.thAddBarcode.Location = New System.Drawing.Point(125, 1)
+        Me.thAddBarcode.Margin = New System.Windows.Forms.Padding(0)
+        Me.thAddBarcode.MultiTabHead = True
+        Me.thAddBarcode.Name = "thAddBarcode"
+        Me.thAddBarcode.Size = New System.Drawing.Size(124, 40)
+        Me.thAddBarcode.State = TabHead.TabHeadState.ALLFOLDED
+        Me.thAddBarcode.TabIndex = 1
+        Me.thAddBarcode.Text = "Add Barcode"
+        Me.thAddBarcode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        AddHandler Me.thAddBarcode.Click, New System.EventHandler(AddressOf Me.TabHead_Click)
+        ' 
+        ' thReadBarcode
+        ' 
+        Me.thReadBarcode.BackColor = System.Drawing.Color.Transparent
+        Me.thReadBarcode.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
+        Me.thReadBarcode.Image = DirectCast(My.Resources.ResourceManager.GetObject("thReadBarcode.Image"), System.Drawing.Image)
+        Me.thReadBarcode.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.thReadBarcode.Index = 2
+        Me.thReadBarcode.Location = New System.Drawing.Point(1, 1)
+        Me.thReadBarcode.Margin = New System.Windows.Forms.Padding(0)
+        Me.thReadBarcode.MultiTabHead = True
+        Me.thReadBarcode.Name = "thReadBarcode"
+        Me.thReadBarcode.Size = New System.Drawing.Size(124, 40)
+        Me.thReadBarcode.State = TabHead.TabHeadState.ALLFOLDED
+        Me.thReadBarcode.TabIndex = 0
+        Me.thReadBarcode.Text = "Read Barcode"
+        Me.thReadBarcode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        AddHandler Me.thReadBarcode.Click, New System.EventHandler(AddressOf Me.TabHead_Click)
+        ' 
+        ' thLoadImage
+        ' 
+        Me.thLoadImage.BackColor = System.Drawing.Color.Transparent
+        Me.thLoadImage.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
+        Me.thLoadImage.Image = DirectCast(My.Resources.ResourceManager.GetObject("thLoadImage.Image"), System.Drawing.Image)
+        Me.thLoadImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.thLoadImage.Index = 1
+        Me.thLoadImage.Location = New System.Drawing.Point(125, 1)
+        Me.thLoadImage.Margin = New System.Windows.Forms.Padding(0)
+        Me.thLoadImage.MultiTabHead = True
+        Me.thLoadImage.Name = "thLoadImage"
+        Me.thLoadImage.Size = New System.Drawing.Size(124, 40)
+        Me.thLoadImage.State = TabHead.TabHeadState.FOLDED
+        Me.thLoadImage.TabIndex = 1
+        Me.thLoadImage.Text = "Load Files"
+        Me.thLoadImage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        AddHandler Me.thLoadImage.Click, New System.EventHandler(AddressOf Me.TabHead_Click)
+        ' 
+        ' thAcquireImage
+        ' 
+        Me.thAcquireImage.BackColor = System.Drawing.Color.Transparent
+        Me.thAcquireImage.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
+        Me.thAcquireImage.Image = DirectCast(My.Resources.ResourceManager.GetObject("thAcquireImage.Image"), System.Drawing.Image)
+        Me.thAcquireImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.thAcquireImage.Index = 0
+        Me.thAcquireImage.Location = New System.Drawing.Point(1, 1)
+        Me.thAcquireImage.Margin = New System.Windows.Forms.Padding(0)
+        Me.thAcquireImage.MultiTabHead = True
+        Me.thAcquireImage.Name = "thAcquireImage"
+        Me.thAcquireImage.Size = New System.Drawing.Size(124, 40)
+        Me.thAcquireImage.State = TabHead.TabHeadState.SELECTED
+        Me.thAcquireImage.TabIndex = 0
+        Me.thAcquireImage.Text = "Acquire Image"
+        Me.thAcquireImage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        AddHandler Me.thAcquireImage.Click, New System.EventHandler(AddressOf Me.TabHead_Click)
 
-        Me.RoundedRectanglePanel1.ResumeLayout(False)
-        Me.RoundedRectanglePanel2.ResumeLayout(False)
-        Me.RoundedRectanglePanel3.ResumeLayout(False)
-        Me.RoundedRectanglePanel4.ResumeLayout(False)
+        Me.roundedRectanglePanelAcquireLoad.ResumeLayout(False)
+        Me.roundedRectanglePanelSaveImage.ResumeLayout(False)
+        Me.roundedRectanglePanelBarcode.ResumeLayout(False)
+        Me.roundedRectanglePanelOCR.ResumeLayout(False)
 
-        Me.flowLayoutPanel1.Controls.Add(Me.RoundedRectanglePanel1)
-        Me.flowLayoutPanel1.Controls.Add(Me.RoundedRectanglePanel2)
-        Me.flowLayoutPanel1.Controls.Add(Me.RoundedRectanglePanel3)
-        Me.flowLayoutPanel1.Controls.Add(Me.RoundedRectanglePanel4)
+        Me.roundedRectanglePanelSaveImage.TabIndex = 3
+        Me.flowLayoutPanel2.Controls.Add(Me.roundedRectanglePanelAcquireLoad)
+        Me.flowLayoutPanel2.Controls.Add(Me.roundedRectanglePanelBarcode)
+        Me.flowLayoutPanel2.Controls.Add(Me.roundedRectanglePanelOCR)
+        Me.flowLayoutPanel2.Controls.Add(Me.roundedRectanglePanelSaveImage)
     End Sub
 
-    Private Sub DotNetTWAINDemo_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-        currentImageIndex = -1
-        isToCrop = False
-
+    Protected Sub Initialization()
+        Dim strOCRTessDataFolder As String = Nothing
+        Dim strTempFolder As String = Application.ExecutablePath
+        strTempFolder = strTempFolder.Replace("/", "\")
+        If Not strTempFolder.EndsWith("\", False, System.Globalization.CultureInfo.CurrentCulture) Then
+            strTempFolder += "\"
+        End If
+        Dim pos As Integer = strTempFolder.LastIndexOf("\Samples\")
+        If pos <> -1 Then
+            strTempFolder = strTempFolder.Substring(0, strTempFolder.IndexOf("\", pos))
+            strOCRTessDataFolder = strTempFolder & "\Samples\Bin\"
+            strTempFolder = strTempFolder & "\Redistributable\Resources\"
+        Else
+            pos = strTempFolder.LastIndexOf("\")
+            strTempFolder = strTempFolder.Substring(0, strTempFolder.IndexOf("\", pos)) & "\"
+            strOCRTessDataFolder = strTempFolder
+        End If
+        m_Tesseract.TessDataPath = strOCRTessDataFolder
+    End Sub
+    Private Sub DotNetTWAINDemo_Load(sender As Object, e As EventArgs)
         InitUI()
-        Initialization()
         InitDefaultValueForTWAIN()
     End Sub
 
-    Private Sub Initialization()
-        Dim strPDFDllFolder As String : strPDFDllFolder = Nothing
-        Dim strBarcodeDllFolder As String : strBarcodeDllFolder = Nothing
-        Dim strOCRDllFolder As String : strOCRDllFolder = Nothing
-        Dim strOCRTessDataFolder As String : strOCRTessDataFolder = Nothing
-        Dim strAddOnDllFolder As String : strAddOnDllFolder = Application.ExecutablePath
-        strAddOnDllFolder = strAddOnDllFolder.Replace("/", "\")
-        If Not strAddOnDllFolder.EndsWith("\", False, System.Globalization.CultureInfo.CurrentCulture) Then
-            strAddOnDllFolder += "\"
-        End If
-        Dim pos As Integer = strAddOnDllFolder.LastIndexOf("\Samples\")
-        If Not pos = -1 Then
-            strAddOnDllFolder = strAddOnDllFolder.Substring(0, strAddOnDllFolder.IndexOf("\", pos))
-            strOCRTessDataFolder = strAddOnDllFolder + "\Samples\Bin\"
-            strAddOnDllFolder = strAddOnDllFolder + "\Redistributable\Resources\"
-            strPDFDllFolder = strAddOnDllFolder + "PDF\"
-            strBarcodeDllFolder = strAddOnDllFolder + "Barcode Generator\"
-            strOCRDllFolder = strAddOnDllFolder + "OCR\"
-        Else
-            pos = strAddOnDllFolder.LastIndexOf("\\")
-            strAddOnDllFolder = strAddOnDllFolder.Substring(0, strAddOnDllFolder.IndexOf("\", pos)) + "\"
-            strPDFDllFolder = strAddOnDllFolder
-            strBarcodeDllFolder = strAddOnDllFolder
-            strOCRDllFolder = strAddOnDllFolder
-            strOCRTessDataFolder = strAddOnDllFolder
-        End If
-        Me.dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
-        Me.dynamicDotNetTwain.PDFRasterizerDllPath = strPDFDllFolder
-        Me.dynamicDotNetTwain.BarcodeDllPath = strBarcodeDllFolder
-        Me.dynamicDotNetTwain.OCRDllPath = strOCRDllFolder
-        Me.dynamicDotNetTwain.OCRTessDataPath = strOCRTessDataFolder
-        Me.dynamicDotNetTwain.IfShowCancelDialogWhenBarcodeOrOCR = True
-        Me.dynamicDotNetTwain.MaxImagesInBuffer = 64
-    End Sub
-
-
+    ''' <summary>
+    ''' Init the UI for the demo
+    ''' </summary>
     Private Sub InitUI()
-        Me.dynamicDotNetTwain.Visible = False
+        dsViewer.Visible = False
         panelAnnotations.Visible = False
 
         DisableAllFunctionButtons()
@@ -308,9 +347,16 @@ Imports Dynamsoft.DotNet.TWAIN
         infoLabel.Name = "Info"
         infoLabel.BackColor = System.Drawing.Color.White
         infoLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        infoLabel.Font = New System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0)
+        infoLabel.Font = New System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
         infoLabel.BringToFront()
         Me.Controls.Add(infoLabel)
+
+        ' For the load image button
+        AddHandler Me.picboxLoadImage.MouseLeave, New System.EventHandler(AddressOf Me.picbox_MouseLeave)
+        AddHandler Me.picboxLoadImage.Click, New System.EventHandler(AddressOf Me.picboxLoadImage_Click)
+        AddHandler Me.picboxLoadImage.MouseDown, New System.Windows.Forms.MouseEventHandler(AddressOf Me.picbox_MouseDown)
+        AddHandler Me.picboxLoadImage.MouseUp, New System.Windows.Forms.MouseEventHandler(AddressOf Me.picbox_MouseUp)
+        AddHandler Me.picboxLoadImage.MouseEnter, New System.EventHandler(AddressOf Me.picbox_MouseEnter)
 
         'Tab Heads
         m_tabHeads(0) = thAcquireImage
@@ -331,27 +377,25 @@ Imports Dynamsoft.DotNet.TWAIN
         'OCR
         languages.Add("English", "eng")
         Me.cbxSupportedLanguage.Items.Clear()
-        Dim i As Integer = 0
         For Each str As String In languages.Keys
-            Me.cbxSupportedLanguage.Items.Insert(i, str)
-            i = i + 1
-        Next str
+            Me.cbxSupportedLanguage.Items.Add(str)
+        Next
         Me.cbxSupportedLanguage.SelectedIndex = 0
 
         Me.cbxOCRResultFormat.Items.Clear()
-        Me.cbxOCRResultFormat.Items.Insert(0, "Text File")
-        Me.cbxOCRResultFormat.Items.Insert(1, "Adobe PDF Plain Text File")
-        Me.cbxOCRResultFormat.Items.Insert(2, "Adobe PDF Image Over Text File")
+        Me.cbxOCRResultFormat.Items.Add("Text File")
+        Me.cbxOCRResultFormat.Items.Add("Adobe PDF Plain Text File")
+        Me.cbxOCRResultFormat.Items.Add("Adobe PDF Image Over Text File")
         Me.cbxOCRResultFormat.SelectedIndex = 0
 
         DisableControls(picboxOCR)
 
         'Add Barcode
         Me.cbxGenBarcodeFormat.Items.Clear()
-        Me.cbxGenBarcodeFormat.Items.Insert(0, "CODE_39")
-        Me.cbxGenBarcodeFormat.Items.Insert(1, "CODE_128")
-        Me.cbxGenBarcodeFormat.Items.Insert(2, "PDF417")
-        Me.cbxGenBarcodeFormat.Items.Insert(3, "QR_CODE")
+        Me.cbxGenBarcodeFormat.Items.Add("CODE_39")
+        Me.cbxGenBarcodeFormat.Items.Add("CODE_128")
+        Me.cbxGenBarcodeFormat.Items.Add("PDF417")
+        Me.cbxGenBarcodeFormat.Items.Add("QR_CODE")
         Me.cbxGenBarcodeFormat.SelectedIndex = 0
 
         Me.tbxBarcodeContent.Text = "Dynamsoft"
@@ -363,7 +407,6 @@ Imports Dynamsoft.DotNet.TWAIN
         DisableControls(picboxAddBarcode)
 
         'Read Barcode
-        'Me.cbxBarcodeFormat.DataSource = [Enum].GetValues(Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.All.GetType())
         cbxBarcodeFormat.Items.Add("All")
         cbxBarcodeFormat.Items.Add("OneD")
         cbxBarcodeFormat.Items.Add("Code 39")
@@ -395,32 +438,26 @@ Imports Dynamsoft.DotNet.TWAIN
         chkShowUIForWebcam.Visible = False
     End Sub
 
+    ''' <summary>
+    ''' Init the default value for TWAIN
+    ''' </summary>
     Private Sub InitDefaultValueForTWAIN()
         Try
-            ' dynamicDotNetTwain.IfThrowException = true
-            dynamicDotNetTwain.ScanInNewProcess = True
-            dynamicDotNetTwain.SupportedDeviceType = Enums.EnumSupportedDeviceType.SDT_ALL
-            dynamicDotNetTwain.IfFitWindow = True
-            dynamicDotNetTwain.MouseShape = False
-            dynamicDotNetTwain.SetViewMode(-1, -1)
+
+            dsViewer.IfFitWindow = True
+            dsViewer.MouseShape = False
+            dsViewer.SetViewMode(-1, -1)
             Me.cbxViewMode.SelectedIndex = 0
 
-            ' Init the sources for TWAIN scanning, show in the cbxSources controls
-            If dynamicDotNetTwain.SourceCount > 0 Then
-                Dim hasTwainSource As Boolean : hasTwainSource = False
-                Dim hasWebcamSource As Boolean : hasWebcamSource = False
-                Dim i As Integer
+            ' Init the sources for TWAIN scanning and Webcam grab, show in the cbxSources controls
+            If m_TwainManager.SourceCount > 0 Then
+                Dim hasTwainSource As Boolean = False
+                Dim hasWebcamSource As Boolean = False
                 cbxSource.Items.Clear()
-                For i = 0 To dynamicDotNetTwain.SourceCount - 1
-                    cbxSource.Items.Add(dynamicDotNetTwain.SourceNameItems(Convert.ToInt16(i)))
-                    Dim enumDeviceType As Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType : enumDeviceType = dynamicDotNetTwain.GetSourceType(Convert.ToInt16(i))
-                    If (enumDeviceType = Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType.SDT_TWAIN) Then
-                        hasTwainSource = True
-                    ElseIf (enumDeviceType = Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType.SDT_WEBCAM) Then
-                        hasWebcamSource = True
-                    End If
+                For i As Integer = 0 To m_TwainManager.SourceCount - 1
+                    cbxSource.Items.Add(m_TwainManager.SourceNameItems(CShort(i)))
+                    hasTwainSource = True
                 Next
-
                 If hasTwainSource Then
                     cbxSource.Enabled = True
                     chkShowUI.Enabled = True
@@ -430,40 +467,50 @@ Imports Dynamsoft.DotNet.TWAIN
                     rdbtnGray.Checked = True
                     cbxResolution.SelectedIndex = 0
                     EnableControls(Me.picboxScan)
-                End If
 
+                End If
+            End If
+            Dim iSourceCount As Integer = 0
+            If m_CameraManager.GetCameraNames() IsNot Nothing Then
+                iSourceCount = m_CameraManager.GetCameraNames().Count
+            End If
+            If iSourceCount > 0 Then
+                Dim hasWebcamSource As Boolean = False
+                For i As Integer = 0 To iSourceCount - 1
+                    cbxSource.Items.Add(m_CameraManager.GetCameraNames()(i))
+                    hasWebcamSource = True
+                Next
                 If hasWebcamSource Then
                     chkShowUIForWebcam.Enabled = True
-                    cbxMediaType.Enabled = True
                     cbxResolutionForWebcam.Enabled = True
                     EnableControls(Me.picboxGrab)
                 End If
-
-                cbxSource.SelectedIndex = 0
-                'dynamicDotNetTwain.SelectSourceByIndex(cbxSource.SelectedIndex)
             End If
-        Catch ex As Exception
+
+            If cbxSource.Items.Count > 0 Then
+                cbxSource.SelectedIndex = 0
+
+            End If
+        Catch ex As System.Exception
             MessageBox.Show(ex.Message)
         End Try
-
     End Sub
 
     Private Sub DrawBackground()
         ' Create a bitmap
-        Dim img As Bitmap
-        img = My.Resources.Resources.main_bg
+        Dim img As Bitmap = My.Resources.main_bg
         ' Set the form properties
-        'Size AS New Size(img.Width, img.Height)
-        Dim BackgroundImage As Bitmap
+        Size = New Size(img.Width, img.Height)
         BackgroundImage = New Bitmap(Width, Height)
 
         ' Draw it
-        Dim g As Graphics
-        g = Graphics.FromImage(BackgroundImage)
+        Dim g As Graphics = Graphics.FromImage(BackgroundImage)
         g.DrawImage(img, 0, 0, img.Width, img.Height)
-
     End Sub
 
+    ''' <summary>
+    ''' Disable all the function buttons in the left and bottom panel
+    ''' </summary>
     Private Sub DisableAllFunctionButtons()
         DisableControls(Me.picboxHand)
         DisableControls(Me.picboxPoint)
@@ -497,11 +544,9 @@ Imports Dynamsoft.DotNet.TWAIN
         DisableControls(Me.picboxOriginalSize)
     End Sub
 
-
     ''' <summary>
-    '''  Enable all the function buttons in the left and bottom panel
+    ''' Enable all the function buttons in the left and bottom panel
     ''' </summary>
-    ''' <remarks></remarks>
     Private Sub EnableAllFunctionButtons()
         EnableControls(Me.picboxHand)
         EnableControls(Me.picboxPoint)
@@ -529,18 +574,17 @@ Imports Dynamsoft.DotNet.TWAIN
         EnableControls(Me.picboxFit)
         EnableControls(Me.picboxOriginalSize)
 
-        If dynamicDotNetTwain.HowManyImagesInBuffer > 1 Then
+        If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 1 Then
             EnableControls(Me.picboxFirst)
             EnableControls(Me.picboxPrevious)
             EnableControls(Me.picboxNext)
             EnableControls(Me.picboxLast)
 
-            If (dynamicDotNetTwain.CurrentImageIndexInBuffer = 0) Then
+            If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer = 0 Then
                 DisableControls(picboxPrevious)
                 DisableControls(picboxFirst)
             End If
-
-            If (dynamicDotNetTwain.CurrentImageIndexInBuffer + 1 = dynamicDotNetTwain.HowManyImagesInBuffer) Then
+            If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer + 1 = m_ImageCore.ImageBuffer.HowManyImagesInBuffer Then
                 DisableControls(picboxNext)
                 DisableControls(picboxLast)
             End If
@@ -550,184 +594,115 @@ Imports Dynamsoft.DotNet.TWAIN
     End Sub
 
 #Region "regist Event For All PictureBox Buttons"
-
-    Private Sub picbox_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles _
- _
- _
- _
-                 picboxLoadImage.MouseDown, _
-                picboxFirst.MouseDown, picboxLast.MouseDown, picboxNext.MouseDown, picboxPrevious.MouseDown, _
-                 picboxMin.MouseDown, picboxClose.MouseDown, picboxPoint.MouseDown, picboxHand.MouseDown, picboxRotateRight.MouseDown, picboxRotateLeft.MouseDown, picboxMirror.MouseDown, picboxFlip.MouseDown, picboxZoomOut.MouseDown, picboxZoomIn.MouseDown, picboxZoom.MouseDown, picboxText.MouseDown, picboxResample.MouseDown, picboxRectangle.MouseDown, picboxOriginalSize.MouseDown, picboxLine.MouseDown, picboxFit.MouseDown, picboxEllipse.MouseDown, picboxDeleteAll.MouseDown, picboxDelete.MouseDown, picboxCut.MouseDown, picboxCrop.MouseDown, picboxLineA.MouseDown, picboxEllipseA.MouseDown, picboxRectangleA.MouseDown, picboxTextA.MouseDown, picboxScan.MouseDown, picboxSave.MouseDown, picboxReadBarcode.MouseDown, picboxGrab.MouseDown, picboxAddBarcode.MouseDown, picboxOCR.MouseDown, picboxDeleteAnnotationA.MouseDown
-        Dim picBox As PictureBox
-        Try
-            picBox = CType(sender, PictureBox)
-            If picBox.Enabled Then
-                picBox.Image = CType(My.Resources.Resources.ResourceManager.GetObject(picBox.Name + "_Down"), System.Drawing.Image)
+    Private Sub picbox_MouseEnter(sender As Object, e As EventArgs)
+        If TypeOf sender Is PictureBox Then
+            If TryCast(sender, PictureBox).Enabled = True Then
+                TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Enter"), Image)
             End If
-        Catch ex As Exception
-        End Try
+        End If
     End Sub
 
-    Private Sub picbox_MouseEnter(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles _
- _
- _
- _
-                 picboxLoadImage.MouseEnter, _
-                picboxFirst.MouseEnter, picboxLast.MouseEnter, picboxNext.MouseEnter, picboxPrevious.MouseEnter, _
-                 picboxMin.MouseEnter, picboxClose.MouseEnter, picboxPoint.MouseEnter, picboxHand.MouseEnter, picboxRotateRight.MouseEnter, picboxRotateLeft.MouseEnter, picboxMirror.MouseEnter, picboxFlip.MouseEnter, picboxZoomOut.MouseEnter, picboxZoomIn.MouseEnter, picboxZoom.MouseEnter, picboxText.MouseEnter, picboxResample.MouseEnter, picboxRectangle.MouseEnter, picboxOriginalSize.MouseEnter, picboxLine.MouseEnter, picboxFit.MouseEnter, picboxEllipse.MouseEnter, picboxDeleteAll.MouseEnter, picboxDelete.MouseEnter, picboxCut.MouseEnter, picboxCrop.MouseEnter, picboxLineA.MouseEnter, picboxEllipseA.MouseEnter, picboxRectangleA.MouseEnter, picboxTextA.MouseEnter, picboxScan.MouseEnter, picboxSave.MouseEnter, picboxReadBarcode.MouseEnter, picboxGrab.MouseEnter, picboxAddBarcode.MouseEnter, picboxOCR.MouseEnter, picboxDeleteAnnotationA.MouseEnter
-        Dim picBox As PictureBox
-        Try
-            picBox = CType(sender, PictureBox)
-            If picBox.Enabled Then
-                picBox.Image = CType(My.Resources.Resources.ResourceManager.GetObject(picBox.Name + "_Enter"), System.Drawing.Image)
+    Private Sub picbox_MouseDown(sender As Object, e As MouseEventArgs)
+        If TypeOf sender Is PictureBox Then
+            If TryCast(sender, PictureBox).Enabled = True Then
+                TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Down"), Image)
             End If
-        Catch ex As Exception
-        End Try
+        End If
     End Sub
 
-    Private Sub picbox_MouseHover(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles _
- _
- _
- _
- _
-                picboxFirst.MouseHover, picboxLast.MouseHover, picboxNext.MouseHover, picboxPrevious.MouseHover, picboxZoomOut.MouseHover, picboxZoomIn.MouseHover, picboxZoom.MouseHover, picboxText.MouseHover, picboxRotateRight.MouseHover, picboxRotateLeft.MouseHover, picboxResample.MouseHover, picboxRectangle.MouseHover, picboxPoint.MouseHover, picboxOriginalSize.MouseHover, picboxMirror.MouseHover, picboxLine.MouseHover, picboxHand.MouseHover, picboxFlip.MouseHover, picboxFit.MouseHover, picboxEllipse.MouseHover, picboxDeleteAll.MouseHover, picboxDelete.MouseHover, picboxCut.MouseHover, picboxCrop.MouseHover, picboxLineA.MouseHover, picboxEllipseA.MouseHover, picboxRectangleA.MouseHover, picboxTextA.MouseHover, picboxDeleteAnnotationA.MouseHover
-        Dim picBox As PictureBox
-        Try
-            picBox = CType(sender, PictureBox)
-            infoLabel.Text = picBox.Tag.ToString()
-            infoLabel.Location = New Point(Me.PointToClient(MousePosition).X, Me.PointToClient(MousePosition).Y + 20)
-            infoLabel.Visible = True
-            infoLabel.BringToFront()
-        Catch ex As Exception
-        End Try
-    End Sub
-
-    Private Sub picbox_MouseLeave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles _
- _
- _
- _
-                 picboxLoadImage.MouseLeave, _
-                picboxFirst.MouseLeave, picboxLast.MouseLeave, picboxNext.MouseLeave, picboxPrevious.MouseLeave, _
-                 picboxMin.MouseLeave, picboxClose.MouseLeave, picboxPoint.MouseLeave, picboxHand.MouseLeave, picboxRotateRight.MouseLeave, picboxRotateLeft.MouseLeave, picboxMirror.MouseLeave, picboxFlip.MouseLeave, picboxZoomOut.MouseLeave, picboxZoomIn.MouseLeave, picboxZoom.MouseLeave, picboxText.MouseLeave, picboxResample.MouseLeave, picboxRectangle.MouseLeave, picboxOriginalSize.MouseLeave, picboxLine.MouseLeave, picboxFit.MouseLeave, picboxEllipse.MouseLeave, picboxDeleteAll.MouseLeave, picboxDelete.MouseLeave, picboxCut.MouseLeave, picboxCrop.MouseLeave, picboxLineA.MouseLeave, picboxEllipseA.MouseLeave, picboxRectangleA.MouseLeave, picboxTextA.MouseLeave, picboxScan.MouseLeave, picboxSave.MouseLeave, picboxReadBarcode.MouseLeave, picboxGrab.MouseLeave, picboxAddBarcode.MouseLeave, picboxOCR.MouseLeave, picboxDeleteAnnotationA.MouseLeave
-        Dim picBox As PictureBox
-        Try
-            picBox = CType(sender, PictureBox)
-            If picBox.Enabled Then
-                picBox.Image = CType(My.Resources.Resources.ResourceManager.GetObject(picBox.Name + "_Leave"), System.Drawing.Image)
+    Private Sub picbox_MouseLeave(sender As Object, e As EventArgs)
+        If TypeOf sender Is PictureBox Then
+            If TryCast(sender, PictureBox).Enabled = True Then
+                TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Leave"), Image)
                 infoLabel.Text = ""
                 infoLabel.Visible = False
             End If
-        Catch ex As Exception
-        End Try
+        End If
     End Sub
 
-    Private Sub picbox_MouseUp(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles _
- _
- _
- _
-                 picboxLoadImage.MouseUp, _
-                picboxFirst.MouseUp, picboxLast.MouseUp, picboxNext.MouseUp, picboxPrevious.MouseUp, _
-                 picboxMin.MouseUp, picboxClose.MouseUp, picboxPoint.MouseUp, picboxHand.MouseUp, picboxRotateRight.MouseUp, picboxRotateLeft.MouseUp, picboxMirror.MouseUp, picboxZoomOut.MouseUp, picboxZoomIn.MouseUp, picboxZoom.MouseUp, picboxText.MouseUp, picboxResample.MouseUp, picboxRectangle.MouseUp, picboxOriginalSize.MouseUp, picboxLine.MouseUp, picboxFlip.MouseUp, picboxFit.MouseUp, picboxEllipse.MouseUp, picboxDeleteAll.MouseUp, picboxDelete.MouseUp, picboxCut.MouseUp, picboxCrop.MouseUp, picboxLineA.MouseUp, picboxEllipseA.MouseUp, picboxRectangleA.MouseUp, picboxTextA.MouseUp, picboxScan.MouseUp, picboxSave.MouseUp, picboxReadBarcode.MouseUp, picboxGrab.MouseUp, picboxAddBarcode.MouseUp, picboxOCR.MouseUp, picboxDeleteAnnotationA.MouseUp
-        Dim picBox As PictureBox
-        Try
-            picBox = CType(sender, PictureBox)
-            If picBox.Enabled Then
-                picBox.Image = CType(My.Resources.Resources.ResourceManager.GetObject(picBox.Name + "_Enter"), System.Drawing.Image)
+    Private Sub picbox_MouseUp(sender As Object, e As MouseEventArgs)
+        If TypeOf sender Is PictureBox Then
+            If TryCast(sender, PictureBox).Enabled = True Then
+                TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Enter"), Image)
             End If
-        Catch ex As Exception
-        End Try
+        End If
+
     End Sub
 
-    Private Sub DisableControls(ByVal sender As System.Object)
-        Dim picBox As PictureBox
-        Try
-            picBox = CType(sender, PictureBox)
-            picBox.Image = CType(My.Resources.Resources.ResourceManager.GetObject(picBox.Name + "_Disabled"), System.Drawing.Image)
-            picBox.Enabled = False
-        Catch ex As Exception
-            picBox = CType(sender, Control)
-            picBox.Enabled = False
-        End Try
+    Private Sub picbox_MouseHover(sender As Object, e As EventArgs)
+        infoLabel.Text = TryCast(sender, PictureBox).Tag.ToString()
+        infoLabel.Location = New Point(Me.PointToClient(MousePosition).X, Me.PointToClient(MousePosition).Y + 20)
+        infoLabel.Visible = True
+        infoLabel.BringToFront()
     End Sub
 
-    Private Sub EnableControls(ByVal sender As System.Object)
-        Dim picBox As PictureBox
-        Try
-            picBox = CType(sender, PictureBox)
-            picBox.Image = CType(My.Resources.Resources.ResourceManager.GetObject(picBox.Name + "_Leave"), System.Drawing.Image)
-            picBox.Enabled = True
-        Catch ex As Exception
-            picBox = CType(sender, Control)
-            picBox.Enabled = True
-        End Try
+    Private Sub DisableControls(sender As Object)
+        If TypeOf sender Is PictureBox Then
+            TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Disabled"), Image)
+            TryCast(sender, PictureBox).Enabled = False
+        Else
+            TryCast(sender, Control).Enabled = False
+        End If
     End Sub
+
+    Private Sub EnableControls(sender As Object)
+        If TypeOf sender Is PictureBox Then
+            TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Leave"), Image)
+            TryCast(sender, PictureBox).Enabled = True
+        Else
+            TryCast(sender, Control).Enabled = True
+        End If
+    End Sub
+
 #End Region
 
 #Region "functions for the form, ignore them please"
-    Private Sub lbMoveBar_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles lbMoveBar.MouseDown
+    ''' <summary>
+    ''' Mouse down when move the form
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub lbMoveBar_MouseDown(sender As Object, e As MouseEventArgs)
         mouse_offset = New Point(-e.X, -e.Y)
     End Sub
 
-    Private Sub lbMoveBar_MouseMove(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles lbMoveBar.MouseMove
-        If (e.Button = MouseButtons.Left) Then
-            Dim mousePos As Point
-            mousePos = Control.MousePosition
+    ''' <summary>
+    ''' Mouse move when move the form
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub lbMoveBar_MouseMove(sender As Object, e As MouseEventArgs)
+        If e.Button = MouseButtons.Left Then
+            Dim mousePos As Point = Control.MousePosition
             mousePos.Offset(mouse_offset.X, mouse_offset.Y)
             Me.Location = mousePos
         End If
     End Sub
 
-    Private Sub picboxClose_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles picboxClose.MouseClick
-        Application.Exit()
-    End Sub
-
-    Private Sub picboxMin_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxMin.Click
-        Me.WindowState = FormWindowState.Minimized
-    End Sub
-
-#End Region
-
-    Private Sub picboxLoadImage_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxLoadImage.Click
-        openFileDialog.Filter = "All Support Files|*.JPG;*.JPEG;*.JPE;*.JFIF;*.BMP;*.PNG;*.TIF;*.TIFF;*.PDF;*.GIF|JPEG|*.JPG;*.JPEG;*.JPE;*.Jfif|BMP|*.BMP|PNG|*.PNG|TIFF|*.TIF;*.TIFF|PDF|*.PDF|GIF|*.GIF"
-        openFileDialog.FilterIndex = 0
-        openFileDialog.Multiselect = True
-        dynamicDotNetTwain.IfAppendImage = True
-        If (openFileDialog.ShowDialog() = DialogResult.OK) Then
-            For Each strFileName As String In openFileDialog.FileNames
-                Dim pos As Integer
-                pos = strFileName.LastIndexOf(".")
-                If (pos <> -1) Then
-                    Dim strSuffix As String
-                    strSuffix = strFileName.Substring(pos, strFileName.Length - pos).ToLower()
-                    If (strSuffix.CompareTo(".pdf") = 0) Then
-                        dynamicDotNetTwain.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL
-                        dynamicDotNetTwain.SetPDFResolution(200)
-                        dynamicDotNetTwain.LoadImage(strFileName)
-                        'dynamicDotNetTwain.ConvertPDFToImage(strFileName, 200)
-                        If (Not dynamicDotNetTwain.ErrorCode = Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed) Then
-                            MessageBox.Show(dynamicDotNetTwain.ErrorString, "Loading image error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                        End If
-                    Else
-                        dynamicDotNetTwain.LoadImage(strFileName)
-                    End If
-                Else
-                    dynamicDotNetTwain.LoadImage(strFileName)
-                End If
-            Next strFileName
-            dynamicDotNetTwain.Visible = True
-        End If
-        checkImageCount()
+    ''' <summary>
+    ''' Close the application
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub picboxClose_MouseClick(sender As Object, e As MouseEventArgs)
+        Application.[Exit]()
     End Sub
 
     ''' <summary>
-    ''' If the image count changed, some features should changed.
+    ''' Minimize the form
     ''' </summary>
-    ''' <remarks></remarks>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub picboxMin_Click(sender As Object, e As EventArgs)
+        Me.WindowState = FormWindowState.Minimized
+    End Sub
+#End Region
 
-    Private Sub picboxScan_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxScan.Click
+    Private Sub picboxScan_Click(sender As Object, e As EventArgs)
         If picboxScan.Enabled Then
-            If (Me.cbxSource.SelectedIndex < 0) Then
-                MessageBox.Show(Me, "There is no scanner detected! " & Constants.vbCrLf & "Please ensure that at least one (virtual) scanner is installed.", "Information")
+            picboxScan.Focus()
+            If Me.cbxSource.SelectedIndex < 0 Then
+                MessageBox.Show(Me, "There is no scanner detected!" & vbLf & " " & "Please ensure that at least one (virtual) scanner is installed.", "Information")
             Else
                 DisableControls(picboxScan)
                 Me.AcquireImage()
@@ -735,73 +710,74 @@ Imports Dynamsoft.DotNet.TWAIN
         End If
     End Sub
 
-
+    Private m_CameraUI As CameraUI = Nothing
     ''' <summary>
     ''' Acquire image from the selected source
     ''' </summary>
-    ''' <remarks></remarks>
     Private Sub AcquireImage()
         Try
-            ' Select the source for TWAIN
-            dynamicDotNetTwain.SelectSourceByIndex(cbxSource.SelectedIndex)
-            dynamicDotNetTwain.OpenSource()
-            ' Set the image fit the size of window
-            'dynamicDotNetTwain.IfFitWindow = true;
-            'dynamicDotNetTwain.MouseShape = false;
 
-            dynamicDotNetTwain.IfShowUI = chkShowUI.Checked
+            Dim sSourceIndex As Short = 0
+            sSourceIndex = CShort(cbxSource.SelectedIndex)
+            Dim sTwainSourceCount As Short = m_TwainManager.SourceCount
+            Dim sCameraSourceCount As Short = 0
+            If m_CameraManager.GetCameraNames() IsNot Nothing Then
+                sCameraSourceCount = CShort(m_CameraManager.GetCameraNames().Count)
+            End If
 
-            ' if (chkADF.Enabled)
-            ' dynamicDotNetTwain.IfAutoFeed = dynamicDotNetTwain.IfFeederEnabled = chkADF.Checked;
-            dynamicDotNetTwain.IfFeederEnabled = chkADF.Checked
-            'dynamicDotNetTwain.IfAutoFeed = chkADF.Checked
-            ' if (chkDuplex.Enabled)
-            dynamicDotNetTwain.IfDuplexEnabled = chkDuplex.Checked
-
-            ' Need to open source first
-            ' dynamicDotNetTwain.OpenSource();
-            dynamicDotNetTwain.IfDisableSourceAfterAcquire = True
+            If sSourceIndex < sTwainSourceCount Then
+                m_TwainManager.SelectSourceByIndex(sSourceIndex)
+                m_TwainManager.OpenSource()
+                m_TwainManager.IfShowUI = chkShowUI.Checked
+                m_TwainManager.IfFeederEnabled = chkADF.Checked
+                m_TwainManager.IfDuplexEnabled = chkDuplex.Checked
+                m_TwainManager.IfDisableSourceAfterAcquire = True
 
 
-            If (rdbtnBW.Checked) Then
-                dynamicDotNetTwain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_BW
-                dynamicDotNetTwain.BitDepth = 1
-            ElseIf (rdbtnGray.Checked) Then
-                dynamicDotNetTwain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_GRAY
-                dynamicDotNetTwain.BitDepth = 8
+
+                If rdbtnBW.Checked Then
+                    m_TwainManager.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_BW
+                    m_TwainManager.BitDepth = 1
+                ElseIf rdbtnGray.Checked Then
+                    m_TwainManager.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_GRAY
+                    m_TwainManager.BitDepth = 8
+                Else
+                    m_TwainManager.PixelType = Dynamsoft.TWAIN.Enums.TWICapPixelType.TWPT_RGB
+                    m_TwainManager.BitDepth = 24
+                End If
+                m_TwainManager.Resolution = Integer.Parse(cbxResolution.Text)
+                m_TwainManager.AcquireImage(TryCast(Me, IAcquireCallback))
             Else
-                dynamicDotNetTwain.PixelType = Dynamsoft.DotNet.TWAIN.Enums.TWICapPixelType.TWPT_RGB
-                dynamicDotNetTwain.BitDepth = 24
-            End If
+                Dim sCameraIndex As Short = CShort(sSourceIndex - sTwainSourceCount)
+                m_Camera = m_CameraManager.SelectCamera(sCameraIndex)
+                If m_CameraUI.IsDisposed OrElse m_CameraUI Is Nothing Then
+                    m_CameraUI = New CameraUI()
+                End If
+                m_CameraUI.Camera = m_Camera
+                m_Camera.Open()
+                m_CameraUI.ClientSize = New Size(m_Camera.CurrentResolution.Width, m_Camera.CurrentResolution.Height)
+                m_CameraUI.Show()
 
-            dynamicDotNetTwain.Resolution = Integer.Parse(cbxResolution.Text)
-            ' Acquire image from the source
-            dynamicDotNetTwain.AcquireImage()
-        Catch ex As Exception
-            MessageBox.Show("An exception occurs: " + ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        Finally
-            If Not dynamicDotNetTwain.ErrorCode = Enums.ErrorCode.Succeed Then
-                EnableControls(picboxScan)
             End If
+        Catch exp As Exception
+            Throw exp
+        Finally
+            EnableControls(picboxScan)
+            dsViewer.Visible = True
+            checkImageCount()
         End Try
     End Sub
 
     ''' <summary>
-    '''  multi-page are allowed for tiff and pdf
+    ''' multi-page are allowed for tiff and pdf
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    ''' <remarks></remarks>
-    Private Sub rdbtnMultiPage_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbtnTIFF.CheckedChanged, rdbtnPDF.CheckedChanged
-        Dim radioButton As RadioButton
-        Try
-            radioButton = CType(sender, RadioButton)
-            If radioButton.Checked = True Then
-                Me.chkMultiPage.Enabled = True
-                Me.chkMultiPage.Checked = True
-            End If
-        Catch ex As Exception
-        End Try
+    Private Sub rdbtnMultiPage_CheckedChanged(sender As Object, e As EventArgs)
+        If TryCast(sender, RadioButton).Checked = True Then
+            Me.chkMultiPage.Enabled = True
+            Me.chkMultiPage.Checked = True
+        End If
     End Sub
 
     ''' <summary>
@@ -809,289 +785,342 @@ Imports Dynamsoft.DotNet.TWAIN
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    ''' <remarks></remarks>
-    Private Sub rdbtnSinglePage_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rdbtnPNG.CheckedChanged, rdbtnJPG.CheckedChanged, rdbtnBMP.CheckedChanged
-        Dim radioButton As RadioButton
-        Try
-            radioButton = CType(sender, RadioButton)
-            If radioButton.Checked = True Then
-                Me.chkMultiPage.Enabled = False
-                Me.chkMultiPage.Checked = False
-            End If
-        Catch ex As Exception
-        End Try
+    Private Sub rdbtnSinglePage_CheckedChanged(sender As Object, e As EventArgs)
+        If TryCast(sender, RadioButton).Checked = True Then
+            Me.chkMultiPage.Enabled = False
+            Me.chkMultiPage.Checked = False
+        End If
     End Sub
 
     ''' <summary>
     ''' Verified the file name. If the file name is ok, return true, else return false.
     ''' </summary>
     ''' <param name="fileName">file name</param>
-    ''' <remarks></remarks>
-    Private Function VerifyFileName(ByVal fileName As String) As Boolean
+    ''' <returns></returns>
+    Private Function VerifyFileName(fileName As String) As Boolean
         Try
-
             If fileName.LastIndexOfAny(System.IO.Path.GetInvalidFileNameChars()) = -1 Then
                 Return True
             End If
-
-        Catch ex As Exception
-
+        Catch e As Exception
         End Try
         MessageBox.Show("The file name contains invalid chars!", "Save Image To File", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Return False
     End Function
 
-    Private Sub picboxSave_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxSave.Click
-        Dim fileName As String
-        fileName = tbxSaveFileName.Text.Trim()
-        If (VerifyFileName(fileName)) Then
-            saveFileDialog.FileName = Me.tbxSaveFileName.Text
-            If (rdbtnJPG.Checked) Then
-                saveFileDialog.Filter = "JPEG|*.JPG;*.JPEG;*.JPE;*.JFIF"
-                saveFileDialog.DefaultExt = "jpg"
-                If (saveFileDialog.ShowDialog() = DialogResult.OK) Then
-                    dynamicDotNetTwain.SaveAsJPEG(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer)
-                End If
-            End If
-            If (rdbtnBMP.Checked) Then
-                saveFileDialog.Filter = "BMP|*.BMP"
-                saveFileDialog.DefaultExt = "bmp"
-                If (saveFileDialog.ShowDialog() = DialogResult.OK) Then
-                    dynamicDotNetTwain.SaveAsBMP(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer)
-                End If
-            End If
+    ''' <summary>
+    ''' Save the image as the selected format and name
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub picboxSave_Click(sender As Object, e As EventArgs)
+        Try
+            Dim fileName As String = tbxSaveFileName.Text.Trim()
+            If VerifyFileName(fileName) Then
+                saveFileDialog.FileName = Me.tbxSaveFileName.Text
 
-            If (rdbtnPNG.Checked) Then
-                saveFileDialog.Filter = "PNG|*.PNG"
-                saveFileDialog.DefaultExt = "png"
-                If (saveFileDialog.ShowDialog() = DialogResult.OK) Then
-                    dynamicDotNetTwain.SaveAsPNG(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer)
-                End If
-            End If
-
-            If (rdbtnTIFF.Checked) Then
-                saveFileDialog.Filter = "TIFF|*.TIF;*.TIFF"
-                saveFileDialog.DefaultExt = "tiff"
-                If (saveFileDialog.ShowDialog() = DialogResult.OK) Then
-                    ' Multi page TIFF
-                    If (chkMultiPage.Checked = True) Then
-                        dynamicDotNetTwain.SaveAllAsMultiPageTIFF(saveFileDialog.FileName)
-                    Else
-                        dynamicDotNetTwain.SaveAsTIFF(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer)
+                If rdbtnJPG.Checked Then
+                    saveFileDialog.Filter = "JPEG|*.JPG;*.JPEG;*.JPE;*.JFIF"
+                    saveFileDialog.DefaultExt = "jpg"
+                    If saveFileDialog.ShowDialog() = DialogResult.OK Then
+                        m_ImageCore.IO.SaveAsJPEG(saveFileDialog.FileName, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
                     End If
                 End If
-            End If
-
-            If (rdbtnPDF.Checked) Then
-                saveFileDialog.Filter = "PDF|*.PDF"
-                saveFileDialog.DefaultExt = "pdf"
-                If (saveFileDialog.ShowDialog() = DialogResult.OK) Then
-                    ' Multi page PDF
-                    dynamicDotNetTwain.IfSaveAnnotations = True
-                    If (chkMultiPage.Checked = True) Then
-                        dynamicDotNetTwain.SaveAllAsPDF(saveFileDialog.FileName)
-                    Else
-                        dynamicDotNetTwain.SaveAsPDF(saveFileDialog.FileName, dynamicDotNetTwain.CurrentImageIndexInBuffer)
+                If rdbtnBMP.Checked Then
+                    saveFileDialog.Filter = "BMP|*.BMP"
+                    saveFileDialog.DefaultExt = "bmp"
+                    If saveFileDialog.ShowDialog() = DialogResult.OK Then
+                        m_ImageCore.IO.SaveAsBMP(saveFileDialog.FileName, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
                     End If
                 End If
-            End If
-        Else
-            Me.tbxSaveFileName.Focus()
-        End If
-    End Sub
-
-    Private Sub picboxPoint_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxPoint.Click
-        dynamicDotNetTwain.MouseShape = False
-        dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumNone
-    End Sub
-
-    Private Sub picboxHand_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxHand.Click
-        dynamicDotNetTwain.MouseShape = True
-        dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumNone
-    End Sub
-
-
-    Private Sub picboxRotate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
-        Dim angle As Double
-        Dim interPolation As Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod
-        interPolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.Bilinear
-        Dim keepSize As Boolean
-        Dim r, g, b As Integer
-        Dim fillColor As Color
-        Dim rotateForm As RotateForm
-        rotateForm = New RotateForm()
-        rotateForm.ShowDialog()
-
-        If (rotateForm.DialogResult = System.Windows.Forms.DialogResult.OK) Then
-            If (rotateForm.cbxInterPolation.SelectedIndex = 0) Then
-                interPolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.Bicubic
-            End If
-            If (rotateForm.cbxInterPolation.SelectedIndex = 1) Then
-                interPolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.Bilinear
-            End If
-
-            If (rotateForm.cbxInterPolation.SelectedIndex = 2) Then
-                interPolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.NearestNeighbour
-            End If
-
-            keepSize = rotateForm.cbxKeepSize.Checked
-
-            Dim dAngle, iR, iG, iB As Boolean
-            dAngle = Double.TryParse(rotateForm.tbxAngle.Text, angle)
-            iR = Integer.TryParse(rotateForm.tbxR.Text, r)
-            iG = Integer.TryParse(rotateForm.tbxG.Text, g)
-            iB = Integer.TryParse(rotateForm.tbxB.Text, b)
-
-            If (dAngle And iR And iG And iB) Then
-                If (r >= 0 And r <= 255 And g >= 0 And g <= 255 And b >= 0 And b <= 255) Then
-                    fillColor = Color.FromArgb(r, g, b)
-                    dynamicDotNetTwain.BackgroundFillColor = fillColor.ToArgb()
+                If rdbtnPNG.Checked Then
+                    saveFileDialog.Filter = "PNG|*.PNG"
+                    saveFileDialog.DefaultExt = "png"
+                    If saveFileDialog.ShowDialog() = DialogResult.OK Then
+                        m_ImageCore.IO.SaveAsPNG(saveFileDialog.FileName, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                    End If
                 End If
-                dynamicDotNetTwain.Rotate(dynamicDotNetTwain.CurrentImageIndexInBuffer, angle, keepSize, interPolation)
+                If rdbtnTIFF.Checked Then
+                    saveFileDialog.Filter = "TIFF|*.TIF;*.TIFF"
+                    saveFileDialog.DefaultExt = "tiff"
+                    If saveFileDialog.ShowDialog() = DialogResult.OK Then
+                        ' Multi page TIFF
+                        Dim tempListIndex As New List(Of Short)()
+                        If chkMultiPage.Checked = True Then
+
+                            For sIndex As Short = 0 To m_ImageCore.ImageBuffer.HowManyImagesInBuffer - 1
+                                tempListIndex.Add(sIndex)
+                            Next
+                        Else
+                            tempListIndex.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+                        End If
+                        m_ImageCore.IO.SaveAsTIFF(saveFileDialog.FileName, tempListIndex)
+                    End If
+                End If
+                If rdbtnPDF.Checked Then
+                    saveFileDialog.Filter = "PDF|*.PDF"
+                    saveFileDialog.DefaultExt = "pdf"
+                    If saveFileDialog.ShowDialog() = DialogResult.OK Then
+                        ' Multi page PDF
+
+                        m_PDFCreator.Save(TryCast(Me, ISave), saveFileDialog.FileName)
+                    End If
+                End If
+            Else
+                Me.tbxSaveFileName.Focus()
             End If
-        End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
     End Sub
 
-    Private Sub picboxFit_Click(ByVal sender As Object, ByVal e As EventArgs) Handles picboxFit.Click
-        dynamicDotNetTwain.IfFitWindow = True
+    Private Sub picboxPoint_Click(sender As Object, e As EventArgs)
+
+        dsViewer.MouseShape = False
+        dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumNone
+    End Sub
+
+    ' Change mouse shape to hand, for move image
+    Private Sub picboxHand_Click(sender As Object, e As EventArgs)
+        dsViewer.MouseShape = True
+        dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumNone
+    End Sub
+
+    Private Sub picboxFit_Click(sender As Object, e As EventArgs)
+        dsViewer.IfFitWindow = True
         checkZoom()
     End Sub
 
-    Private Sub picboxOriginalSize_Click(ByVal sender As Object, ByVal e As EventArgs) Handles picboxOriginalSize.Click
-        dynamicDotNetTwain.IfFitWindow = False
-        dynamicDotNetTwain.Zoom = 1
+    Private Sub picboxOriginalSize_Click(sender As Object, e As EventArgs)
+        dsViewer.IfFitWindow = False
+        dsViewer.Zoom = 1
         checkZoom()
     End Sub
 
-    Private Sub picboxCut_Click(ByVal sender As Object, ByVal e As EventArgs) Handles picboxCut.Click
+    Private Sub picboxCut_Click(sender As Object, e As EventArgs)
         picboxPoint_Click(sender, Nothing)
-        Dim rc As Rectangle : rc = dynamicDotNetTwain.GetSelectionRect(dynamicDotNetTwain.CurrentImageIndexInBuffer)
-        If (rc.IsEmpty) Then
+        Dim rc As Rectangle = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+        If rc.IsEmpty Then
             MessageBox.Show("Please select the rectangle area first!", "Warning Info", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
-            dynamicDotNetTwain.CutFrameToClipboard(dynamicDotNetTwain.CurrentImageIndexInBuffer, rc.Left, rc.Top, rc.Right, rc.Bottom)
+            m_ImageCore.ImageProcesser.CutFrameToClipborad(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, rc.Left, rc.Top, rc.Right, rc.Bottom)
         End If
     End Sub
 
-    Private Sub picboxCrop_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxCrop.Click
-        'if (dynamicDotNetTwain.AnnotationType != Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumNone)
-        '{
+    Private Sub picboxCrop_Click(sender As Object, e As EventArgs)
         picboxPoint_Click(sender, Nothing)
-        '}    //what does this mean?
-        Dim rc As Rectangle
-        rc = dynamicDotNetTwain.GetSelectionRect(dynamicDotNetTwain.CurrentImageIndexInBuffer)
-        If (rc.IsEmpty) Then
-            'isToCrop = true;
-            'dynamicDotNetTwain.MouseShape = false;
-            'DisableAllFunctionButtons();//why this?
+        Dim rc As Rectangle = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+        If rc.IsEmpty Then
             MessageBox.Show("Please select the rectangle area first!", "Warning Info", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
-            cropPicture(dynamicDotNetTwain.CurrentImageIndexInBuffer, rc)
+            cropPicture(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, rc)
         End If
     End Sub
 
-    Private Sub cropPicture(ByVal imageIndex As Integer, ByVal rc As Rectangle)
-        dynamicDotNetTwain.Crop(imageIndex, rc.X, rc.Y, rc.X + rc.Width, rc.Y + rc.Height)
+    Private Sub cropPicture(imageIndex As Integer, rc As Rectangle)
+        m_ImageCore.ImageProcesser.Crop(CShort(imageIndex), rc.X, rc.Y, rc.X + rc.Width, rc.Y + rc.Height)
     End Sub
 
-    Private Sub picboxRotateLeft_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxRotateLeft.Click
-        dynamicDotNetTwain.RotateLeft(dynamicDotNetTwain.CurrentImageIndexInBuffer)
+    Private Sub picboxRotateLeft_Click(sender As Object, e As EventArgs)
+
+        Dim iImageWidth As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width
+        Dim iImageHeight As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height
+        Dim tempListAnnotation As List(Of AnnotationData) = DirectCast(m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation), List(Of AnnotationData))
+        If tempListAnnotation IsNot Nothing AndAlso tempListAnnotation.Count <> 0 Then
+            For Each tempAnnotation As AnnotationData In tempListAnnotation
+                Dim x As Integer = tempAnnotation.Location.Y
+                Dim y As Integer = iImageWidth - (tempAnnotation.EndPoint.X)
+                Dim iWidth As Integer = (tempAnnotation.EndPoint.Y - tempAnnotation.StartPoint.Y)
+                Dim iHeight As Integer = (tempAnnotation.EndPoint.X - tempAnnotation.StartPoint.X)
+                Select Case tempAnnotation.AnnotationType
+                    'case AnnotationType.enumLine:
+                    Case AnnotationType.enumEllipse, AnnotationType.enumRectangle, AnnotationType.enumText
+                        tempAnnotation.StartPoint = New Point(x, y)
+                        'tempAnnotation.Size = new Size(iWidth, iHeight);
+                        tempAnnotation.EndPoint = New Point((tempAnnotation.StartPoint.X + iWidth), (tempAnnotation.StartPoint.Y + iHeight))
+                        Exit Select
+                    Case AnnotationType.enumLine
+                        Dim startPoint As Point = tempAnnotation.StartPoint
+                        x = startPoint.Y
+                        y = iImageWidth - startPoint.X
+                        tempAnnotation.StartPoint = New Point(x, y)
+                        Dim endPoint As Point = tempAnnotation.EndPoint
+                        x = endPoint.Y
+                        y = iImageWidth - endPoint.X
+                        tempAnnotation.EndPoint = New Point(x, y)
+                        Exit Select
+                End Select
+            Next
+        End If
+        m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, tempListAnnotation, True)
+        m_ImageCore.ImageProcesser.RotateLeft(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
     End Sub
 
-    Private Sub picboxRotateRight_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxRotateRight.Click
-        dynamicDotNetTwain.RotateRight(dynamicDotNetTwain.CurrentImageIndexInBuffer)
+    Private Sub picboxRotateRight_Click(sender As Object, e As EventArgs)
+        Dim iImageWidth As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width
+        Dim iImageHeight As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height
+        Dim tempListAnnotation As List(Of AnnotationData) = DirectCast(m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation), List(Of AnnotationData))
+        For Each tempAnnotation As AnnotationData In tempListAnnotation
+            Dim x As Integer = iImageHeight - (tempAnnotation.Location.Y + tempAnnotation.Size.Height)
+            Dim y As Integer = tempAnnotation.Location.X
+            Dim iWidth As Integer = tempAnnotation.Size.Height
+            Dim iHeight As Integer = tempAnnotation.Size.Width
+            Select Case tempAnnotation.AnnotationType
+                Case AnnotationType.enumEllipse, AnnotationType.enumRectangle, AnnotationType.enumText
+                    tempAnnotation.StartPoint = New Point(x, y)
+                    tempAnnotation.EndPoint = New Point((tempAnnotation.StartPoint.X + iWidth), (tempAnnotation.StartPoint.Y + iHeight))
+                    Exit Select
+                Case AnnotationType.enumLine
+                    Dim startPoint As Point = tempAnnotation.StartPoint
+                    x = iImageHeight - startPoint.Y
+                    y = startPoint.X
+                    tempAnnotation.StartPoint = New Point(x, y)
+                    Dim endPoint As Point = tempAnnotation.EndPoint
+                    x = iImageHeight - endPoint.Y
+                    y = endPoint.X
+                    tempAnnotation.EndPoint = New Point(x, y)
+                    Exit Select
+            End Select
+        Next
+        m_ImageCore.ImageProcesser.RotateRight(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
     End Sub
 
-    Private Sub picboxMirror_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxMirror.Click
-        dynamicDotNetTwain.Mirror(dynamicDotNetTwain.CurrentImageIndexInBuffer)
+    Private Sub picboxFlip_Click(sender As Object, e As EventArgs)
+        Dim iImageWidth As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width
+        Dim iImageHeight As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height
+        Dim tempListAnnotation As List(Of AnnotationData) = DirectCast(m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation), List(Of AnnotationData))
+        If tempListAnnotation IsNot Nothing AndAlso tempListAnnotation.Count <> 0 Then
+            For Each tempAnnotation As AnnotationData In tempListAnnotation
+                Dim y As Integer = 0
+                Select Case tempAnnotation.AnnotationType
+                    Case AnnotationType.enumRectangle, AnnotationType.enumEllipse, AnnotationType.enumText
+                        y = iImageHeight - (tempAnnotation.StartPoint.Y + tempAnnotation.Size.Height)
+                        tempAnnotation.StartPoint = New Point(tempAnnotation.StartPoint.X, y)
+                        tempAnnotation.EndPoint = New Point((tempAnnotation.StartPoint.X + tempAnnotation.Size.Width), (tempAnnotation.StartPoint.Y + tempAnnotation.Size.Height))
+                        Exit Select
+                    Case AnnotationType.enumLine
+                        y = iImageHeight - tempAnnotation.Location.Y - tempAnnotation.Size.Height
+
+                        Dim startPoint As Point = tempAnnotation.StartPoint
+                        y = iImageHeight - startPoint.Y
+                        tempAnnotation.StartPoint = New Point(startPoint.X, y)
+                        Dim endPoint As Point = tempAnnotation.EndPoint
+                        y = iImageHeight - endPoint.Y
+                        tempAnnotation.EndPoint = New Point(endPoint.X, y)
+                        Exit Select
+                End Select
+            Next
+        End If
+        m_ImageCore.ImageProcesser.Flip(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
     End Sub
 
-    Private Sub picboxFlip_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxFlip.Click
-        dynamicDotNetTwain.Flip(dynamicDotNetTwain.CurrentImageIndexInBuffer)
+    Private Sub picboxMirror_Click(sender As Object, e As EventArgs)
+        Dim iImageWidth As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width
+        Dim iImageHeight As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height
+        Dim tempListAnnotation As List(Of AnnotationData) = DirectCast(m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation), List(Of AnnotationData))
+        For Each tempAnnotation As AnnotationData In tempListAnnotation
+            Dim x As Integer = 0
+            Dim startPoint As Point, endPoint As Point
+            Select Case tempAnnotation.AnnotationType
+                Case AnnotationType.enumRectangle, AnnotationType.enumEllipse, AnnotationType.enumText
+                    x = iImageWidth - tempAnnotation.Location.X - tempAnnotation.Size.Width
+                    startPoint = New Point(x, tempAnnotation.StartPoint.Y)
+                    endPoint = New Point((startPoint.X + tempAnnotation.Size.Width), (startPoint.Y + tempAnnotation.Size.Height))
+                    tempAnnotation.StartPoint = startPoint
+                    tempAnnotation.EndPoint = endPoint
+                    Exit Select
+                Case AnnotationType.enumLine
+                    x = iImageWidth - tempAnnotation.Location.X - tempAnnotation.Size.Width
+                    startPoint = tempAnnotation.StartPoint
+                    x = iImageWidth - startPoint.X
+                    tempAnnotation.StartPoint = New Point(x, startPoint.Y)
+                    endPoint = tempAnnotation.EndPoint
+                    x = iImageWidth - endPoint.X
+                    tempAnnotation.EndPoint = New Point(x, endPoint.Y)
+                    Exit Select
+
+            End Select
+        Next
+
+        m_ImageCore.ImageProcesser.Mirror(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
     End Sub
 
-    Private Sub picboxLine_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxLine.Click, picboxLineA.Click
-        dynamicDotNetTwain.MouseShape = False
-        dynamicDotNetTwain.AnnotationPen = New Pen(Color.Blue, 5)
-        dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumLine
-        If (panelAnnotations.Visible = False) Then
+    Private Sub picboxLine_Click(sender As Object, e As EventArgs)
+        dsViewer.MouseShape = False
+        dsViewer.Annotation.Pen = New Pen(Color.Blue, 5)
+        dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumLine
+        If panelAnnotations.Visible = False Then
             panelAnnotations.Visible = True
         End If
     End Sub
 
-    Private Sub picboxEllipse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxEllipse.Click, picboxEllipseA.Click
-        dynamicDotNetTwain.MouseShape = False
-        dynamicDotNetTwain.AnnotationPen = New Pen(Color.Black, 2)
-        dynamicDotNetTwain.AnnotationFillColor = Color.Blue
-        dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumEllipse
-        If (panelAnnotations.Visible = False) Then
+    Private Sub picboxEllipse_Click(sender As Object, e As EventArgs)
+        dsViewer.MouseShape = False
+        dsViewer.Annotation.Pen = New Pen(Color.Black, 2)
+        dsViewer.Annotation.FillColor = Color.Blue
+        dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumEllipse
+        If panelAnnotations.Visible = False Then
             panelAnnotations.Visible = True
         End If
     End Sub
 
-    Private Sub picboxRectangle_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxRectangle.Click, picboxRectangleA.Click
-        dynamicDotNetTwain.MouseShape = False
-        dynamicDotNetTwain.AnnotationPen = New Pen(Color.Black, 2)
-        dynamicDotNetTwain.AnnotationFillColor = Color.ForestGreen
-        dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumRectangle
-        If (panelAnnotations.Visible = False) Then
+    Private Sub picboxRectangle_Click(sender As Object, e As EventArgs)
+        dsViewer.MouseShape = False
+        dsViewer.Annotation.Pen = New Pen(Color.Black, 2)
+        dsViewer.Annotation.FillColor = Color.ForestGreen
+        dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumRectangle
+        If panelAnnotations.Visible = False Then
             panelAnnotations.Visible = True
         End If
     End Sub
 
-    Private Sub picboxText_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxText.Click, picboxTextA.Click
-        dynamicDotNetTwain.MouseShape = False
-        dynamicDotNetTwain.AnnotationTextColor = Color.Black
-        dynamicDotNetTwain.AnnotationTextFont = New Font("", 32)
-        dynamicDotNetTwain.AnnotationType = Dynamsoft.DotNet.TWAIN.Enums.DWTAnnotationType.enumText
-        If (panelAnnotations.Visible = False) Then
+    Private Sub picboxText_Click(sender As Object, e As EventArgs)
+        dsViewer.MouseShape = False
+        dsViewer.Annotation.TextColor = Color.Black
+        dsViewer.Annotation.Type = Dynamsoft.Forms.Enums.EnumAnnotationType.enumText
+        If panelAnnotations.Visible = False Then
             panelAnnotations.Visible = True
         End If
     End Sub
 
-    Private Sub picboxZoom_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxZoom.Click
-        Dim zoomForm As New ZoomForm
-        zoomForm.SetZoomRatio(dynamicDotNetTwain.Zoom)
+    Private Sub picboxZoom_Click(sender As Object, e As EventArgs)
+        Dim zoomForm As New ZoomForm(dsViewer.Zoom)
         zoomForm.ShowDialog()
-        If (zoomForm.DialogResult = DialogResult.OK) Then
-            dynamicDotNetTwain.IfFitWindow = False
-            dynamicDotNetTwain.Zoom = zoomForm.GetZoomRatio()
+        If zoomForm.DialogResult = DialogResult.OK Then
+            dsViewer.IfFitWindow = False
+            dsViewer.Zoom = zoomForm.ZoomRatio
             checkZoom()
         End If
     End Sub
 
-    Private Sub picboxResample_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxResample.Click
-        Dim width, height As Integer
-        width = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer).Width
-        height = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer).Height
+    Private Sub picboxResample_Click(sender As Object, e As EventArgs)
+        Dim width As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width
+        Dim height As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height
 
-        Dim resampleForm As New ResampleForm
-        resampleForm.InitResampleForm(width, height)
+        Dim resampleForm As New ResampleForm(width, height)
         resampleForm.ShowDialog()
-        If (resampleForm.DialogResult = DialogResult.OK) Then
-            dynamicDotNetTwain.ChangeImageSize(dynamicDotNetTwain.CurrentImageIndexInBuffer, resampleForm.GetNewWidth(), resampleForm.GetNewHeight(), resampleForm.GetInterpolation())
-            dynamicDotNetTwain.IfFitWindow = False
+        If resampleForm.DialogResult = DialogResult.OK Then
+            m_ImageCore.ImageProcesser.ChangeImageSize(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, resampleForm.NewWidth, resampleForm.NewHeight, resampleForm.Interpolation)
+            dsViewer.IfFitWindow = False
         End If
     End Sub
 
-    Private Sub picboxZoomIn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxZoomIn.Click
-        Dim zoom As Decimal
-        zoom = dynamicDotNetTwain.Zoom + 0.1F
-        dynamicDotNetTwain.IfFitWindow = False
-        dynamicDotNetTwain.Zoom = zoom
+    Private Sub picboxZoomIn_Click(sender As Object, e As EventArgs)
+        Dim zoom As Single = dsViewer.Zoom + 0.1F
+        dsViewer.IfFitWindow = False
+        dsViewer.Zoom = zoom
         checkZoom()
     End Sub
 
-    Private Sub picboxZoomOut_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxZoomOut.Click
-        Dim zoom As Decimal
-        zoom = dynamicDotNetTwain.Zoom - 0.1F
-        dynamicDotNetTwain.IfFitWindow = False
-        dynamicDotNetTwain.Zoom = zoom
+    Private Sub picboxZoomOut_Click(sender As Object, e As EventArgs)
+        Dim zoom As Single = dsViewer.Zoom - 0.1F
+        dsViewer.IfFitWindow = False
+        dsViewer.Zoom = zoom
         checkZoom()
     End Sub
 
     Private Sub checkZoom()
-        If (cbxViewMode.SelectedIndex <> 0 Or dynamicDotNetTwain.HowManyImagesInBuffer = 0) Then
+        If cbxViewMode.SelectedIndex <> 0 OrElse m_ImageCore.ImageBuffer.HowManyImagesInBuffer = 0 Then
             DisableControls(picboxZoomIn)
             DisableControls(picboxZoomOut)
             DisableControls(picboxZoom)
@@ -1099,56 +1128,56 @@ Imports Dynamsoft.DotNet.TWAIN
             DisableControls(picboxOriginalSize)
             Return
         End If
-        If (picboxFit.Enabled = False) Then
+        If picboxFit.Enabled = False Then
             EnableControls(picboxFit)
         End If
-        If (picboxOriginalSize.Enabled = False) Then
+        If picboxOriginalSize.Enabled = False Then
             EnableControls(picboxOriginalSize)
         End If
-        If (picboxZoom.Enabled = False) Then
+        If picboxZoom.Enabled = False Then
             EnableControls(picboxZoom)
         End If
 
         '  the valid range of zoom is between 0.02 to 65.0,
 
-        If (dynamicDotNetTwain.Zoom <= 0.02F) Then
+        If dsViewer.Zoom <= 0.02F Then
             DisableControls(picboxZoomOut)
         Else
             EnableControls(picboxZoomOut)
         End If
 
-        If (dynamicDotNetTwain.Zoom >= 65.0F) Then
+        If dsViewer.Zoom >= 65.0F Then
             DisableControls(picboxZoomIn)
         Else
             EnableControls(picboxZoomIn)
         End If
     End Sub
 
-    Private Sub picboxDelete_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxDelete.Click
-        dynamicDotNetTwain.RemoveImage(dynamicDotNetTwain.CurrentImageIndexInBuffer)
+    Private Sub picboxDelete_Click(sender As Object, e As EventArgs)
+        m_ImageCore.ImageBuffer.RemoveImage(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
         checkImageCount()
     End Sub
 
-    Private Sub picboxDeleteAll_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxDeleteAll.Click
-        dynamicDotNetTwain.RemoveAllImages()
+    Private Sub picboxDeleteAll_Click(sender As Object, e As EventArgs)
+        m_ImageCore.ImageBuffer.RemoveAllImages()
         checkImageCount()
     End Sub
 
+    ''' <summary>
+    ''' If the image count changed, some features should changed.
+    ''' </summary>
     Private Sub checkImageCount()
-        currentImageIndex = dynamicDotNetTwain.CurrentImageIndexInBuffer
-        Dim currentIndex As Integer
-        Dim imageCount As Integer
-
-        currentIndex = currentImageIndex + 1
-        imageCount = dynamicDotNetTwain.HowManyImagesInBuffer
-        If (imageCount = 0) Then
+        currentImageIndex = m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer
+        Dim currentIndex As Integer = currentImageIndex + 1
+        Dim imageCount As Integer = m_ImageCore.ImageBuffer.HowManyImagesInBuffer
+        If imageCount = 0 Then
             currentIndex = 0
         End If
 
         tbxCurrentImageIndex.Text = currentIndex.ToString()
         tbxTotalImageNum.Text = imageCount.ToString()
 
-        If (imageCount > 0) Then
+        If imageCount > 0 Then
             EnableControls(picboxSave)
             EnableAllFunctionButtons()
             EnableControls(picboxReadBarcode)
@@ -1157,25 +1186,24 @@ Imports Dynamsoft.DotNet.TWAIN
         Else
             DisableControls(picboxSave)
             DisableAllFunctionButtons()
-            dynamicDotNetTwain.Visible = False
+            dsViewer.Visible = False
             panelAnnotations.Visible = False
             DisableControls(picboxReadBarcode)
             DisableControls(picboxAddBarcode)
             DisableControls(picboxOCR)
         End If
-        If (imageCount > 1) Then
 
+        If imageCount > 1 Then
             EnableControls(picboxFirst)
             EnableControls(picboxLast)
             EnableControls(picboxPrevious)
             EnableControls(picboxNext)
 
-            If (currentIndex = 1) Then
+            If currentIndex = 1 Then
                 DisableControls(picboxPrevious)
                 DisableControls(picboxFirst)
             End If
-
-            If (currentIndex = imageCount) Then
+            If currentIndex = imageCount Then
                 DisableControls(picboxNext)
                 DisableControls(picboxLast)
             End If
@@ -1189,212 +1217,211 @@ Imports Dynamsoft.DotNet.TWAIN
         ShowSelectedImageArea()
     End Sub
 
-    Private Sub cbxViewMode_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cbxViewMode.SelectedIndexChanged
+    Private Sub cbxLayout_SelectedIndexChanged(sender As Object, e As EventArgs)
         Select Case Me.cbxViewMode.SelectedIndex
             Case 0
-                dynamicDotNetTwain.SetViewMode(-1, -1)
+                dsViewer.SetViewMode(-1, -1)
+                Exit Select
             Case 1
-                dynamicDotNetTwain.SetViewMode(2, 2)
+                dsViewer.SetViewMode(2, 2)
+                Exit Select
             Case 2
-                dynamicDotNetTwain.SetViewMode(3, 3)
+                dsViewer.SetViewMode(3, 3)
+                Exit Select
             Case 3
-                dynamicDotNetTwain.SetViewMode(4, 4)
+                dsViewer.SetViewMode(4, 4)
+                Exit Select
             Case 4
-                dynamicDotNetTwain.SetViewMode(5, 5)
+                dsViewer.SetViewMode(5, 5)
+                Exit Select
             Case Else
-                dynamicDotNetTwain.SetViewMode(-1, -1)
+                dsViewer.SetViewMode(-1, -1)
+                Exit Select
         End Select
         checkZoom()
     End Sub
 
-    Private Sub picboxFirst_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxFirst.Click
-        If (dynamicDotNetTwain.HowManyImagesInBuffer > 0) Then
-            dynamicDotNetTwain.CurrentImageIndexInBuffer = 0
-            checkImageCount()
+    Private Sub picboxFirst_Click(sender As Object, e As EventArgs)
+        If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 Then
+            m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer = CShort(0)
         End If
-    End Sub
-
-    Private Sub picboxLast_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxLast.Click
-        If (dynamicDotNetTwain.HowManyImagesInBuffer > 0) Then
-            dynamicDotNetTwain.CurrentImageIndexInBuffer = (dynamicDotNetTwain.HowManyImagesInBuffer - 1)
-            checkImageCount()
-        End If
-    End Sub
-
-    Private Sub picboxPrevious_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxPrevious.Click
-        If (dynamicDotNetTwain.HowManyImagesInBuffer > 0 And dynamicDotNetTwain.CurrentImageIndexInBuffer > 0) Then
-            dynamicDotNetTwain.CurrentImageIndexInBuffer = dynamicDotNetTwain.CurrentImageIndexInBuffer - 1
-            checkImageCount()
-        End If
-
-    End Sub
-
-    Private Sub picboxNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxNext.Click
-        If (dynamicDotNetTwain.HowManyImagesInBuffer > 0 And dynamicDotNetTwain.CurrentImageIndexInBuffer < dynamicDotNetTwain.HowManyImagesInBuffer - 1) Then
-            dynamicDotNetTwain.CurrentImageIndexInBuffer = dynamicDotNetTwain.CurrentImageIndexInBuffer + 1
-            checkImageCount()
-        End If
-
-    End Sub
-
-    Private Sub dynamicDotNetTwain_OnMouseClick(ByVal sImageIndex As System.Int16) Handles dynamicDotNetTwain.OnMouseClick
-        If (dynamicDotNetTwain.CurrentImageIndexInBuffer <> currentImageIndex) Then
-            checkImageCount()
-        End If
-    End Sub
-
-    Public Sub CallMe()
-        dynamicDotNetTwain.Visible = True
         checkImageCount()
-        EnableControls(picboxScan)
-    End Sub
-    Private Sub dynamicDotNetTwain_OnPostAllTransfer() Handles dynamicDotNetTwain.OnPostAllTransfers
-
-        Me.Invoke(New CrossThreadOperationControl(AddressOf CallMe))
     End Sub
 
-    Private Sub dynamicDotNetTwain_OnMouseDoubleClick(ByVal sImageIndex As System.Int16) Handles dynamicDotNetTwain.OnMouseDoubleClick
-        Try
-            Dim rc As Rectangle
-            rc = dynamicDotNetTwain.GetSelectionRect(sImageIndex)
+    Private Sub picboxLast_Click(sender As Object, e As EventArgs)
+        If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 Then
+            m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer = CShort(m_ImageCore.ImageBuffer.HowManyImagesInBuffer - 1)
+        End If
+        checkImageCount()
+    End Sub
 
-            If (isToCrop And rc.IsEmpty = False) Then
-                cropPicture(sImageIndex, rc)
+    Private Sub picboxPrevious_Click(sender As Object, e As EventArgs)
+        If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 AndAlso m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer > 0 Then
+            m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer -= 1
+        End If
+        checkImageCount()
+    End Sub
+
+    Private Sub picboxNext_Click(sender As Object, e As EventArgs)
+        If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 AndAlso m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer < m_ImageCore.ImageBuffer.HowManyImagesInBuffer - 1 Then
+            m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer += 1
+        End If
+        checkImageCount()
+    End Sub
+
+    Private Sub cbxSource_SelectedIndexChanged(sender As Object, e As EventArgs)
+        Dim sIndex As Short = CShort(DirectCast(sender, ComboBox).SelectedIndex)
+
+        If sIndex < m_TwainManager.SourceCount Then
+            panelScan.Visible = True
+            panelGrab.Visible = False
+            lbUnknowSource.Visible = False
+            m_TwainManager.CloseSource()
+            If m_Camera IsNot Nothing Then
+                m_Camera.Close()
             End If
-            isToCrop = False
-        Catch ex As Exception
-
-        End Try
-        EnableAllFunctionButtons()
-    End Sub
-
-    Private Sub dynamicDotNetTwain_OnMouseRightClick(ByVal sImageIndex As System.Int16) Handles dynamicDotNetTwain.OnMouseRightClick
-        If (isToCrop) Then
-            isToCrop = False
+        Else
+            m_Camera = m_CameraManager.SelectCamera(CShort(sIndex - m_TwainManager.SourceCount))
+            If m_CameraUI Is Nothing OrElse m_CameraUI.IsDisposed Then
+                m_CameraUI = New CameraUI()
+                If m_CameraUI.Camera Is m_Camera Then
+                    Return
+                Else
+                    If m_Camera IsNot Nothing Then
+                        m_Camera.Close()
+                    End If
+                End If
+            End If
+            m_CameraUI.Camera = m_Camera
+            m_Camera.Open()
+            m_CameraUI.ClientSize = New Size(m_Camera.CurrentResolution.Width, m_Camera.CurrentResolution.Height)
+            If m_CameraUI IsNot Nothing Then
+                m_CameraUI.Show()
+            End If
+            panelScan.Visible = False
+            panelGrab.Visible = True
+            lbUnknowSource.Visible = False
+            'Initial media type list and webcam resolution list
+            cbxResolutionForWebcam.Items.Clear()
+            Dim lstWebcamResolutions As List(Of CamResolution) = m_Camera.SupportedResolutions
+            If lstWebcamResolutions IsNot Nothing Then
+                For Each camResolution As CamResolution In lstWebcamResolutions
+                    cbxResolutionForWebcam.Items.Add(camResolution.Width & " X " & camResolution.Height)
+                Next
+            End If
+            If cbxResolutionForWebcam.Items.Count > 0 Then
+                cbxResolutionForWebcam.SelectedIndex = 0
+            End If
         End If
-        dynamicDotNetTwain.ClearSelectionRect(sImageIndex)
-        EnableAllFunctionButtons()
     End Sub
 
-    Private Sub dynamicDotNetTwain_OnImageAreaDeselected(ByVal sImageIndex As System.Int16) Handles dynamicDotNetTwain.OnImageAreaDeselected
-        If (isToCrop) Then
-            isToCrop = False
-        End If
-        EnableAllFunctionButtons()
-        ShowSelectedImageArea()
-    End Sub
-
-    Private Sub cbxSource_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cbxSource.SelectedIndexChanged
-        Dim sIndex As Short : sIndex = Convert.ToInt16((DirectCast(sender, ComboBox)).SelectedIndex)
-        Select Case (dynamicDotNetTwain.GetSourceType(sIndex))
-            Case Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType.SDT_TWAIN
-                panelScan.Visible = True
-                panelGrab.Visible = False
-                lbUnknowSource.Visible = False
-                dynamicDotNetTwain.CloseSource() 'when switching from webcam source to twain source, need to close webcam source
-            Case Dynamsoft.DotNet.TWAIN.Enums.EnumDeviceType.SDT_WEBCAM
-                panelScan.Visible = False
-                panelGrab.Visible = True
-                lbUnknowSource.Visible = False
-                'Initial media type list and webcam resolution list
-                cbxMediaType.Items.Clear()
-                cbxResolutionForWebcam.Items.Clear()
-                dynamicDotNetTwain.IfDisableSourceAfterAcquire = False 'don't close video after grabbing an image.
-                dynamicDotNetTwain.SelectSourceByIndex(sIndex)
-                dynamicDotNetTwain.OpenSource()    'Open webcam source before getting the value of MediaTypeList and ResolutionForCamList
-                Dim lstMediaTypes As List(Of String) : lstMediaTypes = dynamicDotNetTwain.MediaTypeList
-                Dim lstWebcamResolutions As List(Of Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution) : lstWebcamResolutions = dynamicDotNetTwain.ResolutionForCamList
-                If Not lstMediaTypes Is Nothing Then
-                    For Each strMediaType As String In lstMediaTypes
-                        cbxMediaType.Items.Add(strMediaType)
-                    Next strMediaType
-                End If
-                If Not lstWebcamResolutions Is Nothing Then
-                    For Each camResolution As Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution In lstWebcamResolutions
-                        cbxResolutionForWebcam.Items.Add(camResolution.Width.ToString() + " X " + camResolution.Height.ToString())
-                    Next camResolution
-                End If
-                If cbxMediaType.Items.Count > 0 Then
-                    cbxMediaType.SelectedIndex = 0
-                End If
-                If cbxResolutionForWebcam.Items.Count > 0 Then
-                    cbxResolutionForWebcam.SelectedIndex = 0
-                End If
-                'show error information
-                If Not dynamicDotNetTwain.ErrorCode = Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed Then
-                    MessageBox.Show(dynamicDotNetTwain.ErrorString, "Webcam error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                End If
-            Case Else
-                panelScan.Visible = False
-                panelGrab.Visible = False
-                lbUnknowSource.Visible = True
-        End Select
-    End Sub
-
-    Private Sub picboxTitle_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles picboxTitle.MouseDown
+    Private Sub picboxTitle_MouseDown(sender As Object, e As MouseEventArgs)
         mouse_offset2 = New Point(-e.X, -e.Y)
     End Sub
 
-    Private Sub picboxTitle_MouseMove(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles picboxTitle.MouseMove
-        If (e.Button = MouseButtons.Left) Then
-            Dim mousePos As Point
-            mousePos = Control.MousePosition
+    Private Sub picboxTitle_MouseMove(sender As Object, e As MouseEventArgs)
+        If e.Button = MouseButtons.Left Then
+            Dim mousePos As Point = Control.MousePosition
             mousePos.Offset(mouse_offset2.X, mouse_offset2.Y)
-            If (IsInForm(panelAnnotations.Parent.PointToClient(mousePos))) Then
+            If IsInForm(panelAnnotations.Parent.PointToClient(mousePos)) Then
                 panelAnnotations.Location = panelAnnotations.Parent.PointToClient(mousePos)
             End If
         End If
     End Sub
 
-    Private Function IsInForm(ByVal point As Point) As Boolean
-        If (point.X > 0 And point.X < 693 And point.Y > 35 And point.Y < 635) Then
+    Private Function IsInForm(point As Point) As Boolean
+        If point.X > 0 AndAlso point.X < 693 AndAlso point.Y > 35 AndAlso point.Y < 635 Then
             Return True
         End If
         Return False
     End Function
 
-    Private Sub picboxDeleteAnnotationA_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles picboxDeleteAnnotationA.Click
-        Dim aryAnnotation As List(Of Dynamsoft.DotNet.TWAIN.Annotation.AnnotationData)
-        If (dynamicDotNetTwain.GetSelectedAnnotationList(dynamicDotNetTwain.CurrentImageIndexInBuffer, aryAnnotation)) Then
-            dynamicDotNetTwain.DeleteAnnotations(dynamicDotNetTwain.CurrentImageIndexInBuffer, aryAnnotation)
+    Private Sub picboxDeleteAnnotationA_Click(sender As Object, e As EventArgs)
+        Dim tempListAnnotationData As List(Of AnnotationData) = DirectCast(m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation), List(Of AnnotationData))
+        If tempListAnnotationData IsNot Nothing Then
+            Dim tempSelectedAnnotationData As New List(Of AnnotationData)()
+            tempSelectedAnnotationData = DirectCast(m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation), List(Of AnnotationData))
+            For i As Integer = tempSelectedAnnotationData.Count - 1 To 0 Step -1
+                If tempSelectedAnnotationData(i).Selected = True Then
+                    tempSelectedAnnotationData.RemoveAt(i)
+                End If
+            Next
+        End If
+        m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, tempListAnnotationData, True)
+    End Sub
+
+    Private Sub picboxLoadImage_Click(sender As Object, e As EventArgs)
+        openFileDialog.Filter = "All Support Files|*.JPG;*.JPEG;*.JPE;*.JFIF;*.BMP;*.PNG;*.TIF;*.TIFF;*GIF;*.PDF|JPEG|*.JPG;*.JPEG;*.JPE;*.Jfif|BMP|*.BMP|PNG|*.PNG|TIFF|*.TIF;*.TIFF|GIF|*.GIF|PDF|*.PDF"
+        openFileDialog.FilterIndex = 0
+        openFileDialog.Multiselect = True
+
+        If openFileDialog.ShowDialog() = DialogResult.OK Then
+            For Each strFileName As String In openFileDialog.FileNames
+
+                Dim pos As Integer = strFileName.LastIndexOf(".")
+                If pos <> -1 Then
+                    Dim strSuffix As String = strFileName.Substring(pos, strFileName.Length - pos).ToLower()
+                    If strSuffix.CompareTo(".pdf") = 0 Then
+                        m_PDFRasterizer.ConvertMode = Dynamsoft.PDF.Enums.EnumConvertMode.enumCM_RENDERALL
+                        m_PDFRasterizer.ConvertToImage(strFileName, "", 200, TryCast(Me, IConvertCallback))
+                    Else
+                        m_ImageCore.IO.LoadImage(strFileName)
+                    End If
+                Else
+                    m_ImageCore.IO.LoadImage(strFileName)
+                End If
+            Next
+            dsViewer.Visible = True
+        End If
+        checkImageCount()
+    End Sub
+
+    Private Sub ChangeSource_MouseHover(sender As Object, e As EventArgs)
+        If TypeOf sender Is Label Then
+            TryCast(sender, Label).ForeColor = System.Drawing.Color.Purple
         End If
     End Sub
 
-    Private Sub lbCloseAnnotations_MouseHover(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles lbCloseAnnotations.MouseHover
+    Private Sub ChangeSource_MouseLeave(sender As Object, e As EventArgs)
+        If TypeOf sender Is Label Then
+            TryCast(sender, Label).ForeColor = System.Drawing.Color.Black
+        End If
+    End Sub
+
+    Private Sub lbCloseAnnotations_MouseHover(sender As Object, e As EventArgs)
         Me.lbCloseAnnotations.ForeColor = System.Drawing.Color.Red
     End Sub
 
-    Private Sub lbCloseAnnotations_MouseLeave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles lbCloseAnnotations.MouseLeave
+    Private Sub lbCloseAnnotations_MouseLeave(sender As Object, e As EventArgs)
         Me.lbCloseAnnotations.ForeColor = System.Drawing.Color.Black
     End Sub
 
-    Private Sub lbCloseAnnotations_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles lbCloseAnnotations.Click
+    Private Sub lbCloseAnnotations_Click(sender As Object, e As EventArgs)
         Me.panelAnnotations.Visible = False
     End Sub
 
     Private m_thSelectedTabHead As TabHead = Nothing
-    Dim m_tabHeads(5) As TabHead
-    Dim m_panels(5) As Panel
-    Dim languages As New Dictionary(Of String, String)
+    Private m_tabHeads As TabHead() = New TabHead(5) {}
+    Private m_panels As Panel() = New Panel(5) {}
+    Private languages As New Dictionary(Of String, String)()
 
-    Private Sub TabHead_Click(ByVal sender As Object, ByVal e As EventArgs) Handles thSaveImage.Click, thReadBarcode.Click, thOCR.Click, thLoadImage.Click, thAddBarcode.Click, thAcquireImage.Click
-        Dim thHead As TabHead : thHead = DirectCast(sender, TabHead)
-        Dim iNeighborIndex As Integer : iNeighborIndex = GetNeighborIndex(thHead)
-        If Not m_thSelectedTabHead Is Nothing Then
-            If Not m_thSelectedTabHead.Index = iNeighborIndex And Not m_thSelectedTabHead.Index = thHead.Index Then
-                m_thSelectedTabHead.State = TabHead.TabHeadState.ALLFOLDED
-                m_panels(m_thSelectedTabHead.Index).Visible = False
-                Dim iSelectHeadNeighborIndex As Integer : iSelectHeadNeighborIndex = GetNeighborIndex(m_thSelectedTabHead)
-                If (iSelectHeadNeighborIndex >= 0) Then
-                    m_tabHeads(iSelectHeadNeighborIndex).State = TabHead.TabHeadState.ALLFOLDED
-                End If
+    Private Sub TabHead_Click(sender As Object, e As EventArgs)
+        Dim thHead As TabHead = DirectCast(sender, TabHead)
+        Dim iNeighborIndex As Integer = GetNeighborIndex(thHead)
+        If m_thSelectedTabHead IsNot Nothing AndAlso m_thSelectedTabHead.Index <> iNeighborIndex AndAlso m_thSelectedTabHead.Index <> thHead.Index Then
+            m_thSelectedTabHead.State = TabHead.TabHeadState.ALLFOLDED
+            m_panels(m_thSelectedTabHead.Index).Visible = False
+            Dim iSelectHeadNeighborIndex As Integer = GetNeighborIndex(m_thSelectedTabHead)
+            If iSelectHeadNeighborIndex >= 0 Then
+                m_tabHeads(iSelectHeadNeighborIndex).State = TabHead.TabHeadState.ALLFOLDED
+
             End If
         End If
 
         If thHead.State = TabHead.TabHeadState.SELECTED Then
             thHead.State = TabHead.TabHeadState.ALLFOLDED
             m_panels(thHead.Index).Visible = False
-            If (iNeighborIndex >= 0) Then
+            If iNeighborIndex >= 0 Then
                 m_tabHeads(iNeighborIndex).State = TabHead.TabHeadState.ALLFOLDED
                 m_panels(iNeighborIndex).Visible = False
             End If
@@ -1402,7 +1429,7 @@ Imports Dynamsoft.DotNet.TWAIN
         Else
             thHead.State = TabHead.TabHeadState.SELECTED
             m_panels(thHead.Index).Visible = True
-            If (iNeighborIndex >= 0) Then
+            If iNeighborIndex >= 0 Then
                 m_tabHeads(iNeighborIndex).State = TabHead.TabHeadState.FOLDED
                 m_panels(iNeighborIndex).Visible = False
             End If
@@ -1410,8 +1437,8 @@ Imports Dynamsoft.DotNet.TWAIN
         End If
     End Sub
 
-    Private Function GetNeighborIndex(ByVal thHead As TabHead) As Integer
-        If (Not thHead Is Nothing) And thHead.MultiTabHead Then
+    Private Function GetNeighborIndex(thHead As TabHead) As Integer
+        If thHead IsNot Nothing AndAlso thHead.MultiTabHead Then
             If thHead.Index Mod 2 = 0 Then
                 Return thHead.Index + 1
             Else
@@ -1424,129 +1451,115 @@ Imports Dynamsoft.DotNet.TWAIN
 
 #Region "Read Barcode"
 
-    Private Sub picboxReadBarcode_Click(ByVal sender As Object, ByVal e As EventArgs) Handles picboxReadBarcode.Click
+    Private Sub picboxReadBarcode_Click(sender As Object, e As EventArgs)
         ShowSelectedImageArea()
         Dim iMaxBarcodesToRead As Integer = 0
         Try
             iMaxBarcodesToRead = Integer.Parse(tbxMaxBarcodeReads.Text)
         Catch exp As Exception
-            MessageBox.Show(exp.Message, "Invalid input of MaxBarcodeReads", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(exp.Message, "Invalid input of MaxBarcodeReads", MessageBoxButtons.OK, MessageBoxIcon.[Error])
             tbxMaxBarcodeReads.Focus()
         End Try
 
-        If dynamicDotNetTwain.CurrentImageIndexInBuffer < 0 Then
+        If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer < 0 Then
             MessageBox.Show("Please load an image before reading barcode!", "Index out of bounds", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Try
-            Dim reader As New Dynamsoft.Barcode.BarcodeReader
-            reader.LicenseKeys = "91392547848AAF240620ADFEFDB2EDEB"
+            Dim reader As New BarcodeReader()
+            reader.LicenseKeys = m_StrProductKey
             reader.ReaderOptions.MaxBarcodesToReadPerPage = iMaxBarcodesToRead
-            If cbxBarcodeFormat.SelectedValue >= 0 Then
-                Select Case cbxBarcodeFormat.SelectedIndex
-                    Case 0
-
-                    Case 1
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
-                    Case 2
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
-                    Case 3
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
-                    Case 4
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
-                    Case 5
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
-                    Case 6
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
-                    Case 7
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
-                    Case 8
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
-                    Case 9
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
-                    Case 10
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
-                    Case 11
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
-                    Case 12
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
-                    Case 13
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
-                    Case 14
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25
-                End Select
-            Else
-            End If
-
-            Dim aryResult() As Dynamsoft.Barcode.BarcodeResult
-            Dim rect As Rectangle = dynamicDotNetTwain.GetSelectionRect(dynamicDotNetTwain.CurrentImageIndexInBuffer)
+            Select Case cbxBarcodeFormat.SelectedIndex
+                Case 0
+                    Exit Select
+                Case 1
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
+                    Exit Select
+                Case 2
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
+                    Exit Select
+                Case 3
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
+                    Exit Select
+                Case 4
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
+                    Exit Select
+                Case 5
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
+                    Exit Select
+                Case 6
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
+                    Exit Select
+                Case 7
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
+                    Exit Select
+                Case 8
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
+                    Exit Select
+                Case 9
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
+                    Exit Select
+                Case 10
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
+                    Exit Select
+                Case 11
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
+                    Exit Select
+                Case 12
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
+                    Exit Select
+                Case 13
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
+                    Exit Select
+                Case 14
+                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25
+                    Exit Select
+            End Select
+            Dim aryResult As BarcodeResult() = Nothing
+            Dim rect As Rectangle = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
             If rect = Rectangle.Empty Then
-                Dim iWidth As Integer = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer).Width
-                Dim iHeight As Integer = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer).Height
+
+
+
+                Dim iWidth As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width
+                Dim iHeight As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height
                 rect = New Rectangle(0, 0, iWidth, iHeight)
             End If
-            aryResult = reader.DecodeBitmapRect(dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer), rect)
-            Dim strResult As String
+
+
+            reader.AddRegion(rect.Left, rect.Top, rect.Right, rect.Bottom, False)
+            aryResult = reader.DecodeBitmap(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer))
             If aryResult Is Nothing Then
-                strResult = "The barcode for selected format is not found."
+                Dim strResult As String = "The barcode for selected format is not found." & vbCr & vbLf
                 MessageBox.Show(strResult, "Barcodes Results")
             Else
-                strResult = aryResult.Length & "total barcode is found." & Constants.vbCrLf
+                Dim strResult As String = aryResult.Length & " total barcode found." & vbCr & vbLf
                 For i As Integer = 0 To aryResult.Length - 1
-                    Dim objResult As Dynamsoft.Barcode.BarcodeResult
-                    objResult = aryResult(i)
-                    'strResult += "Result " & (i + 1).ToString() + Constants.vbCrLf & "  Barcode Format: " & aryResult(i).BarcodeFormat.ToString() & "    Barcode Text: " & aryResult(i).BarcodeText & Constants.vbCrLf
-                    strResult += String.Format("Result {0}" & Constants.vbCrLf & "  Barcode Format: {1}" & "    Barcode Text: {2}" & Constants.vbCrLf, (i + 1).ToString(), aryResult(i).BarcodeFormat.ToString(), aryResult(i).BarcodeText)
-                Next i
+                    strResult += [String].Format("Result {0}" & vbCr & vbLf & " Barcode Format: {1}    Barcode Text: {2}" & vbCr & vbLf, (i + 1), aryResult(i).BarcodeFormat, aryResult(i).BarcodeText)
+                Next
+
                 MessageBox.Show(strResult, "Barcodes Results")
             End If
         Catch exp As Exception
-            MessageBox.Show(exp.Message, "Decoding error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(exp.Message, "Decoding error", MessageBoxButtons.OK, MessageBoxIcon.[Error])
         End Try
     End Sub
 
     Private Sub ShowSelectedImageArea()
-        If dynamicDotNetTwain.CurrentImageIndexInBuffer >= 0 Then
-            Dim recSelArea As Rectangle : recSelArea = dynamicDotNetTwain.GetSelectionRect(dynamicDotNetTwain.CurrentImageIndexInBuffer)
-            Dim imgCurrent As Image : imgCurrent = dynamicDotNetTwain.GetImage(dynamicDotNetTwain.CurrentImageIndexInBuffer)
+        If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0 Then
+            Dim recSelArea As Rectangle = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+            Dim imgCurrent As Image = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
             If recSelArea.IsEmpty Then
                 tbxLeft.Text = "0"
                 tbxRight.Text = imgCurrent.Width.ToString()
                 tbxTop.Text = "0"
                 tbxBottom.Text = imgCurrent.Height.ToString()
             Else
-                If recSelArea.Left < 0 Then
-                    tbxLeft.Text = "0"
-                ElseIf recSelArea.Left > imgCurrent.Width Then
-                    tbxLeft.Text = imgCurrent.Width.ToString()
-                Else
-                    tbxLeft.Text = recSelArea.Left.ToString()
-                End If
-
-                If recSelArea.Right < 0 Then
-                    tbxRight.Text = "0"
-                ElseIf recSelArea.Right > imgCurrent.Width Then
-                    tbxRight.Text = imgCurrent.Width.ToString()
-                Else
-                    tbxRight.Text = recSelArea.Right.ToString()
-                End If
-
-                If recSelArea.Top < 0 Then
-                    tbxTop.Text = "0"
-                ElseIf recSelArea.Top > imgCurrent.Height Then
-                    tbxTop.Text = imgCurrent.Height.ToString()
-                Else
-                    tbxTop.Text = recSelArea.Top.ToString()
-                End If
-
-                If recSelArea.Bottom < 0 Then
-                    tbxBottom.Text = "0"
-                ElseIf recSelArea.Bottom > imgCurrent.Height Then
-                    tbxBottom.Text = imgCurrent.Height.ToString()
-                Else
-                    tbxBottom.Text = recSelArea.Bottom.ToString()
-                End If
+                tbxLeft.Text = If(recSelArea.Left < 0, "0", (If(recSelArea.Left > imgCurrent.Width, imgCurrent.Width.ToString(), recSelArea.Left.ToString())))
+                tbxRight.Text = If(recSelArea.Right < 0, "0", (If(recSelArea.Right > imgCurrent.Width, imgCurrent.Width.ToString(), recSelArea.Right.ToString())))
+                tbxTop.Text = If(recSelArea.Top < 0, "0", (If(recSelArea.Top > imgCurrent.Height, imgCurrent.Height.ToString(), recSelArea.Top.ToString())))
+                tbxBottom.Text = If(recSelArea.Bottom < 0, "0", (If(recSelArea.Bottom > imgCurrent.Height, imgCurrent.Height.ToString(), recSelArea.Bottom.ToString())))
             End If
         Else
             tbxLeft.Text = "0"
@@ -1560,26 +1573,29 @@ Imports Dynamsoft.DotNet.TWAIN
 
 #Region "Add Barcode"
 
-    Private Sub picboxAddBarcode_Click(ByVal sender As Object, ByVal e As EventArgs) Handles picboxAddBarcode.Click
-        If (picboxAddBarcode.Enabled) Then
-            If (dynamicDotNetTwain.CurrentImageIndexInBuffer >= 0) Then
-                If (Not tbxBarcodeContent.Text = "") And (Not tbxBarcodeLocationX.Text = "") And (Not tbxBarcodeLocationY.Text = "") And (Not tbxBarcodeScale.Text = "") Then
-                    Dim barcodeformat As Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat : barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_39
+    Private Sub picboxAddBarcode_Click(sender As Object, e As EventArgs)
+        If picboxAddBarcode.Enabled Then
+            If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0 Then
+                If tbxBarcodeContent.Text <> "" AndAlso tbxBarcodeLocationX.Text <> "" AndAlso tbxBarcodeLocationY.Text <> "" AndAlso tbxBarcodeScale.Text <> "" Then
+                    Dim barcodeformat As Dynamsoft.Barcode.Enums.EnumBarcodeFormat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_39
                     Select Case cbxGenBarcodeFormat.SelectedIndex
                         Case 0
-                            barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_39
+                            barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_39
+                            Exit Select
                         Case 1
-                            barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.CODE_128
+                            barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_128
+                            Exit Select
                         Case 2
-                            barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.PDF417
+                            barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.PDF417
+                            Exit Select
                         Case 3
-                            barcodeformat = Dynamsoft.DotNet.TWAIN.Enums.Barcode.BarcodeFormat.QR_CODE
+                            barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.QR_CODE
+                            Exit Select
                     End Select
-
-                    If (Not dynamicDotNetTwain.AddBarcode(dynamicDotNetTwain.CurrentImageIndexInBuffer, barcodeformat, tbxBarcodeContent.Text, _
-tbxHumanReadableText.Text, Integer.Parse(tbxBarcodeLocationX.Text), Integer.Parse(tbxBarcodeLocationY.Text), Single.Parse(tbxBarcodeScale.Text))) Then
-                        MessageBox.Show(dynamicDotNetTwain.ErrorString, "Adding barcode error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                    End If
+                    Dim bit As Bitmap
+                    bit = m_BarcodeGenerator.AddBarcode(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer), barcodeformat, tbxBarcodeContent.Text, tbxHumanReadableText.Text, Integer.Parse(tbxBarcodeLocationX.Text), Integer.Parse(tbxBarcodeLocationY.Text), _
+                        Single.Parse(tbxBarcodeScale.Text))
+                    m_ImageCore.ImageBuffer.SetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, bit)
                 Else
                     If tbxBarcodeContent.Text = "" Then
                         MessageBox.Show("The content of the barcode can not be empty", "Empty Object", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -1601,22 +1617,22 @@ tbxHumanReadableText.Text, Integer.Parse(tbxBarcodeLocationX.Text), Integer.Pars
         End If
     End Sub
 
-    Private Sub tbxBarcodeLocation_KeyPress(ByVal sender As Object, ByVal e As KeyPressEventArgs) Handles tbxMaxBarcodeReads.KeyPress, tbxBarcodeLocationY.KeyPress, tbxBarcodeLocationX.KeyPress
-        Dim array As Byte() : array = System.Text.Encoding.Default.GetBytes(e.KeyChar.ToString())
-        If Not Char.IsDigit(e.KeyChar) Or array.LongLength = 2 Then
+    Private Sub tbxBarcodeLocation_KeyPress(sender As Object, e As KeyPressEventArgs)
+        Dim array As Byte() = System.Text.Encoding.[Default].GetBytes(e.KeyChar.ToString())
+        If Not Char.IsDigit(e.KeyChar) OrElse array.LongLength = 2 Then
             e.Handled = True
         End If
-        If (e.KeyChar = Chr(8)) Then
+        If e.KeyChar = ControlChars.Back Then
             e.Handled = False
         End If
     End Sub
 
-    Private Sub tbxBarcodeScale_KeyPress(ByVal sender As Object, ByVal e As KeyPressEventArgs) Handles tbxBarcodeScale.KeyPress
-        Dim array As Byte() : array = System.Text.Encoding.Default.GetBytes(e.KeyChar.ToString())
-        If Not Char.IsDigit(e.KeyChar) Or array.LongLength = 2 Then
+    Private Sub tbxBarcodeScale_KeyPress(sender As Object, e As KeyPressEventArgs)
+        Dim array As Byte() = System.Text.Encoding.[Default].GetBytes(e.KeyChar.ToString())
+        If Not Char.IsDigit(e.KeyChar) OrElse array.LongLength = 2 Then
             e.Handled = True
         End If
-        If (e.KeyChar = Chr(8) Or (Not tbxBarcodeScale.Text.Contains(".") And e.KeyChar = Chr(46))) Then
+        If e.KeyChar = ControlChars.Back OrElse (Not tbxBarcodeScale.Text.Contains(".") AndAlso e.KeyChar = "."c) Then
             e.Handled = False
         End If
     End Sub
@@ -1625,28 +1641,27 @@ tbxHumanReadableText.Text, Integer.Parse(tbxBarcodeLocationX.Text), Integer.Pars
 
 #Region "Perform OCR"
 
-    Private Sub picboxOCR_Click(ByVal sender As Object, ByVal e As EventArgs) Handles picboxOCR.Click
-        If (picboxOCR.Enabled) Then
-            If (dynamicDotNetTwain.CurrentImageIndexInBuffer >= 0) Then
-                dynamicDotNetTwain.OCRLanguage = languages(cbxSupportedLanguage.Text)
-                dynamicDotNetTwain.OCRResultFormat = DirectCast(cbxOCRResultFormat.SelectedIndex, Dynamsoft.DotNet.TWAIN.OCR.ResultFormat)
-                Dim sbytes As Byte() : sbytes = Nothing
-                sbytes = dynamicDotNetTwain.OCR(dynamicDotNetTwain.CurrentSelectedImageIndicesInBuffer)
+    Private Sub picboxOCR_Click(sender As Object, e As EventArgs)
+        If picboxOCR.Enabled Then
+            If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0 Then
+                m_Tesseract.Language = languages(cbxSupportedLanguage.Text)
+                m_Tesseract.ResultFormat = CType(cbxOCRResultFormat.SelectedIndex, Dynamsoft.OCR.Enums.ResultFormat)
+                Dim sbytes As Byte() = Nothing
+                Dim templistBitmap As New List(Of Bitmap)()
+                For sCount As Short = 0 To dsViewer.CurrentSelectedImageIndicesInBuffer.Count - 1
+                    templistBitmap.Add(m_ImageCore.ImageBuffer.GetBitmap(dsViewer.CurrentSelectedImageIndicesInBuffer(sCount)))
+                Next
+                sbytes = m_Tesseract.Recognize(templistBitmap)
 
-                If Not sbytes Is Nothing And sbytes.Length > 0 Then
-                    Dim filedlg As SaveFileDialog : filedlg = New SaveFileDialog()
-                    If Not cbxOCRResultFormat.SelectedIndex = 0 Then
+                If sbytes IsNot Nothing AndAlso sbytes.Length > 0 Then
+                    Dim filedlg As New SaveFileDialog()
+                    If cbxOCRResultFormat.SelectedIndex <> 0 Then
                         filedlg.Filter = "PDF File(*.pdf)| *.pdf"
                     Else
                         filedlg.Filter = "Text File(*.txt)| *.txt"
                     End If
-
                     If filedlg.ShowDialog() = DialogResult.OK Then
                         System.IO.File.WriteAllBytes(filedlg.FileName, sbytes)
-                    End If
-                Else
-                    If Not dynamicDotNetTwain.ErrorCode = 0 Then
-                        MessageBox.Show(dynamicDotNetTwain.ErrorString, "Performing OCR error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     End If
                 End If
             Else
@@ -1657,48 +1672,151 @@ tbxHumanReadableText.Text, Integer.Parse(tbxBarcodeLocationX.Text), Integer.Pars
 
 #End Region
 
-    Private Sub dynamicDotNetTwain_OnImageAreaSelected(ByVal sImageIndex As Short, ByVal left As Integer, ByVal top As Integer, ByVal right As Integer, ByVal bottom As Integer) Handles dynamicDotNetTwain.OnImageAreaSelected
-        ShowSelectedImageArea()
-    End Sub
-
-    Private Sub picboxGrab_Click(ByVal sender As Object, ByVal e As EventArgs) Handles picboxGrab.Click
-        dynamicDotNetTwain.IfShowUI = chkShowUIForWebcam.Checked
-        dynamicDotNetTwain.MediaType = cbxMediaType.Text
-        If Not cbxResolutionForWebcam.Text = Nothing Then
-            Dim strWXH As String() : strWXH = cbxResolutionForWebcam.Text.Split(New Char() {Chr(32)})
+    Private Sub picboxGrab_Click(sender As Object, e As EventArgs)
+        dsViewer.Visible = True
+        If cbxResolutionForWebcam.Text IsNot Nothing Then
+            Dim strWXH As String() = cbxResolutionForWebcam.Text.Split(New Char() {" "c})
             If strWXH.Length = 3 Then
                 Try
-                    dynamicDotNetTwain.ResolutionForCam = New Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution( _
-                        Integer.Parse(strWXH(0)), Integer.Parse(strWXH(2)))
-                Catch exp As Exception
+                    m_Camera.CurrentResolution = New CamResolution(Integer.Parse(strWXH(0)), Integer.Parse(strWXH(2)))
+                    If m_CameraUI IsNot Nothing AndAlso (Not m_CameraUI.IsDisposed) Then
+                        m_CameraUI.ClientSize = New Size(Integer.Parse(strWXH(0)), Integer.Parse(strWXH(2)))
+                    End If
+                Catch
                 End Try
             End If
         End If
-        If Not dynamicDotNetTwain.AcquireImage() Then
-            MessageBox.Show(dynamicDotNetTwain.ErrorString, "Grab error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Dim tempbmp As Bitmap = m_Camera.GrabImage()
+        m_ImageCore.IO.LoadImage(tempbmp)
+        checkImageCount()
+    End Sub
+
+
+    Private Sub cbxResolutionForWebcam_SelectedIndexChanged(sender As Object, e As EventArgs)
+        If cbxResolutionForWebcam.Text IsNot Nothing Then
+            Dim strWXH As String() = cbxResolutionForWebcam.Text.Split(New Char() {" "c})
+            If strWXH.Length = 3 Then
+                Try
+                    m_Camera.CurrentResolution = New CamResolution(Integer.Parse(strWXH(0)), Integer.Parse(strWXH(2)))
+                    If m_CameraUI IsNot Nothing AndAlso (Not m_CameraUI.IsDisposed) Then
+                        m_CameraUI.ClientSize = New Size(Integer.Parse(strWXH(0)), Integer.Parse(strWXH(2)))
+                    End If
+                Catch
+                End Try
+            End If
         End If
     End Sub
 
-    Private Sub dynamicDotNetTwain_OnSourceUIClose() Handles dynamicDotNetTwain.OnSourceUIClose
+
+    Public Sub OnPostAllTransfers() Implements IAcquireCallback.OnPostAllTransfers
+        Me.Invoke(New CrossThreadOperationControl(AddressOf CallMe))
+    End Sub
+
+    Public Sub CallMe()
+        dsViewer.Visible = True
+        checkImageCount()
         EnableControls(picboxScan)
     End Sub
 
-    Private Sub cbxMediaType_SelectedIndexChanged(ByVal sender As Object, ByVal e As EventArgs)
-        If cbxMediaType.SelectedIndex >= 0 Then
-            dynamicDotNetTwain.MediaType = cbxMediaType.Text
+    Public Function OnPostTransfer(bit As Bitmap) As Boolean Implements IAcquireCallback.OnPostTransfer
+        m_ImageCore.IO.LoadImage(bit)
+        Return True
+    End Function
+
+    Public Sub OnPreAllTransfers() Implements IAcquireCallback.OnPreAllTransfers
+    End Sub
+
+    Public Function OnPreTransfer() As Boolean Implements IAcquireCallback.OnPreTransfer
+        Return True
+    End Function
+
+    Public Sub OnSourceUIClose() Implements IAcquireCallback.OnSourceUIClose
+        EnableControls(picboxScan)
+    End Sub
+
+    Public Sub OnTransferCancelled() Implements IAcquireCallback.OnTransferCancelled
+    End Sub
+
+    Public Sub OnTransferError() Implements IAcquireCallback.OnTransferError
+    End Sub
+
+    Private Sub picboxClose_Click(sender As Object, e As EventArgs)
+        If m_TwainManager IsNot Nothing Then
+            m_TwainManager.Dispose()
+        End If
+        If m_Camera IsNot Nothing Then
+            m_Camera.Close()
+        End If
+
+    End Sub
+
+    Public Sub LoadConvertResult(result As ConvertResult) Implements IConvertCallback.LoadConvertResult
+        m_ImageCore.IO.LoadImage(result.Image)
+        m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, result.Annotations, True)
+    End Sub
+
+    Public Function GetAnnotations(iPageNumber As Integer) As Object Implements ISave.GetAnnotations
+        If chkMultiPage.Checked = True Then
+            Return m_ImageCore.ImageBuffer.GetMetaData(CShort(iPageNumber), EnumMetaDataType.enumAnnotation)
+        Else
+            Return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation)
+        End If
+    End Function
+
+    Public Function GetImage(iPageNumber As Integer) As Bitmap Implements ISave.GetImage
+        If chkMultiPage.Checked = True Then
+            Return m_ImageCore.ImageBuffer.GetBitmap(CShort(iPageNumber))
+        Else
+            Return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
+        End If
+    End Function
+
+    Public Function GetPageCount() As Integer Implements ISave.GetPageCount
+        If chkMultiPage.Checked = True Then
+            Return m_ImageCore.ImageBuffer.HowManyImagesInBuffer
+        Else
+            Return 1
+        End If
+    End Function
+
+    Private Sub dsViewer_OnImageAreaDeselected(sImageIndex As Short)
+        If isToCrop Then
+            isToCrop = False
+        End If
+        EnableAllFunctionButtons()
+        ShowSelectedImageArea()
+    End Sub
+
+    Private Sub dsViewer_OnImageAreaSelected(sImageIndex As Short, left As Integer, top As Integer, right As Integer, bottom As Integer)
+        ShowSelectedImageArea()
+    End Sub
+
+    Private Sub dsViewer_OnMouseClick(sImageIndex As Short)
+        If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer <> currentImageIndex Then
+            checkImageCount()
         End If
     End Sub
-    Private Sub cbxResolutionForWebcam_SelectedIndexChanged(ByVal sender As Object, ByVal e As EventArgs)
-        If Not cbxResolutionForWebcam.Text = Nothing Then
-            Dim strWXH As String() : strWXH = cbxResolutionForWebcam.Text.Split(New Char() {Chr(32)})
-            If strWXH.Length = 3 Then
-                Try
-                    dynamicDotNetTwain.ResolutionForCam = New Dynamsoft.DotNet.TWAIN.WebCamera.CamResolution( _
-                        Integer.Parse(strWXH(0)), Integer.Parse(strWXH(2)))
-                Catch exp As Exception
-                End Try
+
+    Private Sub dsViewer_OnMouseDoubleClick(sImageIndex As Short)
+        Try
+            Dim rc As Rectangle = dsViewer.GetSelectionRect(sImageIndex)
+
+            If isToCrop AndAlso Not rc.IsEmpty Then
+                cropPicture(sImageIndex, rc)
             End If
-        End If
+            isToCrop = False
+        Catch
+        End Try
+        EnableAllFunctionButtons()
     End Sub
+
+    Private Sub dsViewer_OnMouseRightClick(sImageIndex As Short)
+        If isToCrop Then
+            isToCrop = False
+        End If
+        dsViewer.ClearSelectionRect(sImageIndex)
+        EnableAllFunctionButtons()
+    End Sub
+
 End Class
 

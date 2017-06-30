@@ -1,3 +1,4 @@
+using Dynamsoft.Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +14,7 @@ namespace DotNet_TWAIN_Demo
         private int width, height;
         private int newWidth, newHeight;
         private bool flag;
-        private Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod interpolation;
+        private EnumInterpolationMethod m_InterpolationMethod = EnumInterpolationMethod.BestQuality;
         public ResampleForm()
         {
             InitializeComponent();
@@ -58,26 +59,26 @@ namespace DotNet_TWAIN_Demo
             }
         }
 
-        public Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod Interpolation
+        public EnumInterpolationMethod Interpolation
         {
             get
             {
                 switch (this.cbxResampleType.SelectedIndex)
                 {
                     case 0:
-                        interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.Bicubic;
+                        m_InterpolationMethod = EnumInterpolationMethod.Bicubic;
                         break;
                     case 1:
-                        interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.Bilinear;
+                        m_InterpolationMethod = EnumInterpolationMethod.Bilinear;
                         break;
                     case 2:
-                        interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.NearestNeighbour;
+                        m_InterpolationMethod = EnumInterpolationMethod.NearestNeighbour;
                         break;
                     case 3:
-                        interpolation = Dynamsoft.DotNet.TWAIN.Enums.DWTInterpolationMethod.BestQuality;
+                        m_InterpolationMethod = EnumInterpolationMethod.BestQuality;
                         break;
                 }
-                return interpolation;
+                return m_InterpolationMethod;
             }
         }
         private void btnOk_Click(object sender, EventArgs e)

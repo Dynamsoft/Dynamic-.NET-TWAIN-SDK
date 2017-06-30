@@ -1,26 +1,43 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Dynamsoft.PDF;
+using Dynamsoft.Core;
+using Dynamsoft.Core.Enums;
+using System.IO;
+using System.Runtime.InteropServices;
 
-namespace PDFReaderDemo
+namespace Rasterizer
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form,IConvertCallback,ISave
     {
+        private Dynamsoft.PDF.PDFRasterizer m_PDFRasteizer = null;
+        private PDFCreator m_PDFCreator = null;
+        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private ImageCore m_ImageCore = null;
         public Form1()
         {
             InitializeComponent();
             Initialization();
-            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
+            m_PDFRasteizer = new Dynamsoft.PDF.PDFRasterizer(m_StrProductKey);
+            m_PDFCreator = new PDFCreator(m_StrProductKey);
+            m_ImageCore = new ImageCore();
+            dsViewer1.Bind(m_ImageCore);
+            chbMultiPagePDF.Checked = false;
+            chbMultiPagePDF.Enabled = false;
+            chbMultiPageTIFF.Checked = false;
+            chbMultiPageTIFF.Enabled = false;
+            
         }
+
 
         protected void Initialization()
         {
             this.Icon = new Icon(typeof(Form), "wfc.ico");
-            dynamicDotNetTwain1.IfThrowException = false;
             this.cmbPDFResolution.DropDownStyle = ComboBoxStyle.DropDownList;
             this.cmbPDFResolution.Items.Add("100");
             this.cmbPDFResolution.Items.Add("150");
@@ -29,22 +46,7 @@ namespace PDFReaderDemo
             this.cmbPDFResolution.SelectedIndex = 0;
 
             this.rdbBMP.Checked = true;
-            
-            string strDllFolder = Application.ExecutablePath;
-            strDllFolder = strDllFolder.Replace("/", "\\");
-            int pos = strDllFolder.LastIndexOf("\\Samples\\");
-            if (pos != -1)
-            {
-                strDllFolder = strDllFolder.Substring(0, strDllFolder.IndexOf(@"\", pos)) + @"\Redistributable\Resources\PDF\";
-            }
-            else
-            {
-                pos = strDllFolder.LastIndexOf("\\");
-                strDllFolder = strDllFolder.Substring(0, strDllFolder.IndexOf(@"\", pos)) + @"\";
-            }
 
-            dynamicDotNetTwain1.PDFRasterizerDllPath = strDllFolder;
-            dynamicDotNetTwain1.IfShowCancelDialogWhenBarcodeOrOCR = true;
         }
 
         private void btnLoadPDF_Click(object sender, EventArgs e)
@@ -60,16 +62,12 @@ namespace PDFReaderDemo
                 {
                     foreach (string strfilename in openfiledlg.FileNames)
                     {
-			            this.dynamicDotNetTwain1.PDFConvertMode = Dynamsoft.DotNet.TWAIN.Enums.EnumPDFConvertMode.enumCM_RENDERALL;
-                        this.dynamicDotNetTwain1.SetPDFResolution(uint.Parse(cmbPDFResolution.SelectedItem.ToString()));
-			            this.dynamicDotNetTwain1.LoadImage(strfilename);
-                        //this.dynamicDotNetTwain1.ConvertPDFToImage(strfilename, float.Parse(cmbPDFResolution.SelectedItem.ToString()));
-                        if (this.dynamicDotNetTwain1.ErrorCode != Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed)
-                            MessageBox.Show(this.dynamicDotNetTwain1.ErrorString, "PDF Rasterizer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        m_PDFRasteizer.ConvertMode = Dynamsoft.PDF.Enums.EnumConvertMode.enumCM_RENDERALL;
+                        m_PDFRasteizer.ConvertToImage(strfilename, "", int.Parse(cmbPDFResolution.Text), this as IConvertCallback);
                     }
                 }
             }
-            catch(Exception exp)
+            catch (Exception exp)
             {
                 MessageBox.Show(exp.Message);
             }
@@ -79,7 +77,7 @@ namespace PDFReaderDemo
         {
             try
             {
-                if (dynamicDotNetTwain1.HowManyImagesInBuffer > 0)
+                if (m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0)
                 {
                     this.labMsg.Text = "";
                     SaveFileDialog savefdlg = new SaveFileDialog();
@@ -123,36 +121,39 @@ namespace PDFReaderDemo
 
                         if (rdbBMP.Checked == true)
                         {
-                            this.dynamicDotNetTwain1.SaveAsBMP(strFilename, this.dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            m_ImageCore.IO.SaveAsBMP(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
 
                         if (rdbJPEG.Checked == true)
                         {
-                            this.dynamicDotNetTwain1.SaveAsJPEG(strFilename, this.dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            m_ImageCore.IO.SaveAsJPEG(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
 
                         if (rdbPNG.Checked == true)
                         {
-                            this.dynamicDotNetTwain1.SaveAsPNG(strFilename, this.dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            m_ImageCore.IO.SaveAsPNG(strFilename, m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                         }
 
                         if (rdbTIFF.Checked == true)
                         {
+                            List<short> tempListIndex = new List<short>();
                             if (chbMultiPageTIFF.Checked == true)
                             {
-                                this.dynamicDotNetTwain1.SaveAllAsMultiPageTIFF(strFilename);
+                                for (short sIndex = 0; sIndex < m_ImageCore.ImageBuffer.HowManyImagesInBuffer; sIndex++)
+                                {
+                                    tempListIndex.Add(sIndex);
+                                }
                             }
                             else
-                                this.dynamicDotNetTwain1.SaveAsTIFF(strFilename, dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            {
+                                tempListIndex.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+                            }
+                            m_ImageCore.IO.SaveAsTIFF(strFilename,tempListIndex);
                         }
 
                         if (rdbPDF.Checked == true)
                         {
-                            dynamicDotNetTwain1.IfSaveAnnotations = true;
-                            if (chbMultiPagePDF.Checked == true)
-                                dynamicDotNetTwain1.SaveAllAsPDF(strFilename);
-                            else
-                                dynamicDotNetTwain1.SaveAsPDF(strFilename, dynamicDotNetTwain1.CurrentImageIndexInBuffer);
+                            m_PDFCreator.Save(this as ISave,strFilename);
                         }
                     }
                 }
@@ -209,5 +210,58 @@ namespace PDFReaderDemo
             chbMultiPageTIFF.Enabled = false;
         }
 
+        #region IConvertCallback Members
+
+        public void LoadConvertResult(ConvertResult result)
+        {
+            m_ImageCore.IO.LoadImage(result.Image);
+            m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation,result.Annotations,true);
+        }
+
+        #endregion
+
+        #region ISave Members
+
+        public object GetAnnotations(int iPageNumber)
+        {
+            if (chbMultiPagePDF.Checked)
+            {
+                return m_ImageCore.ImageBuffer.GetMetaData((short)iPageNumber, EnumMetaDataType.enumAnnotation);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation);
+            }
+
+        }
+
+        public Bitmap GetImage(int iPageNumber)
+        {
+            if (chbMultiPagePDF.Checked)
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap((short)iPageNumber);
+            }
+            else
+            {
+                return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+            }
+
+        }
+
+        public int GetPageCount()
+        {
+            if (chbMultiPagePDF
+                .Checked)
+            {
+                return m_ImageCore.ImageBuffer.HowManyImagesInBuffer;
+            }
+            else
+            {
+                return 1;
+            }
+
+        }
+
+        #endregion
     }
 }

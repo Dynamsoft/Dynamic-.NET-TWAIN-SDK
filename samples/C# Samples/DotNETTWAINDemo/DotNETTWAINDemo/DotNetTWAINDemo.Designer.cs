@@ -64,15 +64,6 @@ namespace DotNet_TWAIN_Demo
             this.tbxCurrentImageIndex = new System.Windows.Forms.TextBox();
             this.tbxTotalImageNum = new System.Windows.Forms.TextBox();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.dynamicDotNetTwain = new Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain();
-            this.panelAnnotations = new System.Windows.Forms.Panel();
-            this.lbCloseAnnotations = new System.Windows.Forms.Label();
-            this.picboxTitle = new System.Windows.Forms.PictureBox();
-            this.picboxDeleteAnnotationA = new System.Windows.Forms.PictureBox();
-            this.picboxEllipseA = new System.Windows.Forms.PictureBox();
-            this.picboxRectangleA = new System.Windows.Forms.PictureBox();
-            this.picboxTextA = new System.Windows.Forms.PictureBox();
-            this.picboxLineA = new System.Windows.Forms.PictureBox();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.panelLoad = new System.Windows.Forms.Panel();
@@ -83,7 +74,6 @@ namespace DotNet_TWAIN_Demo
             this.panelAcquire = new System.Windows.Forms.Panel();
             this.lbUnknowSource = new System.Windows.Forms.Label();
             this.panelGrab = new System.Windows.Forms.Panel();
-            this.cbxMediaType = new System.Windows.Forms.ComboBox();
             this.picboxGrab = new System.Windows.Forms.PictureBox();
             this.cbxResolutionForWebcam = new System.Windows.Forms.ComboBox();
             this.label21 = new System.Windows.Forms.Label();
@@ -154,6 +144,15 @@ namespace DotNet_TWAIN_Demo
             this.picboxFit = new System.Windows.Forms.PictureBox();
             this.picboxOriginalSize = new System.Windows.Forms.PictureBox();
             this.label25 = new System.Windows.Forms.Label();
+            this.lbCloseAnnotations = new System.Windows.Forms.Label();
+            this.panelAnnotations = new System.Windows.Forms.Panel();
+            this.picboxTitle = new System.Windows.Forms.PictureBox();
+            this.picboxDeleteAnnotationA = new System.Windows.Forms.PictureBox();
+            this.picboxEllipseA = new System.Windows.Forms.PictureBox();
+            this.picboxRectangleA = new System.Windows.Forms.PictureBox();
+            this.picboxTextA = new System.Windows.Forms.PictureBox();
+            this.picboxLineA = new System.Windows.Forms.PictureBox();
+            this.dsViewer = new Dynamsoft.Forms.DSViewer();
             ((System.ComponentModel.ISupportInitialize)(this.picboxHand)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxCrop)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxPoint)).BeginInit();
@@ -178,13 +177,6 @@ namespace DotNet_TWAIN_Demo
             ((System.ComponentModel.ISupportInitialize)(this.picboxPrevious)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxMin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxClose)).BeginInit();
-            this.panelAnnotations.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxTitle)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxDeleteAnnotationA)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxEllipseA)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxRectangleA)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxTextA)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxLineA)).BeginInit();
             this.panelLoad.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picboxLoadImage)).BeginInit();
@@ -203,6 +195,13 @@ namespace DotNet_TWAIN_Demo
             ((System.ComponentModel.ISupportInitialize)(this.picboxSave)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxFit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxOriginalSize)).BeginInit();
+            this.panelAnnotations.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxTitle)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxDeleteAnnotationA)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxEllipseA)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxRectangleA)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxTextA)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxLineA)).BeginInit();
             this.SuspendLayout();
             // 
             // lbGeneral
@@ -667,6 +666,7 @@ namespace DotNet_TWAIN_Demo
             this.picboxClose.TabIndex = 74;
             this.picboxClose.TabStop = false;
             this.picboxClose.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
+            this.picboxClose.Click += new System.EventHandler(this.picboxClose_Click);
             this.picboxClose.MouseClick += new System.Windows.Forms.MouseEventHandler(this.picboxClose_MouseClick);
             this.picboxClose.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
             this.picboxClose.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
@@ -702,157 +702,6 @@ namespace DotNet_TWAIN_Demo
             this.tbxTotalImageNum.Size = new System.Drawing.Size(61, 23);
             this.tbxTotalImageNum.TabIndex = 77;
             this.tbxTotalImageNum.Text = "0";
-            // 
-            // dynamicDotNetTwain
-            // 
-            this.dynamicDotNetTwain.AnnotationFillColor = System.Drawing.Color.White;
-            this.dynamicDotNetTwain.AnnotationPen = null;
-            this.dynamicDotNetTwain.AnnotationTextColor = System.Drawing.Color.Black;
-            this.dynamicDotNetTwain.AnnotationTextFont = null;
-            this.dynamicDotNetTwain.IfShowCancelDialogWhenImageTransfer = false;
-            this.dynamicDotNetTwain.IfShowPrintUI = false;
-            this.dynamicDotNetTwain.IfThrowException = false;
-            this.dynamicDotNetTwain.Location = new System.Drawing.Point(144, 50);
-            this.dynamicDotNetTwain.LogLevel = ((short)(0));
-            this.dynamicDotNetTwain.Name = "dynamicDotNetTwain";
-            this.dynamicDotNetTwain.PDFMarginBottom = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginLeft = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginRight = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFMarginTop = ((uint)(0u));
-            this.dynamicDotNetTwain.PDFXConformance = ((uint)(0u));
-            this.dynamicDotNetTwain.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.dynamicDotNetTwain.Size = new System.Drawing.Size(478, 590);
-            this.dynamicDotNetTwain.TabIndex = 80;
-            this.dynamicDotNetTwain.Visible = false;
-            this.dynamicDotNetTwain.OnImageAreaSelected += new Dynamsoft.DotNet.TWAIN.Delegate.OnImageAreaSelectedHandler(this.dynamicDotNetTwain_OnImageAreaSelected);
-            this.dynamicDotNetTwain.OnPostAllTransfers += new Dynamsoft.DotNet.TWAIN.Delegate.OnPostAllTransfersHandler(this.dynamicDotNetTwain_OnPostAllTransfers);
-            this.dynamicDotNetTwain.OnMouseDoubleClick += new Dynamsoft.DotNet.TWAIN.Delegate.OnMouseDoubleClickHandler(this.dynamicDotNetTwain_OnMouseDoubleClick);
-            this.dynamicDotNetTwain.OnMouseClick += new Dynamsoft.DotNet.TWAIN.Delegate.OnMouseClickHandler(this.dynamicDotNetTwain_OnMouseClick);
-            this.dynamicDotNetTwain.OnSourceUIClose += new Dynamsoft.DotNet.TWAIN.Delegate.OnSourceUICloseHandler(this.dynamicDotNetTwain_OnSourceUIClose);
-            this.dynamicDotNetTwain.OnImageAreaDeselected += new Dynamsoft.DotNet.TWAIN.Delegate.OnImageAreaDeselectedHandler(this.dynamicDotNetTwain_OnImageAreaDeselected);
-            this.dynamicDotNetTwain.OnMouseRightClick += new Dynamsoft.DotNet.TWAIN.Delegate.OnMouseRightClickHandler(this.dynamicDotNetTwain_OnMouseRightClick);
-            // 
-            // panelAnnotations
-            // 
-            this.panelAnnotations.BackColor = System.Drawing.Color.Black;
-            this.panelAnnotations.Controls.Add(this.lbCloseAnnotations);
-            this.panelAnnotations.Controls.Add(this.picboxTitle);
-            this.panelAnnotations.Controls.Add(this.picboxDeleteAnnotationA);
-            this.panelAnnotations.Controls.Add(this.picboxEllipseA);
-            this.panelAnnotations.Controls.Add(this.picboxRectangleA);
-            this.panelAnnotations.Controls.Add(this.picboxTextA);
-            this.panelAnnotations.Controls.Add(this.picboxLineA);
-            this.panelAnnotations.Location = new System.Drawing.Point(160, 60);
-            this.panelAnnotations.Name = "panelAnnotations";
-            this.panelAnnotations.Size = new System.Drawing.Size(206, 45);
-            this.panelAnnotations.TabIndex = 81;
-            // 
-            // lbCloseAnnotations
-            // 
-            this.lbCloseAnnotations.AutoSize = true;
-            this.lbCloseAnnotations.BackColor = System.Drawing.Color.Snow;
-            this.lbCloseAnnotations.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbCloseAnnotations.ForeColor = System.Drawing.Color.Black;
-            this.lbCloseAnnotations.Location = new System.Drawing.Point(161, 3);
-            this.lbCloseAnnotations.Margin = new System.Windows.Forms.Padding(0);
-            this.lbCloseAnnotations.Name = "lbCloseAnnotations";
-            this.lbCloseAnnotations.Size = new System.Drawing.Size(40, 13);
-            this.lbCloseAnnotations.TabIndex = 89;
-            this.lbCloseAnnotations.Text = "CLOSE";
-            this.lbCloseAnnotations.MouseLeave += new System.EventHandler(this.lbCloseAnnotations_MouseLeave);
-            this.lbCloseAnnotations.Click += new System.EventHandler(this.lbCloseAnnotations_Click);
-            this.lbCloseAnnotations.MouseHover += new System.EventHandler(this.lbCloseAnnotations_MouseHover);
-            // 
-            // picboxTitle
-            // 
-            this.picboxTitle.BackgroundImage = global::DotNet_TWAIN_Demo.Properties.Resources.picboxAnnotationBar;
-            this.picboxTitle.Location = new System.Drawing.Point(0, 0);
-            this.picboxTitle.Name = "picboxTitle";
-            this.picboxTitle.Size = new System.Drawing.Size(206, 18);
-            this.picboxTitle.TabIndex = 4;
-            this.picboxTitle.TabStop = false;
-            this.picboxTitle.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picboxTitle_MouseMove);
-            this.picboxTitle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picboxTitle_MouseDown);
-            // 
-            // picboxDeleteAnnotationA
-            // 
-            this.picboxDeleteAnnotationA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxDeleteAnnotationA_Leave;
-            this.picboxDeleteAnnotationA.Location = new System.Drawing.Point(164, 18);
-            this.picboxDeleteAnnotationA.Name = "picboxDeleteAnnotationA";
-            this.picboxDeleteAnnotationA.Size = new System.Drawing.Size(43, 27);
-            this.picboxDeleteAnnotationA.TabIndex = 5;
-            this.picboxDeleteAnnotationA.TabStop = false;
-            this.picboxDeleteAnnotationA.Tag = "Delete Annotation";
-            this.picboxDeleteAnnotationA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
-            this.picboxDeleteAnnotationA.Click += new System.EventHandler(this.picboxDeleteAnnotationA_Click);
-            this.picboxDeleteAnnotationA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
-            this.picboxDeleteAnnotationA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
-            this.picboxDeleteAnnotationA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
-            this.picboxDeleteAnnotationA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
-            // 
-            // picboxEllipseA
-            // 
-            this.picboxEllipseA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxEllipseA_Leave;
-            this.picboxEllipseA.Location = new System.Drawing.Point(41, 18);
-            this.picboxEllipseA.Name = "picboxEllipseA";
-            this.picboxEllipseA.Size = new System.Drawing.Size(42, 27);
-            this.picboxEllipseA.TabIndex = 3;
-            this.picboxEllipseA.TabStop = false;
-            this.picboxEllipseA.Tag = "Draw Ellipse";
-            this.picboxEllipseA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
-            this.picboxEllipseA.Click += new System.EventHandler(this.picboxEllipse_Click);
-            this.picboxEllipseA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
-            this.picboxEllipseA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
-            this.picboxEllipseA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
-            this.picboxEllipseA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
-            // 
-            // picboxRectangleA
-            // 
-            this.picboxRectangleA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxRectangleA_Leave;
-            this.picboxRectangleA.Location = new System.Drawing.Point(82, 18);
-            this.picboxRectangleA.Name = "picboxRectangleA";
-            this.picboxRectangleA.Size = new System.Drawing.Size(42, 27);
-            this.picboxRectangleA.TabIndex = 2;
-            this.picboxRectangleA.TabStop = false;
-            this.picboxRectangleA.Tag = "Draw Rectangle";
-            this.picboxRectangleA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
-            this.picboxRectangleA.Click += new System.EventHandler(this.picboxRectangle_Click);
-            this.picboxRectangleA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
-            this.picboxRectangleA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
-            this.picboxRectangleA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
-            this.picboxRectangleA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
-            // 
-            // picboxTextA
-            // 
-            this.picboxTextA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxTextA_Leave;
-            this.picboxTextA.Location = new System.Drawing.Point(123, 18);
-            this.picboxTextA.Name = "picboxTextA";
-            this.picboxTextA.Size = new System.Drawing.Size(42, 27);
-            this.picboxTextA.TabIndex = 1;
-            this.picboxTextA.TabStop = false;
-            this.picboxTextA.Tag = "Draw Text";
-            this.picboxTextA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
-            this.picboxTextA.Click += new System.EventHandler(this.picboxText_Click);
-            this.picboxTextA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
-            this.picboxTextA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
-            this.picboxTextA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
-            this.picboxTextA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
-            // 
-            // picboxLineA
-            // 
-            this.picboxLineA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxLineA_Leave;
-            this.picboxLineA.Location = new System.Drawing.Point(-1, 18);
-            this.picboxLineA.Name = "picboxLineA";
-            this.picboxLineA.Size = new System.Drawing.Size(43, 27);
-            this.picboxLineA.TabIndex = 0;
-            this.picboxLineA.TabStop = false;
-            this.picboxLineA.Tag = "Draw Line";
-            this.picboxLineA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
-            this.picboxLineA.Click += new System.EventHandler(this.picboxLine_Click);
-            this.picboxLineA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
-            this.picboxLineA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
-            this.picboxLineA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
-            this.picboxLineA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
             // 
             // openFileDialog
             // 
@@ -895,7 +744,7 @@ namespace DotNet_TWAIN_Demo
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(228, 30);
             this.label24.TabIndex = 0;
-            this.label24.Text = "Note: PDF Rasterizer add-on is used when loading PDF files.";
+            this.label24.Text = "Note: PDF library is used when loading PDF files.";
             // 
             // picboxLoadImage
             // 
@@ -944,7 +793,6 @@ namespace DotNet_TWAIN_Demo
             // 
             // panelGrab
             // 
-            this.panelGrab.Controls.Add(this.cbxMediaType);
             this.panelGrab.Controls.Add(this.picboxGrab);
             this.panelGrab.Controls.Add(this.cbxResolutionForWebcam);
             this.panelGrab.Controls.Add(this.label21);
@@ -955,22 +803,11 @@ namespace DotNet_TWAIN_Demo
             this.panelGrab.Size = new System.Drawing.Size(248, 175);
             this.panelGrab.TabIndex = 86;
             // 
-            // cbxMediaType
-            // 
-            this.cbxMediaType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbxMediaType.Enabled = false;
-            this.cbxMediaType.FormattingEnabled = true;
-            this.cbxMediaType.Location = new System.Drawing.Point(99, 40);
-            this.cbxMediaType.Name = "cbxMediaType";
-            this.cbxMediaType.Size = new System.Drawing.Size(130, 21);
-            this.cbxMediaType.TabIndex = 92;
-            this.cbxMediaType.SelectedIndexChanged +=cbxMediaType_SelectedIndexChanged;
-            // 
             // picboxGrab
             // 
             this.picboxGrab.Enabled = false;
             this.picboxGrab.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxGrab_Disabled;
-            this.picboxGrab.Location = new System.Drawing.Point(38, 114);
+            this.picboxGrab.Location = new System.Drawing.Point(38, 80);
             this.picboxGrab.Name = "picboxGrab";
             this.picboxGrab.Size = new System.Drawing.Size(180, 38);
             this.picboxGrab.TabIndex = 91;
@@ -987,18 +824,17 @@ namespace DotNet_TWAIN_Demo
             this.cbxResolutionForWebcam.Enabled = false;
             this.cbxResolutionForWebcam.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbxResolutionForWebcam.FormattingEnabled = true;
-            this.cbxResolutionForWebcam.Location = new System.Drawing.Point(99, 72);
+            this.cbxResolutionForWebcam.Location = new System.Drawing.Point(99, 30);
             this.cbxResolutionForWebcam.Name = "cbxResolutionForWebcam";
             this.cbxResolutionForWebcam.Size = new System.Drawing.Size(130, 23);
             this.cbxResolutionForWebcam.TabIndex = 90;
-            this.cbxResolutionForWebcam.SelectedIndexChanged +=cbxResolutionForWebcam_SelectedIndexChanged;
             // 
             // label21
             // 
             this.label21.AutoSize = true;
             this.label21.BackColor = System.Drawing.Color.Transparent;
             this.label21.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label21.Location = new System.Drawing.Point(17, 75);
+            this.label21.Location = new System.Drawing.Point(17, 35);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(69, 15);
             this.label21.TabIndex = 89;
@@ -1006,14 +842,10 @@ namespace DotNet_TWAIN_Demo
             // 
             // label20
             // 
-            this.label20.AutoSize = true;
-            this.label20.BackColor = System.Drawing.Color.Transparent;
-            this.label20.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label20.Location = new System.Drawing.Point(17, 42);
+            this.label20.Location = new System.Drawing.Point(0, 0);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(75, 15);
-            this.label20.TabIndex = 88;
-            this.label20.Text = "Media Type :";
+            this.label20.Size = new System.Drawing.Size(100, 23);
+            this.label20.TabIndex = 92;
             // 
             // chkShowUIForWebcam
             // 
@@ -1433,7 +1265,7 @@ namespace DotNet_TWAIN_Demo
             // 
             this.cbxBarcodeFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxBarcodeFormat.FormattingEnabled = true;
-            this.cbxBarcodeFormat.ItemHeight = 15;
+            this.cbxBarcodeFormat.ItemHeight = 13;
             this.cbxBarcodeFormat.Location = new System.Drawing.Point(120, 11);
             this.cbxBarcodeFormat.Name = "cbxBarcodeFormat";
             this.cbxBarcodeFormat.Size = new System.Drawing.Size(106, 21);
@@ -1747,14 +1579,6 @@ namespace DotNet_TWAIN_Demo
             this.label23.Size = new System.Drawing.Size(63, 15);
             this.label23.TabIndex = 86;
             this.label23.Text = "Fit && Scale";
-            //
-            //label25
-            //
-            this.label25.AutoSize = false;
-            this.label25.Size = new System.Drawing.Size(894,18);
-            this.label25.Location = new System.Drawing.Point(2,677);
-            this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.label25.Text = "Note: PDF Rasterizer add-on is used when loading PDF files.          @2016 Dynamsoft Corporation. All rights reserved.";
             // 
             // picboxFit
             // 
@@ -1787,6 +1611,153 @@ namespace DotNet_TWAIN_Demo
             this.picboxOriginalSize.MouseHover += new System.EventHandler(this.picbox_MouseHover);
             this.picboxOriginalSize.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
             this.picboxOriginalSize.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
+            // 
+            // label25
+            // 
+            this.label25.Location = new System.Drawing.Point(2, 677);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(894, 18);
+            this.label25.TabIndex = 89;
+            this.label25.Text = "Note: PDF library is used when loading PDF files.          @2017 Dynams" +
+                "oft Corporation. All rights reserved.";
+            this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lbCloseAnnotations
+            // 
+            this.lbCloseAnnotations.AutoSize = true;
+            this.lbCloseAnnotations.BackColor = System.Drawing.Color.Snow;
+            this.lbCloseAnnotations.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbCloseAnnotations.ForeColor = System.Drawing.Color.Black;
+            this.lbCloseAnnotations.Location = new System.Drawing.Point(161, 3);
+            this.lbCloseAnnotations.Margin = new System.Windows.Forms.Padding(0);
+            this.lbCloseAnnotations.Name = "lbCloseAnnotations";
+            this.lbCloseAnnotations.Size = new System.Drawing.Size(40, 13);
+            this.lbCloseAnnotations.TabIndex = 89;
+            this.lbCloseAnnotations.Text = "CLOSE";
+            this.lbCloseAnnotations.MouseLeave += new System.EventHandler(this.lbCloseAnnotations_MouseLeave);
+            this.lbCloseAnnotations.Click += new System.EventHandler(this.lbCloseAnnotations_Click);
+            this.lbCloseAnnotations.MouseHover += new System.EventHandler(this.lbCloseAnnotations_MouseHover);
+            // 
+            // panelAnnotations
+            // 
+            this.panelAnnotations.BackColor = System.Drawing.Color.Black;
+            this.panelAnnotations.Controls.Add(this.lbCloseAnnotations);
+            this.panelAnnotations.Controls.Add(this.picboxTitle);
+            this.panelAnnotations.Controls.Add(this.picboxDeleteAnnotationA);
+            this.panelAnnotations.Controls.Add(this.picboxEllipseA);
+            this.panelAnnotations.Controls.Add(this.picboxRectangleA);
+            this.panelAnnotations.Controls.Add(this.picboxTextA);
+            this.panelAnnotations.Controls.Add(this.picboxLineA);
+            this.panelAnnotations.Location = new System.Drawing.Point(160, 60);
+            this.panelAnnotations.Name = "panelAnnotations";
+            this.panelAnnotations.Size = new System.Drawing.Size(206, 45);
+            this.panelAnnotations.TabIndex = 81;
+            // 
+            // picboxTitle
+            // 
+            this.picboxTitle.BackgroundImage = global::DotNet_TWAIN_Demo.Properties.Resources.picboxAnnotationBar;
+            this.picboxTitle.Location = new System.Drawing.Point(0, 0);
+            this.picboxTitle.Name = "picboxTitle";
+            this.picboxTitle.Size = new System.Drawing.Size(206, 18);
+            this.picboxTitle.TabIndex = 4;
+            this.picboxTitle.TabStop = false;
+            this.picboxTitle.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picboxTitle_MouseMove);
+            this.picboxTitle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picboxTitle_MouseDown);
+            // 
+            // picboxDeleteAnnotationA
+            // 
+            this.picboxDeleteAnnotationA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxDeleteAnnotationA_Leave;
+            this.picboxDeleteAnnotationA.Location = new System.Drawing.Point(164, 18);
+            this.picboxDeleteAnnotationA.Name = "picboxDeleteAnnotationA";
+            this.picboxDeleteAnnotationA.Size = new System.Drawing.Size(43, 27);
+            this.picboxDeleteAnnotationA.TabIndex = 5;
+            this.picboxDeleteAnnotationA.TabStop = false;
+            this.picboxDeleteAnnotationA.Tag = "Delete Annotation";
+            this.picboxDeleteAnnotationA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
+            this.picboxDeleteAnnotationA.Click += new System.EventHandler(this.picboxDeleteAnnotationA_Click);
+            this.picboxDeleteAnnotationA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
+            this.picboxDeleteAnnotationA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
+            this.picboxDeleteAnnotationA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
+            this.picboxDeleteAnnotationA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
+            // 
+            // picboxEllipseA
+            // 
+            this.picboxEllipseA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxEllipseA_Leave;
+            this.picboxEllipseA.Location = new System.Drawing.Point(41, 18);
+            this.picboxEllipseA.Name = "picboxEllipseA";
+            this.picboxEllipseA.Size = new System.Drawing.Size(42, 27);
+            this.picboxEllipseA.TabIndex = 3;
+            this.picboxEllipseA.TabStop = false;
+            this.picboxEllipseA.Tag = "Draw Ellipse";
+            this.picboxEllipseA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
+            this.picboxEllipseA.Click += new System.EventHandler(this.picboxEllipse_Click);
+            this.picboxEllipseA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
+            this.picboxEllipseA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
+            this.picboxEllipseA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
+            this.picboxEllipseA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
+            // 
+            // picboxRectangleA
+            // 
+            this.picboxRectangleA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxRectangleA_Leave;
+            this.picboxRectangleA.Location = new System.Drawing.Point(82, 18);
+            this.picboxRectangleA.Name = "picboxRectangleA";
+            this.picboxRectangleA.Size = new System.Drawing.Size(42, 27);
+            this.picboxRectangleA.TabIndex = 2;
+            this.picboxRectangleA.TabStop = false;
+            this.picboxRectangleA.Tag = "Draw Rectangle";
+            this.picboxRectangleA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
+            this.picboxRectangleA.Click += new System.EventHandler(this.picboxRectangle_Click);
+            this.picboxRectangleA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
+            this.picboxRectangleA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
+            this.picboxRectangleA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
+            this.picboxRectangleA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
+            // 
+            // picboxTextA
+            // 
+            this.picboxTextA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxTextA_Leave;
+            this.picboxTextA.Location = new System.Drawing.Point(123, 18);
+            this.picboxTextA.Name = "picboxTextA";
+            this.picboxTextA.Size = new System.Drawing.Size(42, 27);
+            this.picboxTextA.TabIndex = 1;
+            this.picboxTextA.TabStop = false;
+            this.picboxTextA.Tag = "Draw Text";
+            this.picboxTextA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
+            this.picboxTextA.Click += new System.EventHandler(this.picboxText_Click);
+            this.picboxTextA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
+            this.picboxTextA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
+            this.picboxTextA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
+            this.picboxTextA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
+            // 
+            // picboxLineA
+            // 
+            this.picboxLineA.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxLineA_Leave;
+            this.picboxLineA.Location = new System.Drawing.Point(-1, 18);
+            this.picboxLineA.Name = "picboxLineA";
+            this.picboxLineA.Size = new System.Drawing.Size(43, 27);
+            this.picboxLineA.TabIndex = 0;
+            this.picboxLineA.TabStop = false;
+            this.picboxLineA.Tag = "Draw Line";
+            this.picboxLineA.MouseLeave += new System.EventHandler(this.picbox_MouseLeave);
+            this.picboxLineA.Click += new System.EventHandler(this.picboxLine_Click);
+            this.picboxLineA.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseDown);
+            this.picboxLineA.MouseHover += new System.EventHandler(this.picbox_MouseHover);
+            this.picboxLineA.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picbox_MouseUp);
+            this.picboxLineA.MouseEnter += new System.EventHandler(this.picbox_MouseEnter);
+            // 
+            // dsViewer
+            // 
+            this.dsViewer.Location = new System.Drawing.Point(144, 50);
+            this.dsViewer.Name = "dsViewer";
+            this.dsViewer.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.dsViewer.SelectionRectAspectRatio = 0;
+            this.dsViewer.Size = new System.Drawing.Size(478, 590);
+            this.dsViewer.TabIndex = 80;
+            this.dsViewer.Visible = false;
+            this.dsViewer.OnMouseClick += new Dynamsoft.Forms.Delegate.OnMouseClickHandler(this.dsViewer_OnMouseClick);
+            this.dsViewer.OnImageAreaDeselected += new Dynamsoft.Forms.Delegate.OnImageAreaDeselectedHandler(this.dsViewer_OnImageAreaDeselected);
+            this.dsViewer.OnMouseDoubleClick += new Dynamsoft.Forms.Delegate.OnMouseDoubleClickHandler(this.dsViewer_OnMouseDoubleClick);
+            this.dsViewer.OnImageAreaSelected += new Dynamsoft.Forms.Delegate.OnImageAreaSelectedHandler(this.dsViewer_OnImageAreaSelected);
+            this.dsViewer.OnMouseRightClick += new Dynamsoft.Forms.Delegate.OnMouseRightClickHandler(this.dsViewer_OnMouseRightClick);
             // 
             // DotNetTWAINDemo
             // 
@@ -1836,7 +1807,7 @@ namespace DotNet_TWAIN_Demo
             this.Controls.Add(this.picboxPoint);
             this.Controls.Add(this.picboxCrop);
             this.Controls.Add(this.picboxHand);
-            this.Controls.Add(this.dynamicDotNetTwain);
+            this.Controls.Add(this.dsViewer);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -1869,14 +1840,6 @@ namespace DotNet_TWAIN_Demo
             ((System.ComponentModel.ISupportInitialize)(this.picboxPrevious)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxMin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxClose)).EndInit();
-            this.panelAnnotations.ResumeLayout(false);
-            this.panelAnnotations.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxTitle)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxDeleteAnnotationA)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxEllipseA)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxRectangleA)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxTextA)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picboxLineA)).EndInit();
             this.panelLoad.ResumeLayout(false);
             this.panelLoad.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -1903,6 +1866,14 @@ namespace DotNet_TWAIN_Demo
             ((System.ComponentModel.ISupportInitialize)(this.picboxSave)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxFit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picboxOriginalSize)).EndInit();
+            this.panelAnnotations.ResumeLayout(false);
+            this.panelAnnotations.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxTitle)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxDeleteAnnotationA)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxEllipseA)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxRectangleA)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxTextA)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picboxLineA)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1946,16 +1917,7 @@ namespace DotNet_TWAIN_Demo
         private System.Windows.Forms.TextBox tbxCurrentImageIndex;
         private System.Windows.Forms.TextBox tbxTotalImageNum;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
-        private Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain dynamicDotNetTwain;
-        private System.Windows.Forms.Panel panelAnnotations;
-        private System.Windows.Forms.PictureBox picboxLineA;
-        private System.Windows.Forms.PictureBox picboxTitle;
-        private System.Windows.Forms.PictureBox picboxEllipseA;
-        private System.Windows.Forms.PictureBox picboxRectangleA;
-        private System.Windows.Forms.PictureBox picboxTextA;
-        private System.Windows.Forms.PictureBox picboxDeleteAnnotationA;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private System.Windows.Forms.Label lbCloseAnnotations;
         private System.Windows.Forms.RadioButton rdbtnJPG;
         private System.Windows.Forms.RadioButton rdbtnPDF;
         private System.Windows.Forms.RadioButton rdbtnTIFF;
@@ -2023,7 +1985,7 @@ namespace DotNet_TWAIN_Demo
         private System.Windows.Forms.Panel panelGrab;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.CheckBox chkShowUIForWebcam;
-        private System.Windows.Forms.ComboBox cbxMediaType;
+        //private System.Windows.Forms.ComboBox cbxMediaType;
         private System.Windows.Forms.PictureBox picboxGrab;
         private System.Windows.Forms.ComboBox cbxResolutionForWebcam;
         private System.Windows.Forms.Label label21;
@@ -2035,6 +1997,15 @@ namespace DotNet_TWAIN_Demo
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Label lbCloseAnnotations;
+        private System.Windows.Forms.Panel panelAnnotations;
+        private System.Windows.Forms.PictureBox picboxTitle;
+        private System.Windows.Forms.PictureBox picboxDeleteAnnotationA;
+        private System.Windows.Forms.PictureBox picboxEllipseA;
+        private System.Windows.Forms.PictureBox picboxRectangleA;
+        private System.Windows.Forms.PictureBox picboxTextA;
+        private System.Windows.Forms.PictureBox picboxLineA;
+        private Dynamsoft.Forms.DSViewer dsViewer;
     }
 }
 

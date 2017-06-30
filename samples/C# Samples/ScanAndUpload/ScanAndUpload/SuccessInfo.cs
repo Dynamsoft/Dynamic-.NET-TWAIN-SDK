@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace ScanAndUploadToDB
+namespace ScanAndUpload
 {
     public partial class SuccessInfo : Form
     {
@@ -21,7 +21,7 @@ namespace ScanAndUploadToDB
         private void SuccessInfo_Load(object sender, EventArgs e)
         {
             if (m_strImageName.Length > 15)
-                this.lblInfo.Text = m_strImageName.Substring(0, 5) + "..." + m_strImageName.Substring(m_strImageName.Length -7, 7) + " successfully uploaded to www.dynamsoft.com. It can be accessed at ";
+                this.lblInfo.Text = m_strImageName.Substring(0, 5) + "..." + m_strImageName.Substring(m_strImageName.Length - 7, 7) + " successfully uploaded to www.dynamsoft.com. It can be accessed at ";
             else
                 this.lblInfo.Text = m_strImageName + " successfully uploaded to www.dynamsoft.com. It can be accessed at ";
             this.lblLink.Text = "http://www.dynamsoft.com/demo/DNT/online_demo_list.aspx";

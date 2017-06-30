@@ -1,138 +1,108 @@
-Public Class Form1
-    Inherits System.Windows.Forms.Form
+Imports System.Collections.Generic
+Imports System.ComponentModel
+Imports System.Data
+Imports System.Drawing
+Imports System.Text
+Imports System.Windows.Forms
+Imports Dynamsoft.TWAIN
+Imports Dynamsoft.Core
+Imports Dynamsoft.TWAIN.Enums
+Imports Dynamsoft.TWAIN.Interface
+Imports System.IO
+Imports System.Runtime.InteropServices
 
-    Dim strFileName As String
+Partial Public Class Form1
+    Inherits Form
+    Implements IAcquireCallback
+    Private m_TwainManager As TwainManager = Nothing
+    Private m_ImageCore As ImageCore = Nothing
+    Private strFileName As String
 
-#Region " Windows Form Designer generated code "
+    Private m_StrProductKey As String
 
     Public Sub New()
-        MyBase.New()
-
-        'This call is required by the Windows Form Designer.
         InitializeComponent()
-        Me.dynamicDotNetTwain.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E"
-        Me.dynamicDotNetTwain.ScanInNewProcess = True
-
-        'Add any initialization after the InitializeComponent() call
-
-    End Sub
-
-    'Form overrides dispose to clean up the component list.
-    Protected Overloads Overrides Sub Dispose(ByVal disposing As Boolean)
-        If disposing Then
-            If Not (components Is Nothing) Then
-                components.Dispose()
-            End If
-        End If
-        MyBase.Dispose(disposing)
-    End Sub
-
-    'Required by the Windows Form Designer
-    Private components As System.ComponentModel.IContainer
-
-    'NOTE: The following procedure is required by the Windows Form Designer
-    'It can be modified using the Windows Form Designer.  
-    'Do not modify it using the code editor.
-    Friend WithEvents btnSelectSource As System.Windows.Forms.Button
-    Friend WithEvents dlgFileSave As System.Windows.Forms.SaveFileDialog
-    Friend WithEvents SaveFileDialog1 As System.Windows.Forms.SaveFileDialog
-    Friend WithEvents btnAcquire As System.Windows.Forms.Button
-    Friend WithEvents dynamicDotNetTwain As Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain
-
-    <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
-        Me.btnSelectSource = New System.Windows.Forms.Button
-        Me.dlgFileSave = New System.Windows.Forms.SaveFileDialog
-        Me.btnAcquire = New System.Windows.Forms.Button
-        Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog
-        Me.dynamicDotNetTwain = New Dynamsoft.DotNet.TWAIN.DynamicDotNetTwain
-        Me.SuspendLayout()
-        '
-        'btnSelectSource
-        '
-        Me.btnSelectSource.Location = New System.Drawing.Point(10, 370)
-        Me.btnSelectSource.Name = "btnSelectSource"
-        Me.btnSelectSource.Size = New System.Drawing.Size(105, 26)
-        Me.btnSelectSource.TabIndex = 4
-        Me.btnSelectSource.Text = "Select Source"
-        '
-        'dlgFileSave
-        '
-        Me.dlgFileSave.DefaultExt = "bmp"
-        Me.dlgFileSave.FileName = "dynamicDotNetTwain"
-        Me.dlgFileSave.Filter = "Bitmap File(*.bmp)|*.bmp"
-        '
-        'btnAcquire
-        '
-        Me.btnAcquire.Location = New System.Drawing.Point(134, 370)
-        Me.btnAcquire.Name = "btnAcquire"
-        Me.btnAcquire.Size = New System.Drawing.Size(96, 26)
-        Me.btnAcquire.TabIndex = 5
-        Me.btnAcquire.Text = "Acquire"
-        '
-        'dynamicDotNetTwain
-        '
-        Me.dynamicDotNetTwain.Location = New System.Drawing.Point(10, 13)
-        Me.dynamicDotNetTwain.Name = "dynamicDotNetTwain"
-        Me.dynamicDotNetTwain.Size = New System.Drawing.Size(412, 351)
-        Me.dynamicDotNetTwain.TabIndex = 6
-        '
-        'Form1
-        '
-        Me.AutoScaleBaseSize = New System.Drawing.Size(6, 14)
-        Me.ClientSize = New System.Drawing.Size(432, 406)
-        Me.Controls.Add(Me.dynamicDotNetTwain)
-        Me.Controls.Add(Me.btnAcquire)
-        Me.Controls.Add(Me.btnSelectSource)
-	Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
-        Me.MaximizeBox = False
-        Me.Name = "Form1"
-        Me.Text = "Acquire Image with Disk File Mode"
-        Me.ResumeLayout(False)
+        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_ImageCore = New ImageCore()
+        m_TwainManager = New TwainManager(m_StrProductKey)
+        dsViewer1.Bind(m_ImageCore)
 
     End Sub
 
-#End Region
 
-    Private Sub btnSelectSource_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSelectSource.Click
-        dynamicDotNetTwain.SelectSource()
 
+
+    Private Sub btnSelectSource_Click(sender As Object, e As System.EventArgs)
+        Dim tempList As New List(Of String)()
+        For i As Integer = 0 To m_TwainManager.SourceCount - 1
+            tempList.Add(m_TwainManager.SourceNameItems(CShort(i)))
+        Next
+        Dim temp As New SourceListForm(tempList)
+        temp.ShowDialog()
+        Dim iSelectSource As Integer = temp.GetSelectedIndex()
+        m_TwainManager.SelectSourceByIndex(CShort(iSelectSource))
     End Sub
 
-    Private Sub btnAcquire_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAcquire.Click
-        If dlgFileSave.ShowDialog() = Windows.Forms.DialogResult.Cancel Then
-            Exit Sub
+
+    Private Sub btnAcquire_Click(sender As Object, e As System.EventArgs)
+        If dlgFileSave.ShowDialog() = DialogResult.Cancel Then
+            Return
         End If
 
         strFileName = dlgFileSave.FileName
 
-        dynamicDotNetTwain.OpenSource()
+        m_TwainManager.OpenSource()
 
-        dynamicDotNetTwain.TransferMode = Dynamsoft.DotNet.TWAIN.Enums.TWICapSetupXFer.TWSX_FILE
+        Try
+            m_TwainManager.TransferMode = Dynamsoft.TWAIN.Enums.TWICapSetupXFer.TWSX_FILE
+        Catch ex As Exception
+            MessageBox.Show("The license for TWAIN module is invalid. Please contact support@dynamsoft.com to get a trial license.")
+        End Try
+
 
         'Since the TWSX_FILE mode is not required by TWAIN specification,
         'it is better to read the value back to see if the File transfer mode is supported by the Source
-        If dynamicDotNetTwain.TransferMode = Dynamsoft.DotNet.TWAIN.Enums.TWICapSetupXFer.TWSX_FILE Then 'the source supports the TWSX_FILE transfer mode.
-            dynamicDotNetTwain.SetFileXFERInfo(strFileName, Dynamsoft.DotNet.TWAIN.Enums.TWICapFileFormat.TWFF_BMP)       'Sets file name and file format information
-            dynamicDotNetTwain.IfShowUI = False
-            dynamicDotNetTwain.IfDisableSourceAfterAcquire = True
-            dynamicDotNetTwain.EnableSource()     'Acquire the image.
-        Else                       'the source doesn't support the TWSX_FILE transfer mode.
+        If m_TwainManager.TransferMode = Dynamsoft.TWAIN.Enums.TWICapSetupXFer.TWSX_FILE Then
+            'the source supports the TWSX_FILE transfer mode.
+            m_TwainManager.SetFileXFERInfo(strFileName, Dynamsoft.TWAIN.Enums.TWICapFileFormat.TWFF_BMP)
+            'Sets file name and file format information.
+            m_TwainManager.IfShowUI = False
+            m_TwainManager.IfDisableSourceAfterAcquire = True
+            'Acquire the image.
+            m_TwainManager.EnableSource(TryCast(Me, IAcquireCallback))
+        Else
+            'the source doesn't support the TWSX_FILE transfer mode.
             MessageBox.Show("The source doesn't support the DiskFile transfer mode.")
         End If
 
+
     End Sub
 
-    'Private Sub dynamicDotNetTwain_OnPostTransfer(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles dynamicDotNetTwain.OnPostTransfer
+    Public Sub OnPostAllTransfers() Implements IAcquireCallback.OnPostAllTransfers
+        m_ImageCore.IO.LoadImage(strFileName)
+    End Sub
 
-    '    dynamicDotNetTwain.CloseSource()
+    Public Function OnPostTransfer(bit As Bitmap) As Boolean Implements IAcquireCallback.OnPostTransfer
+        Return True
+    End Function
 
-    '    dynamicDotNetTwain.LoadImage(strFileName)
+    Public Sub OnPreAllTransfers() Implements IAcquireCallback.OnPreAllTransfers
+    End Sub
 
-    'End Sub
+    Public Function OnPreTransfer() As Boolean Implements IAcquireCallback.OnPreTransfer
+        Return True
+    End Function
 
-    Private Sub dynamicDotNetTwain_OnPostTransfer() Handles dynamicDotNetTwain.OnPostTransfer
-        dynamicDotNetTwain.CloseSource()
+    Public Sub OnSourceUIClose() Implements IAcquireCallback.OnSourceUIClose
+    End Sub
 
-        dynamicDotNetTwain.LoadImage(strFileName)
+    Public Sub OnTransferCancelled() Implements IAcquireCallback.OnTransferCancelled
+    End Sub
+
+    Public Sub OnTransferError() Implements IAcquireCallback.OnTransferError
+    End Sub
+
+    Private Sub Form1_FormClosed(sender As Object, e As FormClosedEventArgs)
+        m_TwainManager.Dispose()
     End Sub
 End Class

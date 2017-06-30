@@ -1,64 +1,73 @@
-﻿using System;
+using Dynamsoft.TWAIN;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Dynamsoft.TWAIN.Interface;
+using Dynamsoft.Core;
+using Dynamsoft.PDF;
+using Dynamsoft.Core.Enums;
+using System.IO;
+using System.Runtime.InteropServices;
 
-namespace ScanAndUploadToDB
+
+
+namespace ScanAndUpload
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form,IAcquireCallback,ISave
     {
+        private TwainManager m_TwainManager = null;
+        private ImageCore m_ImageCore = null;
         string m_strServerName = "www.dynamsoft.com";
         string m_strPort = "80";
         string m_strActionPage = "/demo/DNT/SaveToDB.aspx";
+        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
 
         public Form1()
         {
             InitializeComponent();
-            this.dynamicDotNetTwain1.LicenseKeys = "83C721A603BF5301ABCF850504F7B744;83C721A603BF5301AC7A3AA0DF1D92E6;83C721A603BF5301E22CBEC2DD20B511;83C721A603BF5301977D72EA5256A044;83C721A603BF53014332D52C75036F9E;83C721A603BF53010090AB799ED7E55E";
+            m_TwainManager = new TwainManager(m_StrProductKey);
+            m_ImageCore = new ImageCore();
+            dsViewer1.Bind(m_ImageCore);
             this.txtboxServer.Text = m_strServerName;
             this.txtboxPort.Text = m_strPort;
             this.txtboxActionPage.Text = m_strActionPage;
             this.txtboxFileName.Text = "DNT_Image";
             this.rdbtnJPEG.Checked = true;
             this.chkboxMultiPage.Enabled = false;
-            
-            dynamicDotNetTwain1.ScanInNewProcess = true;
-            dynamicDotNetTwain1.SupportedDeviceType = Dynamsoft.DotNet.TWAIN.Enums.EnumSupportedDeviceType.SDT_ALL; // enable capturing images from both scanners and webcams
+
             int lngNum;
-            dynamicDotNetTwain1.OpenSourceManager();
-            for (lngNum = 0; lngNum < dynamicDotNetTwain1.SourceCount; lngNum++)
+            m_TwainManager.OpenSourceManager();
+            for (lngNum = 0; lngNum < m_TwainManager.SourceCount; lngNum++)
             {
-                cmbSource.Items.Add(dynamicDotNetTwain1.SourceNameItems(Convert.ToInt16(lngNum))); // display the available imaging devices
+                cmbSource.Items.Add(m_TwainManager.SourceNameItems(Convert.ToInt16(lngNum))); // display the available imaging devices
             }
             if (lngNum > 0)
-                cmbSource.SelectedIndex = 0;   
+                cmbSource.SelectedIndex = 0;
         }
+
 
         private void btnScan_Click(object sender, EventArgs e)
         {
-            dynamicDotNetTwain1.IfAppendImage = true;
-            AcquireImage(); // acquire images
+            m_ImageCore.ImageBuffer.IfAppendImage = true;
+            AcquireImage();
         }
 
         private void AcquireImage()
         {
-            try { 
-                dynamicDotNetTwain1.SelectSourceByIndex(Convert.ToInt16(cmbSource.SelectedIndex));
-                dynamicDotNetTwain1.IfShowUI = chkboxIfShowUI.Checked;
-                dynamicDotNetTwain1.OpenSource();
-                dynamicDotNetTwain1.IfDisableSourceAfterAcquire = true;
-            
-                dynamicDotNetTwain1.IfShowUI = chkboxIfShowUI.Checked;
+            try
+            {
+                m_TwainManager.SelectSourceByIndex(Convert.ToInt16(cmbSource.SelectedIndex));
+                m_TwainManager.IfShowUI = chkboxIfShowUI.Checked;
+                m_TwainManager.OpenSource();
+                m_TwainManager.IfDisableSourceAfterAcquire = true;
 
-                bool result = dynamicDotNetTwain1.AcquireImage();
-                if (!result || dynamicDotNetTwain1.ErrorCode != 0)
-                {
-                    this.txtboxErrMessage.AppendText(dynamicDotNetTwain1.ErrorString);
-                    this.txtboxErrMessage.AppendText("\r\n");
-                }
+                m_TwainManager.IfShowUI = chkboxIfShowUI.Checked;
+                m_TwainManager.AcquireImage(this as IAcquireCallback);
+
             }
             catch (Exception exp)
             {
@@ -70,14 +79,13 @@ namespace ScanAndUploadToDB
 
         private void dynamicDotNetTwain1_OnMouseClick(short sImageIndex)
         {
-            dynamicDotNetTwain1.CurrentImageIndexInBuffer = sImageIndex;       
+            m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer = sImageIndex;
         }
 
         private void btnUpload_Click(object sender, EventArgs e)
         {
             try
             {
-                dynamicDotNetTwain1.IfShowCancelDialogWhenImageTransfer = true;
                 string strImageName = "";
                 string strHTTPServer = this.txtboxServer.Text; // the name or the IP of your HTTP Server
                 if (strHTTPServer == "")
@@ -94,7 +102,7 @@ namespace ScanAndUploadToDB
                 {
                     try
                     {
-                        dynamicDotNetTwain1.HTTPPort = int.Parse(txtboxPort.Text); //the port number of the HTTP Server
+                        m_ImageCore.Net.HTTPPort = int.Parse(txtboxPort.Text); //the port number of the HTTP Server
                     }
                     catch
                     {
@@ -115,59 +123,62 @@ namespace ScanAndUploadToDB
                     return;
                 }
 
-                dynamicDotNetTwain1.HTTPUserName = this.txtboxName.Text; //user name for logging into HTTP Server
-                dynamicDotNetTwain1.HTTPPassword = this.txtboxPwd.Text;
-                dynamicDotNetTwain1.SetHTTPFormField("ExtraTxt", this.txtboxExtraTxt.Text); // pass extra text parameters when uploading image
+                m_ImageCore.Net.HTTPUserName = this.txtboxName.Text; //user name for logging into HTTP Server
+                m_ImageCore.Net.HTTPPassword = this.txtboxPwd.Text;
+                m_ImageCore.Net.SetHTTPFormField("ExtraTxt", this.txtboxExtraTxt.Text); // pass extra text parameters when uploading image
 
+
+                List<short> tempImageIndexList = new List<short>();
+                tempImageIndexList.Add(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
                 if (rdbtnJPEG.Checked)
                 {
                     strImageName = strFileName + ".jpg";
-                    bool c = dynamicDotNetTwain1.HTTPUploadThroughPostEx(strHTTPServer, dynamicDotNetTwain1.CurrentImageIndexInBuffer, strActionPage, strImageName, Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_JPG);
+
+                    m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer,strActionPage, strImageName,tempImageIndexList,Dynamsoft.Core.Enums.EnumImageFileFormat.WEBTW_JPG);
                 }
                 if (rdbtnPNG.Checked)
                 {
                     strImageName = strFileName + ".png";
-                    dynamicDotNetTwain1.HTTPUploadThroughPostEx(strHTTPServer, dynamicDotNetTwain1.CurrentImageIndexInBuffer, strActionPage, strImageName, Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_PNG);
+                    m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName,tempImageIndexList, Dynamsoft.Core.Enums.EnumImageFileFormat.WEBTW_PNG);
                 }
                 if (rdbtnPDF.Checked)
                 {
                     strImageName = strFileName + ".pdf";
-                    if (chkboxMultiPage.Checked)
-                        dynamicDotNetTwain1.HTTPUploadAllThroughPostAsPDF(strHTTPServer, strActionPage, strImageName); // save the captured images as a multi-page PDF file
-                    else
-                        dynamicDotNetTwain1.HTTPUploadThroughPostEx(strHTTPServer, dynamicDotNetTwain1.CurrentImageIndexInBuffer, strActionPage, strImageName, Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_PDF);
+                    PDFCreator tempCreator = new PDFCreator(m_StrProductKey);
+                        Byte[] tempPDFBytes = tempCreator.SaveAsBytes(this as ISave);
+                        m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName,tempPDFBytes);
                 }
                 if (rdbtnTIFF.Checked)
                 {
                     strImageName = strFileName + ".tif";
                     if (chkboxMultiPage.Checked)
-                        dynamicDotNetTwain1.HTTPUploadAllThroughPostAsMultiPageTIFF(strHTTPServer, strActionPage, strImageName);
+                    {
+                        tempImageIndexList.Clear();
+                        for(short i = 0;i<m_ImageCore.ImageBuffer.HowManyImagesInBuffer;i++)
+                        {
+                            tempImageIndexList.Add(i);
+                        }
+                        m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName,tempImageIndexList, Dynamsoft.Core.Enums.EnumImageFileFormat.WEBTW_TIF);
+                    }
                     else
-                        dynamicDotNetTwain1.HTTPUploadThroughPostEx(strHTTPServer, dynamicDotNetTwain1.CurrentImageIndexInBuffer, strActionPage, strImageName, Dynamsoft.DotNet.TWAIN.Enums.DWTImageFileFormat.WEBTW_TIF);
+                    {
+                        m_ImageCore.Net.HTTPUploadThroughPost(strHTTPServer, strActionPage, strImageName, tempImageIndexList, Dynamsoft.Core.Enums.EnumImageFileFormat.WEBTW_TIF);
+                    }
                 }
-
-                if (dynamicDotNetTwain1.ErrorCode != Dynamsoft.DotNet.TWAIN.Enums.ErrorCode.Succeed)
+                if (m_ImageCore.Net.HTTPPostResponseString == "")
                 {
-                    this.txtboxErrMessage.Text += dynamicDotNetTwain1.ErrorString;
-                    this.txtboxErrMessage.Text += "\r\n";
+                    this.txtboxErrMessage.AppendText("Image uploaded to DB successfully. \r\n");
+                    if (strHTTPServer.Trim().ToLower().CompareTo(m_strServerName.Trim().ToLower()) == 0 &&
+                       txtboxPort.Text.Trim().ToLower().CompareTo(m_strPort.Trim().ToLower()) == 0 &&
+                       strActionPage.Trim().ToLower().CompareTo(m_strActionPage.Trim().ToLower()) == 0)
+                    {
+                        SuccessInfo objSuccessInfo = new SuccessInfo(strImageName);
+                        objSuccessInfo.ShowDialog();
+                    }
                 }
                 else
                 {
-                    if (dynamicDotNetTwain1.HTTPPostResponseString == "")
-                    {
-                        this.txtboxErrMessage.AppendText("Image uploaded to DB successfully. \r\n");
-                        if (strHTTPServer.Trim().ToLower().CompareTo(m_strServerName.Trim().ToLower()) == 0 &&
-                           txtboxPort.Text.Trim().ToLower().CompareTo(m_strPort.Trim().ToLower()) == 0 &&
-                           strActionPage.Trim().ToLower().CompareTo(m_strActionPage.Trim().ToLower()) == 0)
-                        {
-                            SuccessInfo objSuccessInfo = new SuccessInfo(strImageName);
-                            objSuccessInfo.ShowDialog();
-                        }
-                    }
-                    else
-                    {
-                        this.txtboxErrMessage.AppendText("Image uploaded to DB unsuccessfully. You can check DynamicDotNetTwain.HTTPPostResponseString for more information. \r\n");
-                    }
+                    this.txtboxErrMessage.AppendText("Image uploaded to DB unsuccessfully. You can check DynamicDotNetTwain.HTTPPostResponseString for more information. \r\n");
                 }
             }
             catch (Exception exp)
@@ -205,14 +216,6 @@ namespace ScanAndUploadToDB
             }
         }
 
-        private void dynamicDotNetTwain1_OnPostTransfer()
-        {
-            if (dynamicDotNetTwain1.ErrorCode == 0)
-            {
-                this.txtboxErrMessage.AppendText("Image acquired successfully. \r\n");
-            }
-        }
-
         private void txtboxServer_TextChanged(object sender, EventArgs e)
         {
             string strHTTPServer = this.txtboxServer.Text;
@@ -222,5 +225,67 @@ namespace ScanAndUploadToDB
                 lbNote.Visible = false;
         }
 
+        public void OnPostAllTransfers()
+        {
+        }
+
+        public bool OnPostTransfer(Bitmap bit)
+        {
+            m_ImageCore.IO.LoadImage(bit);
+            this.txtboxErrMessage.AppendText("Image acquired successfully. \r\n");
+            return true;
+        }
+
+        public void OnPreAllTransfers()
+        {
+        }
+
+        public bool OnPreTransfer()
+        {
+            return true;
+        }
+
+        public void OnSourceUIClose()
+        {
+        }
+
+        public void OnTransferCancelled()
+        {
+        }
+
+        public void OnTransferError()
+        {
+        }
+
+        public object GetAnnotations(int iPageNumber)
+        {
+            if (chkboxMultiPage.Checked)
+                return m_ImageCore.ImageBuffer.GetMetaData((short)iPageNumber, EnumMetaDataType.enumAnnotation);
+            else
+                return m_ImageCore.ImageBuffer.GetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer,EnumMetaDataType.enumAnnotation);
+
+        }
+
+        public Bitmap GetImage(int iPageNumber)
+        {
+            if (chkboxMultiPage.Checked)
+                return m_ImageCore.ImageBuffer.GetBitmap((short)iPageNumber);
+            else
+                return m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
+
+        }
+
+        public int GetPageCount()
+        {
+            if (chkboxMultiPage.Checked)
+                return m_ImageCore.ImageBuffer.HowManyImagesInBuffer;
+            else
+                return 1;
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.m_TwainManager.Dispose();
+        }
     }
 }
