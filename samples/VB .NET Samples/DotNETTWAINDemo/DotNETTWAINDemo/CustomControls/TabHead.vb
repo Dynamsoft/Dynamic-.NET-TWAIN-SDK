@@ -60,14 +60,14 @@ Class TabHead
 			m_enumState = value
 			If value = TabHeadState.SELECTED Then
 				If m_bMultiTabHead Then
-					Image = My.Resources.small_arrow_up
-				Else
-                    Image = My.Resources.big_arrow_up
+                    Image = small_arrow_up
+                Else
+                    Image = big_arrow_up
                 End If
             ElseIf m_bMultiTabHead Then
-                Image = My.Resources.small_arrow_down
+                Image = small_arrow_down
             Else
-                Image = My.Resources.big_arrow_down
+                Image = big_arrow_down
 			End If
 			Invalidate()
 		End Set

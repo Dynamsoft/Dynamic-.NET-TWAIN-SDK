@@ -63,15 +63,18 @@ Partial Public Class DotNetTWAINDemo
     Private m_PDFRasterizer As PDFRasterizer = Nothing
     Private m_PDFCreator As PDFCreator = Nothing
     Private m_Tesseract As Tesseract = Nothing
-    Private m_BarcodeReader As BarcodeReader = Nothing
+    Private m_BarcodeReader As BarcodeReader
     Private m_BarcodeGenerator As BarcodeGenerator = Nothing
 
     Private m_Camera As Camera = Nothing
 
+    Private mBarcodeType As String() = {"All_DEFAULT", "OneD_DEFAULT", "QR_CODE_DEFAULT", "PDF417_DEFAULT", "DATAMATRIX_DEFAULT", "CODE_39_DEFAULT", "CODE_128_DEFAULT", "CODE_93_DEFAULT", "CODABAR_DEFAULT", "ITF_DEFAULT", "INDUSTRIAL_25_DEFAULT", "EAN_13_DEFAULT", "EAN_8_DEFAULT", "UPC_A_DEFAULT", "UPC_E_DEFAULT"}
+    Private mBarcodeFormat As String = "All_DEFAULT"
+
     Public Sub New()
         InitializeComponent()
         InitializeComponentForCustomControl()
-        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
         m_TwainManager = New TwainManager(m_StrProductKey)
         m_ImageCore = New ImageCore()
         m_CameraManager = New CameraManager(m_StrProductKey)
@@ -111,7 +114,7 @@ Partial Public Class DotNetTWAINDemo
         ' roundedRectanglePanelSaveImage
         ' 
         Me.roundedRectanglePanelSaveImage.AutoSize = True
-        Me.roundedRectanglePanelSaveImage.BackgroundImage = DirectCast(My.Resources.ResourceManager.GetObject("roundedRectanglePanelSaveImage.BackgroundImage"), System.Drawing.Image)
+        Me.roundedRectanglePanelSaveImage.BackgroundImage = DirectCast(ResourceManager.GetObject("roundedRectanglePanelSaveImage.BackgroundImage"), System.Drawing.Image)
         Me.roundedRectanglePanelSaveImage.Controls.Add(Me.panelSaveImage)
         Me.roundedRectanglePanelSaveImage.Controls.Add(Me.thSaveImage)
         Me.roundedRectanglePanelSaveImage.Location = New System.Drawing.Point(12, 904)
@@ -124,7 +127,7 @@ Partial Public Class DotNetTWAINDemo
         ' 
         Me.roundedRectanglePanelAcquireLoad.AutoSize = True
         Me.roundedRectanglePanelAcquireLoad.BackColor = System.Drawing.SystemColors.Control
-        Me.roundedRectanglePanelAcquireLoad.BackgroundImage = DirectCast(My.Resources.ResourceManager.GetObject("roundedRectanglePanelAcquireLoad.BackgroundImage"), System.Drawing.Image)
+        Me.roundedRectanglePanelAcquireLoad.BackgroundImage = DirectCast(ResourceManager.GetObject("roundedRectanglePanelAcquireLoad.BackgroundImage"), System.Drawing.Image)
         Me.roundedRectanglePanelAcquireLoad.Controls.Add(Me.panelLoad)
         Me.roundedRectanglePanelAcquireLoad.Controls.Add(Me.panelAcquire)
         Me.roundedRectanglePanelAcquireLoad.Controls.Add(Me.thLoadImage)
@@ -139,7 +142,7 @@ Partial Public Class DotNetTWAINDemo
         ' roundedRectanglePanelBarcode
         ' 
         Me.roundedRectanglePanelBarcode.AutoSize = True
-        Me.roundedRectanglePanelBarcode.BackgroundImage = DirectCast(My.Resources.ResourceManager.GetObject("roundedRectanglePanelBarcode.BackgroundImage"), System.Drawing.Image)
+        Me.roundedRectanglePanelBarcode.BackgroundImage = DirectCast(ResourceManager.GetObject("roundedRectanglePanelBarcode.BackgroundImage"), System.Drawing.Image)
         Me.roundedRectanglePanelBarcode.Controls.Add(Me.panelAddBarcode)
         Me.roundedRectanglePanelBarcode.Controls.Add(Me.panelReadBarcode)
         Me.roundedRectanglePanelBarcode.Controls.Add(Me.thAddBarcode)
@@ -154,7 +157,7 @@ Partial Public Class DotNetTWAINDemo
         ' roundedRectanglePanelOCR
         ' 
         Me.roundedRectanglePanelOCR.AutoSize = True
-        Me.roundedRectanglePanelOCR.BackgroundImage = DirectCast(My.Resources.ResourceManager.GetObject("roundedRectanglePanelOCR.BackgroundImage"), System.Drawing.Image)
+        Me.roundedRectanglePanelOCR.BackgroundImage = DirectCast(ResourceManager.GetObject("roundedRectanglePanelOCR.BackgroundImage"), System.Drawing.Image)
         Me.roundedRectanglePanelOCR.Controls.Add(Me.panelOCR)
         Me.roundedRectanglePanelOCR.Controls.Add(Me.thOCR)
         Me.roundedRectanglePanelOCR.Location = New System.Drawing.Point(12, 668)
@@ -167,7 +170,7 @@ Partial Public Class DotNetTWAINDemo
         ' thSaveImage
         ' 
         Me.thSaveImage.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.thSaveImage.Image = DirectCast(My.Resources.ResourceManager.GetObject("thSaveImage.Image"), System.Drawing.Image)
+        Me.thSaveImage.Image = DirectCast(ResourceManager.GetObject("thSaveImage.Image"), System.Drawing.Image)
         Me.thSaveImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.thSaveImage.Index = 5
         Me.thSaveImage.Location = New System.Drawing.Point(1, 1)
@@ -184,7 +187,7 @@ Partial Public Class DotNetTWAINDemo
         ' thOCR
         ' 
         Me.thOCR.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.thOCR.Image = DirectCast(My.Resources.ResourceManager.GetObject("thOCR.Image"), System.Drawing.Image)
+        Me.thOCR.Image = DirectCast(ResourceManager.GetObject("thOCR.Image"), System.Drawing.Image)
         Me.thOCR.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.thOCR.Index = 4
         Me.thOCR.Location = New System.Drawing.Point(1, 1)
@@ -202,7 +205,7 @@ Partial Public Class DotNetTWAINDemo
         ' 
         Me.thAddBarcode.BackColor = System.Drawing.Color.Transparent
         Me.thAddBarcode.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.thAddBarcode.Image = DirectCast(My.Resources.ResourceManager.GetObject("thAddBarcode.Image"), System.Drawing.Image)
+        Me.thAddBarcode.Image = DirectCast(ResourceManager.GetObject("thAddBarcode.Image"), System.Drawing.Image)
         Me.thAddBarcode.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.thAddBarcode.Index = 3
         Me.thAddBarcode.Location = New System.Drawing.Point(125, 1)
@@ -220,7 +223,7 @@ Partial Public Class DotNetTWAINDemo
         ' 
         Me.thReadBarcode.BackColor = System.Drawing.Color.Transparent
         Me.thReadBarcode.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.thReadBarcode.Image = DirectCast(My.Resources.ResourceManager.GetObject("thReadBarcode.Image"), System.Drawing.Image)
+        Me.thReadBarcode.Image = DirectCast(ResourceManager.GetObject("thReadBarcode.Image"), System.Drawing.Image)
         Me.thReadBarcode.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.thReadBarcode.Index = 2
         Me.thReadBarcode.Location = New System.Drawing.Point(1, 1)
@@ -238,7 +241,7 @@ Partial Public Class DotNetTWAINDemo
         ' 
         Me.thLoadImage.BackColor = System.Drawing.Color.Transparent
         Me.thLoadImage.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.thLoadImage.Image = DirectCast(My.Resources.ResourceManager.GetObject("thLoadImage.Image"), System.Drawing.Image)
+        Me.thLoadImage.Image = DirectCast(ResourceManager.GetObject("thLoadImage.Image"), System.Drawing.Image)
         Me.thLoadImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.thLoadImage.Index = 1
         Me.thLoadImage.Location = New System.Drawing.Point(125, 1)
@@ -256,7 +259,7 @@ Partial Public Class DotNetTWAINDemo
         ' 
         Me.thAcquireImage.BackColor = System.Drawing.Color.Transparent
         Me.thAcquireImage.Font = New System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.thAcquireImage.Image = DirectCast(My.Resources.ResourceManager.GetObject("thAcquireImage.Image"), System.Drawing.Image)
+        Me.thAcquireImage.Image = DirectCast(ResourceManager.GetObject("thAcquireImage.Image"), System.Drawing.Image)
         Me.thAcquireImage.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.thAcquireImage.Index = 0
         Me.thAcquireImage.Location = New System.Drawing.Point(1, 1)
@@ -284,6 +287,7 @@ Partial Public Class DotNetTWAINDemo
 
     Protected Sub Initialization()
         Dim strOCRTessDataFolder As String = Nothing
+        Dim mSettingPath As String = Nothing
         Dim strTempFolder As String = Application.ExecutablePath
         strTempFolder = strTempFolder.Replace("/", "\")
         If Not strTempFolder.EndsWith("\", False, System.Globalization.CultureInfo.CurrentCulture) Then
@@ -292,14 +296,21 @@ Partial Public Class DotNetTWAINDemo
         Dim pos As Integer = strTempFolder.LastIndexOf("\Samples\")
         If pos <> -1 Then
             strTempFolder = strTempFolder.Substring(0, strTempFolder.IndexOf("\", pos))
-            strOCRTessDataFolder = strTempFolder & "\Samples\Bin\"
+            strOCRTessDataFolder = strTempFolder & "\Samples\Bin\tessdata"
+            mSettingPath = strTempFolder & "\Samples\Bin\Templates\"
             strTempFolder = strTempFolder & "\Redistributable\Resources\"
         Else
             pos = strTempFolder.LastIndexOf("\")
-            strTempFolder = strTempFolder.Substring(0, strTempFolder.IndexOf("\", pos)) & "\"
-            strOCRTessDataFolder = strTempFolder
+            strTempFolder = strTempFolder.Substring(0, strTempFolder.IndexOf("\", pos)) & "\Bin\"
+            strOCRTessDataFolder = strTempFolder & "tessdata"
+            mSettingPath = strTempFolder & "Templates\"
         End If
         m_Tesseract.TessDataPath = strOCRTessDataFolder
+        Try
+            m_BarcodeReader.LoadSettingsFromFile(mSettingPath & "template_aggregation.json")
+        Catch
+            MessageBox.Show("Failed to load the settings file, please check the file path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
     Private Sub DotNetTWAINDemo_Load(sender As Object, e As EventArgs)
         InitUI()
@@ -409,25 +420,20 @@ Partial Public Class DotNetTWAINDemo
         'Read Barcode
         cbxBarcodeFormat.Items.Add("All")
         cbxBarcodeFormat.Items.Add("OneD")
+        cbxBarcodeFormat.Items.Add("QRCode")
+        cbxBarcodeFormat.Items.Add("PDF417")
+        cbxBarcodeFormat.Items.Add("Datamatrix")
         cbxBarcodeFormat.Items.Add("Code 39")
         cbxBarcodeFormat.Items.Add("Code 128")
         cbxBarcodeFormat.Items.Add("Code 93")
         cbxBarcodeFormat.Items.Add("Codabar")
         cbxBarcodeFormat.Items.Add("Interleaved 2 of 5")
+        cbxBarcodeFormat.Items.Add("Industrial 2 of 5")
         cbxBarcodeFormat.Items.Add("EAN-13")
         cbxBarcodeFormat.Items.Add("EAN-8")
         cbxBarcodeFormat.Items.Add("UPC-A")
         cbxBarcodeFormat.Items.Add("UPC-E")
-        cbxBarcodeFormat.Items.Add("PDF417")
-        cbxBarcodeFormat.Items.Add("QRCode")
-        cbxBarcodeFormat.Items.Add("Datamatrix")
-        cbxBarcodeFormat.Items.Add("Industrial 2 of 5")
         cbxBarcodeFormat.SelectedIndex = 0
-        Me.tbxMaxBarcodeReads.Text = "10"
-        Me.tbxLeft.Text = "0"
-        Me.tbxRight.Text = "0"
-        Me.tbxTop.Text = "0"
-        Me.tbxBottom.Text = "0"
 
         DisableControls(picboxReadBarcode)
 
@@ -498,7 +504,7 @@ Partial Public Class DotNetTWAINDemo
 
     Private Sub DrawBackground()
         ' Create a bitmap
-        Dim img As Bitmap = My.Resources.main_bg
+        Dim img As Bitmap = main_bg
         ' Set the form properties
         Size = New Size(img.Width, img.Height)
         BackgroundImage = New Bitmap(Width, Height)
@@ -597,7 +603,7 @@ Partial Public Class DotNetTWAINDemo
     Private Sub picbox_MouseEnter(sender As Object, e As EventArgs)
         If TypeOf sender Is PictureBox Then
             If TryCast(sender, PictureBox).Enabled = True Then
-                TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Enter"), Image)
+                TryCast(sender, PictureBox).Image = DirectCast(ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Enter"), Image)
             End If
         End If
     End Sub
@@ -605,7 +611,7 @@ Partial Public Class DotNetTWAINDemo
     Private Sub picbox_MouseDown(sender As Object, e As MouseEventArgs)
         If TypeOf sender Is PictureBox Then
             If TryCast(sender, PictureBox).Enabled = True Then
-                TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Down"), Image)
+                TryCast(sender, PictureBox).Image = DirectCast(ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Down"), Image)
             End If
         End If
     End Sub
@@ -613,7 +619,7 @@ Partial Public Class DotNetTWAINDemo
     Private Sub picbox_MouseLeave(sender As Object, e As EventArgs)
         If TypeOf sender Is PictureBox Then
             If TryCast(sender, PictureBox).Enabled = True Then
-                TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Leave"), Image)
+                TryCast(sender, PictureBox).Image = DirectCast(ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Leave"), Image)
                 infoLabel.Text = ""
                 infoLabel.Visible = False
             End If
@@ -623,7 +629,7 @@ Partial Public Class DotNetTWAINDemo
     Private Sub picbox_MouseUp(sender As Object, e As MouseEventArgs)
         If TypeOf sender Is PictureBox Then
             If TryCast(sender, PictureBox).Enabled = True Then
-                TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Enter"), Image)
+                TryCast(sender, PictureBox).Image = DirectCast(ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Enter"), Image)
             End If
         End If
 
@@ -638,7 +644,7 @@ Partial Public Class DotNetTWAINDemo
 
     Private Sub DisableControls(sender As Object)
         If TypeOf sender Is PictureBox Then
-            TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Disabled"), Image)
+            TryCast(sender, PictureBox).Image = DirectCast(ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Disabled"), Image)
             TryCast(sender, PictureBox).Enabled = False
         Else
             TryCast(sender, Control).Enabled = False
@@ -647,7 +653,7 @@ Partial Public Class DotNetTWAINDemo
 
     Private Sub EnableControls(sender As Object)
         If TypeOf sender Is PictureBox Then
-            TryCast(sender, PictureBox).Image = DirectCast(My.Resources.ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Leave"), Image)
+            TryCast(sender, PictureBox).Image = DirectCast(ResourceManager.GetObject(TryCast(sender, PictureBox).Name & "_Leave"), Image)
             TryCast(sender, PictureBox).Enabled = True
         Else
             TryCast(sender, Control).Enabled = True
@@ -1213,8 +1219,6 @@ Partial Public Class DotNetTWAINDemo
             DisableControls(picboxPrevious)
             DisableControls(picboxNext)
         End If
-
-        ShowSelectedImageArea()
     End Sub
 
     Private Sub cbxLayout_SelectedIndexChanged(sender As Object, e As EventArgs)
@@ -1354,7 +1358,7 @@ Partial Public Class DotNetTWAINDemo
         openFileDialog.Filter = "All Support Files|*.JPG;*.JPEG;*.JPE;*.JFIF;*.BMP;*.PNG;*.TIF;*.TIFF;*GIF;*.PDF|JPEG|*.JPG;*.JPEG;*.JPE;*.Jfif|BMP|*.BMP|PNG|*.PNG|TIFF|*.TIF;*.TIFF|GIF|*.GIF|PDF|*.PDF"
         openFileDialog.FilterIndex = 0
         openFileDialog.Multiselect = True
-
+        openFileDialog.FileName = ""
         If openFileDialog.ShowDialog() = DialogResult.OK Then
             For Each strFileName As String In openFileDialog.FileNames
 
@@ -1452,122 +1456,151 @@ Partial Public Class DotNetTWAINDemo
 #Region "Read Barcode"
 
     Private Sub picboxReadBarcode_Click(sender As Object, e As EventArgs)
-        ShowSelectedImageArea()
-        Dim iMaxBarcodesToRead As Integer = 0
-        Try
-            iMaxBarcodesToRead = Integer.Parse(tbxMaxBarcodeReads.Text)
-        Catch exp As Exception
-            MessageBox.Show(exp.Message, "Invalid input of MaxBarcodeReads", MessageBoxButtons.OK, MessageBoxIcon.[Error])
-            tbxMaxBarcodeReads.Focus()
-        End Try
-
         If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer < 0 Then
             MessageBox.Show("Please load an image before reading barcode!", "Index out of bounds", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Try
-            Dim reader As New BarcodeReader()
-            reader.LicenseKeys = m_StrProductKey
-            reader.ReaderOptions.MaxBarcodesToReadPerPage = iMaxBarcodesToRead
-            Select Case cbxBarcodeFormat.SelectedIndex
-                Case 0
-                    Exit Select
-                Case 1
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD
-                    Exit Select
-                Case 2
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39
-                    Exit Select
-                Case 3
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128
-                    Exit Select
-                Case 4
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93
-                    Exit Select
-                Case 5
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR
-                    Exit Select
-                Case 6
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF
-                    Exit Select
-                Case 7
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13
-                    Exit Select
-                Case 8
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8
-                    Exit Select
-                Case 9
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A
-                    Exit Select
-                Case 10
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E
-                    Exit Select
-                Case 11
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417
-                    Exit Select
-                Case 12
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE
-                    Exit Select
-                Case 13
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX
-                    Exit Select
-                Case 14
-                    reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25
-                    Exit Select
-            End Select
-            Dim aryResult As BarcodeResult() = Nothing
-            Dim rect As Rectangle = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
-            If rect = Rectangle.Empty Then
+            Dim bmp As Bitmap = CType((m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)), Bitmap)
+            Dim beforeRead As DateTime = DateTime.Now
+            Dim Templates As String() = m_BarcodeReader.GetAllParameterTemplateNames()
+            Dim bifcontian As Boolean = False
 
+            For i As Integer = 0 To Templates.Length - 1
 
+                If mBarcodeFormat = Templates(i) Then
+                    bifcontian = True
+                End If
+            Next
 
-                Dim iWidth As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width
-                Dim iHeight As Integer = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height
-                rect = New Rectangle(0, 0, iWidth, iHeight)
+            If Not bifcontian Then
+                MessageBox.Show(("Failed to find the template named " & mBarcodeFormat & "."), "Error", MessageBoxButtons.OK, MessageBoxIcon.[Error])
+                Return
             End If
 
+            Dim aryResult As TextResult() = m_BarcodeReader.DecodeBitmap(bmp, mBarcodeFormat)
+            Dim afterRead As DateTime = DateTime.Now
+            Dim timeElapsed As Integer = CInt((afterRead - beforeRead).TotalMilliseconds)
+            m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, Nothing, True)
 
-            reader.AddRegion(rect.Left, rect.Top, rect.Right, rect.Bottom, False)
-            aryResult = reader.DecodeBitmap(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer))
-            If aryResult Is Nothing Then
-                Dim strResult As String = "The barcode for selected format is not found." & vbCr & vbLf
-                MessageBox.Show(strResult, "Barcodes Results")
-            Else
-                Dim strResult As String = aryResult.Length & " total barcode found." & vbCr & vbLf
-                For i As Integer = 0 To aryResult.Length - 1
-                    strResult += [String].Format("Result {0}" & vbCr & vbLf & " Barcode Format: {1}    Barcode Text: {2}" & vbCr & vbLf, (i + 1), aryResult(i).BarcodeFormat, aryResult(i).BarcodeText)
+            If aryResult IsNot Nothing Then
+                Dim tempListAnnotation As List(Of AnnotationData) = New List(Of AnnotationData)()
+                Dim i As Integer
+                For i = 0 To aryResult.Length - 1
+                    Dim penColor As Color = Color.Red
+                    Dim rectAnnotation As AnnotationData = New AnnotationData()
+                    rectAnnotation.AnnotationType = AnnotationType.enumRectangle
+                    Dim boundingrect As Rectangle = ConvertLocationPointToRect(aryResult(i).LocalizationResult.ResultPoints)
+                    rectAnnotation.StartPoint = New Point(boundingrect.Left, boundingrect.Top)
+                    rectAnnotation.EndPoint = New Point((boundingrect.Left + boundingrect.Size.Width), (boundingrect.Top + boundingrect.Size.Height))
+                    rectAnnotation.FillColor = Color.Transparent.ToArgb()
+                    rectAnnotation.PenColor = penColor.ToArgb()
+                    rectAnnotation.PenWidth = 3
+                    rectAnnotation.GUID = Guid.NewGuid()
+                    Dim fsize As Single = bmp.Width / 48.0F
+                    If fsize < 25 Then fsize = 25
+                    Dim textFont As Font = New Font("Times New Roman", fsize, FontStyle.Bold)
+                    Dim strNo As String = "[" & (i + 1) & "]"
+                    Dim textSize As SizeF = Graphics.FromHwnd(IntPtr.Zero).MeasureString(strNo, textFont)
+                    Dim textAnnotation As AnnotationData = New AnnotationData()
+                    textAnnotation.AnnotationType = AnnotationType.enumText
+                    textAnnotation.StartPoint = New Point(boundingrect.Left, CInt((boundingrect.Top - textSize.Height * 1.25F)))
+                    textAnnotation.EndPoint = New Point((textAnnotation.StartPoint.X + CInt(textSize.Width) * 2), CInt((textAnnotation.StartPoint.Y + textSize.Height * 1.25F)))
+
+                    If textAnnotation.StartPoint.X < 0 Then
+                        textAnnotation.EndPoint = New Point((textAnnotation.EndPoint.X + textAnnotation.StartPoint.X), textAnnotation.EndPoint.Y)
+                        textAnnotation.StartPoint = New Point(0, textAnnotation.StartPoint.Y)
+                    End If
+
+                    If textAnnotation.StartPoint.Y < 0 Then
+                        textAnnotation.EndPoint = New Point(textAnnotation.EndPoint.X, (textAnnotation.EndPoint.Y - textAnnotation.StartPoint.Y))
+                        textAnnotation.StartPoint = New Point(textAnnotation.StartPoint.X, 0)
+                    End If
+
+                    textAnnotation.TextContent = strNo
+                    Dim tempFont As AnnoTextFont = New AnnoTextFont()
+                    tempFont.TextColor = Color.Blue.ToArgb()
+                    tempFont.Size = CInt(fsize)
+                    tempFont.Name = "Times New Roman"
+                    textAnnotation.FontType = tempFont
+                    textAnnotation.GUID = Guid.NewGuid()
+                    tempListAnnotation.Add(rectAnnotation)
+                    tempListAnnotation.Add(textAnnotation)
                 Next
 
-                MessageBox.Show(strResult, "Barcodes Results")
+                m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, tempListAnnotation, True)
             End If
+
+            Me.ShowResult(aryResult, timeElapsed)
         Catch exp As Exception
             MessageBox.Show(exp.Message, "Decoding error", MessageBoxButtons.OK, MessageBoxIcon.[Error])
         End Try
     End Sub
-
-    Private Sub ShowSelectedImageArea()
-        If m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0 Then
-            Dim recSelArea As Rectangle = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
-            Dim imgCurrent As Image = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer)
-            If recSelArea.IsEmpty Then
-                tbxLeft.Text = "0"
-                tbxRight.Text = imgCurrent.Width.ToString()
-                tbxTop.Text = "0"
-                tbxBottom.Text = imgCurrent.Height.ToString()
-            Else
-                tbxLeft.Text = If(recSelArea.Left < 0, "0", (If(recSelArea.Left > imgCurrent.Width, imgCurrent.Width.ToString(), recSelArea.Left.ToString())))
-                tbxRight.Text = If(recSelArea.Right < 0, "0", (If(recSelArea.Right > imgCurrent.Width, imgCurrent.Width.ToString(), recSelArea.Right.ToString())))
-                tbxTop.Text = If(recSelArea.Top < 0, "0", (If(recSelArea.Top > imgCurrent.Height, imgCurrent.Height.ToString(), recSelArea.Top.ToString())))
-                tbxBottom.Text = If(recSelArea.Bottom < 0, "0", (If(recSelArea.Bottom > imgCurrent.Height, imgCurrent.Height.ToString(), recSelArea.Bottom.ToString())))
-            End If
-        Else
-            tbxLeft.Text = "0"
-            tbxRight.Text = "0"
-            tbxTop.Text = "0"
-            tbxBottom.Text = "0"
-        End If
+    Private Sub cbxBarcodeFormat_SelectedIndexChanged(sender As Object, e As EventArgs)
+        Dim index As Integer = cbxBarcodeFormat.SelectedIndex
+        mBarcodeFormat = mBarcodeType(index)
     End Sub
+    Private Sub ShowResult(ByVal aryResult As TextResult(), ByVal timeElapsed As Integer)
+        Dim strResult As String
+
+        If aryResult Is Nothing Then
+            strResult = "No barcode found. Total time spent: " & timeElapsed & " ms" & vbCrLf
+        Else
+            strResult = "Total barcode(s) found: " & aryResult.Length & ". Total time spent: " & timeElapsed & " ms" & vbCrLf
+            Dim i As Integer
+            For i = 0 To aryResult.Length - 1
+                strResult += String.Format("  Barcode: {0}" & vbCrLf, (i + 1))
+                strResult += String.Format("    Type: {0}" & vbCrLf, aryResult(i).BarcodeFormat.ToString())
+                strResult = AddBarcodeText(strResult, aryResult(i).BarcodeText)
+                strResult += vbCrLf
+            Next
+        End If
+
+        MessageBox.Show(strResult, "Barcodes Results")
+    End Sub
+	Private Function AddBarcodeText(ByVal result As String, ByVal barcodetext As String) As String
+        Dim temp As String = ""
+        Dim temp1 As String = barcodetext
+
+        For j As Integer = 0 To temp1.Length - 1
+
+            If temp1(j) = vbNullChar Then
+                temp += "\"
+                temp += "0"
+            Else
+                temp += temp1(j).ToString()
+            End If
+        Next
+
+        result += String.Format("    Value: {0}" & vbCrLf, temp)
+        Return result
+    End Function
+    Private Function ConvertLocationPointToRect(ByVal points As Point()) As Rectangle
+        Dim left As Integer = points(0).X, top As Integer = points(0).Y, right As Integer = points(1).X, bottom As Integer = points(1).Y
+
+        For i As Integer = 0 To points.Length - 1
+
+            If points(i).X < left Then
+                left = points(i).X
+            End If
+
+            If points(i).X > right Then
+                right = points(i).X
+            End If
+
+            If points(i).Y < top Then
+                top = points(i).Y
+            End If
+
+            If points(i).Y > bottom Then
+                bottom = points(i).Y
+            End If
+        Next
+
+        Dim temp As Rectangle = New Rectangle(left, top, (right - left), (bottom - top))
+        Return temp
+    End Function
 
 #End Region
 
@@ -1784,11 +1817,9 @@ Partial Public Class DotNetTWAINDemo
             isToCrop = False
         End If
         EnableAllFunctionButtons()
-        ShowSelectedImageArea()
     End Sub
 
     Private Sub dsViewer_OnImageAreaSelected(sImageIndex As Short, left As Integer, top As Integer, right As Integer, bottom As Integer)
-        ShowSelectedImageArea()
     End Sub
 
     Private Sub dsViewer_OnMouseClick(sImageIndex As Short)

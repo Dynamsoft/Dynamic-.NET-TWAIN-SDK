@@ -16,7 +16,7 @@ namespace TheMinimumSystem
 {
     public partial class Form1 : Form,IAcquireCallback
     {
-        string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
         private TwainManager m_TwainManager = null;
         private ImageCore m_ImageCore = null;
         public Form1()

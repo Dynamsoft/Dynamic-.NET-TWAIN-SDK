@@ -41,14 +41,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.ImageCore.dll</HintPath>
     </Reference>
-    <Reference Include="Dynamsoft.PDF, Version=7.0.0.526, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.PDF.dll</HintPath>
-    </Reference>
-    <Reference Include="Dynamsoft.Twain, Version=7.0.0.526, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.Twain.dll</HintPath>
-    </Reference>
     <Reference Include="Dynamsoft.WPF.Viewer, Version=7.0.0.526, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.WPF.Viewer.dll</HintPath>

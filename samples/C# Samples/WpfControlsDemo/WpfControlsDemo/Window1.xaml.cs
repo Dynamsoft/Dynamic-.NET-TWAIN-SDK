@@ -39,8 +39,8 @@ namespace WpfControlsDemo
             {
                 strCurrentDirectory = System.Reflection.Assembly.GetExecutingAssembly().Location.Substring(0, index);
                 imageDirectory = strCurrentDirectory + @"Samples\Bin\Images\WpfDemoImages\";
-                strTessdataDirectory = strCurrentDirectory + @"Samples\Bin";
-             
+                strTessdataDirectory = strCurrentDirectory + @"Samples\Bin\tessdata";
+                mSettingsPath = strCurrentDirectory + @"Samples\Bin\Templates\";
             }
             else
             {
@@ -52,13 +52,14 @@ namespace WpfControlsDemo
                 else
                     strCurrentDirectory = Environment.CurrentDirectory + "\\";
                 imageDirectory = strCurrentDirectory + @"\Bin\Images\WpfDemoImages\";
-                strTessdataDirectory = strCurrentDirectory + @"\Bin\";
+                strTessdataDirectory = strCurrentDirectory + @"\Bin\tessdata\";
+                mSettingsPath = strCurrentDirectory + @"\Bin\Templates\";
             }
         }
 
         private ImageCore m_CoreForImageThum = null;
         private ImageCore m_CoreForImageViewer = null;
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
         public Window1()
         {
             InitializeComponent();
@@ -70,7 +71,7 @@ namespace WpfControlsDemo
             m_PDFRasterizer = new PDFRasterizer(m_StrProductKey);
             m_PDFCreator = new PDFCreator(m_StrProductKey);
             m_Tesseract = new Tesseract(m_StrProductKey);
-
+            
             try
             {
                 dpTitle.Background = new ImageBrush(new BitmapImage(new Uri(imageDirectory + "title.png", UriKind.RelativeOrAbsolute)));
@@ -102,6 +103,7 @@ namespace WpfControlsDemo
         public static readonly string imageDirectory;
         public static readonly string strCurrentDirectory;
         public static readonly string strTessdataDirectory;
+        public static readonly string mSettingsPath;
 
         private void Button_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -340,41 +342,96 @@ namespace WpfControlsDemo
         {
             if (m_CoreForImageThum.ImageBuffer.HowManyImagesInBuffer > 0)
             {
-                System.Drawing.Bitmap bmp = null;
                 try
                 {
-                    BarcodeReader reader = new BarcodeReader();
-                    reader.LicenseKeys = m_StrProductKey;
-                    BarcodeResult[] aryResult = reader.DecodeBitmap(m_CoreForImageThum.ImageBuffer.GetBitmap(m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer));
-                    if (aryResult == null)
-                    {
-                        string strResult = "The barcode for selected format is not found." + "\r\n";
-                        MessageBox.Show(strResult, "Barcodes Results");
-                    }
-                    else
-                    {
-                        string strResult = aryResult.Length + " total barcode found." + "\r\n";
-                        for (int i = 0; i < aryResult.Length; i++)
-                        {
-                            strResult += String.Format("Result {0}\r\n Barcode Format: {1}    Barcode Text: {2}\r\n", (i + 1), aryResult[i].BarcodeFormat, aryResult[i].BarcodeText);
-
-                        }
-                        MessageBox.Show(strResult, "Barcodes Results");
-                    }
+                    BarcodeReader m_BarcodeReader = new BarcodeReader();
+                    m_BarcodeReader.LicenseKeys = m_StrProductKey;
+                    m_BarcodeReader.LoadSettingsFromFile(mSettingsPath + "template_aggregation.json");
+                    Bitmap bmp = (Bitmap)(m_CoreForImageThum.ImageBuffer.GetBitmap(m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer));
+                    DateTime beforeRead = DateTime.Now;
+                    TextResult[] aryResult = m_BarcodeReader.DecodeBitmap(bmp, "All_DEFAULT"); DateTime afterRead = DateTime.Now;
+                    int timeElapsed = (int)(afterRead - beforeRead).TotalMilliseconds;
+                    this.ShowResult(aryResult, timeElapsed);
                 }
                 catch (Exception exp)
                 {
                     MessageBox.Show(exp.Message, "Decoding Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                finally
-                {
-                    if (bmp != null)
-                        bmp.Dispose();
-                }
             }
         }
 
+        private void ShowResult(TextResult[] aryResult, int timeElapsed)
+        {
+            string strResult;
 
+            if (aryResult == null)
+            {
+                strResult = "No barcode found. Total time spent: " + timeElapsed + " ms\r\n";
+            }
+            else
+            {
+                strResult = "Total barcode(s) found: " + aryResult.Length + ". Total time spent: " + timeElapsed + " ms\r\n";
+
+
+                for (var i = 0; i < aryResult.Length; i++)
+                {
+                    strResult += string.Format("  Barcode: {0}\r\n", (i + 1));
+                    strResult += string.Format("    Type: {0}\r\n", aryResult[i].BarcodeFormat.ToString());
+                    strResult = AddBarcodeText(strResult, aryResult[i].BarcodeText);
+					strResult += "\r\n";
+                }
+            }
+            MessageBox.Show(strResult, "Barcodes Results");
+        }
+
+        private string AddBarcodeText(string result, string barcodetext)
+        {
+            string temp = "";
+            string temp1 = barcodetext;
+            for (int j = 0; j < temp1.Length; j++)
+            {
+                if (temp1[j] == '\0')
+                {
+                    temp += "\\";
+                    temp += "0";
+                }
+                else
+                {
+                    temp += temp1[j].ToString();
+                }
+            }
+            result += string.Format("    Value: {0}\r\n", temp);
+            return result;
+        }
+        private System.Drawing.Rectangle ConvertLocationPointToRect(System.Drawing.Point[] points)
+        {
+            int left = points[0].X, top = points[0].Y, right = points[1].X, bottom = points[1].Y;
+            for (int i = 0; i < points.Length; i++)
+            {
+
+                if (points[i].X < left)
+                {
+                    left = points[i].X;
+                }
+
+                if (points[i].X > right)
+                {
+                    right = points[i].X;
+                }
+
+                if (points[i].Y < top)
+                {
+                    top = points[i].Y;
+                }
+
+                if (points[i].Y > bottom)
+                {
+                    bottom = points[i].Y;
+                }
+            }
+            System.Drawing.Rectangle temp = new System.Drawing.Rectangle(left, top, (right - left), (bottom - top));
+            return temp;
+        }
         private Tesseract m_Tesseract = null; 
         private void OCR_Click(object sender, RoutedEventArgs e)
         {

@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -78,8 +79,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 4.0\Dynamsoft.BarcodeGenerator.dll</HintPath>
     </Reference>
-    <Reference Include="Dynamsoft.BarcodeReader, Version=5.1.0.404, Culture=neutral, PublicKeyToken=ad0967c36e09320a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+	<Reference Include="Dynamsoft.BarcodeReader">
       <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 4.0\Dynamsoft.BarcodeReader.dll</HintPath>
     </Reference>
     <Reference Include="Dynamsoft.Camera, Version=7.0.0.526, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
@@ -125,6 +125,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomControls\TabHead.cs">
       <SubType>Component</SubType>
     </Compile>

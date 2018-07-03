@@ -21,7 +21,7 @@ namespace Annotation_Samples
         private PDFRasterizer m_Rasterizer = null;
         private PDFCreator m_Creator = null;
 
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
         private List<AnnotationData> m_SeletedAnnotation = new List<AnnotationData>();
         public Form1()
         {

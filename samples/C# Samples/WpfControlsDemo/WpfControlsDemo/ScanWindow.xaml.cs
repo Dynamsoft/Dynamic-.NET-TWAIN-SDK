@@ -234,8 +234,14 @@ namespace WpfControlsDemo
 
         private void RefreshInfo(int sCurrentIndex, int sTotalImageCount)
         {
-            m_TotalImageTextBox.Text = sTotalImageCount.ToString();
-            m_CurrentImageTextBox.Text = sCurrentIndex.ToString();
+            new System.Threading.Thread(() =>
+            {
+                this.Dispatcher.Invoke(new Action(() =>
+                {
+                    m_TotalImageTextBox.Text = sTotalImageCount.ToString();
+                    m_CurrentImageTextBox.Text = sCurrentIndex.ToString();
+                }));
+            }).Start();
         }
 
         public bool OnPostTransfer(System.Drawing.Bitmap bit)

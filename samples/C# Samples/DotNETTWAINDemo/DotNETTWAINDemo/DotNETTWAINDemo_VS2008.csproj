@@ -78,7 +78,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.BarcodeGenerator.dll</HintPath>
     </Reference>
-    <Reference Include="Dynamsoft.BarcodeReader, Version=5.1.0.404, Culture=neutral, PublicKeyToken=ad0967c36e09320a, processorArchitecture=MSIL">
+    <Reference Include="Dynamsoft.BarcodeReader, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.BarcodeReader.dll</HintPath>
     </Reference>
@@ -125,6 +125,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomControls\TabHead.cs">
       <SubType>Component</SubType>
     </Compile>

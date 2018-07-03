@@ -57,7 +57,7 @@ namespace DotNet_TWAIN_Demo
                 return cp;
             }
         }
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
 
         private TwainManager m_TwainManager = null;
         private ImageCore m_ImageCore = null;
@@ -65,11 +65,13 @@ namespace DotNet_TWAIN_Demo
         private PDFRasterizer m_PDFRasterizer = null;
         private PDFCreator m_PDFCreator = null;
         private Tesseract m_Tesseract = null;
-        private BarcodeReader m_BarcodeReader = null;
+        private readonly BarcodeReader m_BarcodeReader;
         private BarcodeGenerator m_BarcodeGenerator = null;
 
         private Camera m_Camera = null;
-        
+        private string[] mBarcodeType = { "All_DEFAULT", "OneD_DEFAULT", "QR_CODE_DEFAULT", "PDF417_DEFAULT", "DATAMATRIX_DEFAULT", "CODE_39_DEFAULT", "CODE_128_DEFAULT", "CODE_93_DEFAULT", "CODABAR_DEFAULT", "ITF_DEFAULT", "INDUSTRIAL_25_DEFAULT", "EAN_13_DEFAULT", "EAN_8_DEFAULT", "UPC_A_DEFAULT", "UPC_E_DEFAULT" };
+        private string mBarcodeFormat = "All_DEFAULT";
+
         public DotNetTWAINDemo()
         {
             InitializeComponent();
@@ -88,7 +90,6 @@ namespace DotNet_TWAIN_Demo
             // Draw the background for the main form
             DrawBackground();
             Initialization();
-
         }
 
 
@@ -287,6 +288,7 @@ namespace DotNet_TWAIN_Demo
         protected void Initialization()
         {
             string strOCRTessDataFolder = null;
+            string mSettingsPath = null;
             string strTempFolder = Application.ExecutablePath;
             strTempFolder = strTempFolder.Replace("/", "\\");
             if (!strTempFolder.EndsWith(@"\", false, System.Globalization.CultureInfo.CurrentCulture))
@@ -295,17 +297,26 @@ namespace DotNet_TWAIN_Demo
             if (pos != -1)
             {
                 strTempFolder = strTempFolder.Substring(0, strTempFolder.IndexOf(@"\", pos));
-                strOCRTessDataFolder = strTempFolder + @"\Samples\Bin\";
+                strOCRTessDataFolder = strTempFolder + @"\Samples\Bin\tessdata\";
+                mSettingsPath = strTempFolder + @"\Samples\Bin\Templates\";
                 strTempFolder = strTempFolder+ @"\Redistributable\Resources\";
             }
             else
             {
                 pos = strTempFolder.LastIndexOf("\\");
                 strTempFolder = Application.StartupPath + "\\Bin";
-
-                strOCRTessDataFolder = strTempFolder;
+                mSettingsPath = strTempFolder + @"\\Templates\\";
+                strOCRTessDataFolder = strTempFolder + "\\tessdata";
              }
             m_Tesseract.TessDataPath = strOCRTessDataFolder;
+            try
+            {
+                m_BarcodeReader.LoadSettingsFromFile(mSettingsPath + "template_aggregation.json");
+            }
+            catch
+            {
+                MessageBox.Show("Failed to load the settings file, please check the file path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         private void DotNetTWAINDemo_Load(object sender, EventArgs e)
         {
@@ -417,27 +428,24 @@ namespace DotNet_TWAIN_Demo
             DisableControls(picboxAddBarcode);
 
             //Read Barcode
+
             cbxBarcodeFormat.Items.Add("All");
             cbxBarcodeFormat.Items.Add("OneD");
+            cbxBarcodeFormat.Items.Add("QRCode");
+            cbxBarcodeFormat.Items.Add("PDF417");
+            cbxBarcodeFormat.Items.Add("Datamatrix");
             cbxBarcodeFormat.Items.Add("Code 39");
             cbxBarcodeFormat.Items.Add("Code 128");
             cbxBarcodeFormat.Items.Add("Code 93");
             cbxBarcodeFormat.Items.Add("Codabar");
             cbxBarcodeFormat.Items.Add("Interleaved 2 of 5");
+            cbxBarcodeFormat.Items.Add("Industrial 2 of 5");
             cbxBarcodeFormat.Items.Add("EAN-13");
             cbxBarcodeFormat.Items.Add("EAN-8");
             cbxBarcodeFormat.Items.Add("UPC-A");
             cbxBarcodeFormat.Items.Add("UPC-E");
-            cbxBarcodeFormat.Items.Add("PDF417");
-            cbxBarcodeFormat.Items.Add("QRCode");
-            cbxBarcodeFormat.Items.Add("Datamatrix");
-            cbxBarcodeFormat.Items.Add("Industrial 2 of 5");
             cbxBarcodeFormat.SelectedIndex = 0;
-            this.tbxMaxBarcodeReads.Text = "10";
-            this.tbxLeft.Text = "0";
-            this.tbxRight.Text = "0";
-            this.tbxTop.Text = "0";
-            this.tbxBottom.Text = "0";
+           
 
             DisableControls(picboxReadBarcode);
 
@@ -1376,8 +1384,7 @@ namespace DotNet_TWAIN_Demo
                 DisableControls(picboxPrevious);
                 DisableControls(picboxNext);
             }
-
-            ShowSelectedImageArea();
+            
         }
 
         private void cbxLayout_SelectedIndexChanged(object sender, EventArgs e)
@@ -1641,20 +1648,14 @@ namespace DotNet_TWAIN_Demo
         }
 
         #region Read Barcode
-
+        private void cbxBarcodeFormat_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int index = cbxBarcodeFormat.SelectedIndex;
+            mBarcodeFormat = mBarcodeType[index];
+        }
         private void picboxReadBarcode_Click(object sender, EventArgs e)
         {
-            ShowSelectedImageArea();
-            int iMaxBarcodesToRead = 0;
-            try
-            {
-                iMaxBarcodesToRead = int.Parse(tbxMaxBarcodeReads.Text);
-            }
-            catch (Exception exp)
-            {
-                MessageBox.Show(exp.Message, "Invalid input of MaxBarcodeReads", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                tbxMaxBarcodeReads.Focus();
-            }
+            //ShowSelectedImageArea();
 
             if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer < 0)
             {
@@ -1664,125 +1665,173 @@ namespace DotNet_TWAIN_Demo
 
             try
             {
-                BarcodeReader reader = new BarcodeReader();
-                reader.LicenseKeys = m_StrProductKey;
-                reader.ReaderOptions.MaxBarcodesToReadPerPage = iMaxBarcodesToRead;
-                switch (cbxBarcodeFormat.SelectedIndex)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.OneD;
-                        break;
-                    case 2:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_39;
-                        break;
-                    case 3:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_128;
-                        break;
-                    case 4:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODE_93;
-                        break;
-                    case 5:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.CODABAR;
-                        break;
-                    case 6:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.ITF;
-                        break;
-                    case 7:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_13;
-                        break;
-                    case 8:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.EAN_8;
-                        break;
-                    case 9:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_A;
-                        break;
-                    case 10:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.UPC_E;
-                        break;
-                    case 11:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.PDF417;
-                        break;
-                    case 12:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.QR_CODE;
-                        break;
-                    case 13:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.DATAMATRIX;
-                        break;
-                    case 14:
-                        reader.ReaderOptions.BarcodeFormats = Dynamsoft.Barcode.BarcodeFormat.INDUSTRIAL_25;
-                        break;
-                }
-                BarcodeResult[] aryResult = null;
-                Rectangle rect = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
-                if (rect == Rectangle.Empty)
-                {
 
+                Bitmap bmp = (Bitmap)(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer));
+                DateTime beforeRead = DateTime.Now;
 
-                    int iWidth = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Width;
-                    int iHeight = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer).Height;
-                    rect = new Rectangle(0, 0, iWidth, iHeight);
-                };
-                reader.AddRegion(rect.Left,rect.Top,rect.Right,rect.Bottom,false);
-                aryResult = reader.DecodeBitmap(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer));
-                if (aryResult == null)
+                string[] Templates = m_BarcodeReader.GetAllParameterTemplateNames();
+                bool bifcontian = false;
+                for (int i = 0; i < Templates.Length; i++)
                 {
-                    string strResult = "The barcode for selected format is not found." + "\r\n";
-                    MessageBox.Show(strResult, "Barcodes Results");
-                }
-                else
-                {
-                    string strResult = aryResult.Length + " total barcode found." + "\r\n";
-                    for (int i = 0; i < aryResult.Length; i++)
+                    if (mBarcodeFormat == Templates[i])
                     {
-                        strResult += String.Format("Result {0}\r\n Barcode Format: {1}    Barcode Text: {2}\r\n", (i + 1), aryResult[i].BarcodeFormat, aryResult[i].BarcodeText);
+                        bifcontian = true;
                     }
-
-                    MessageBox.Show(strResult, "Barcodes Results");
                 }
+                if (!bifcontian)
+                {
+                    MessageBox.Show(("Failed to find the template named " + mBarcodeFormat + "."), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                TextResult[] aryResult = m_BarcodeReader.DecodeBitmap(bmp, mBarcodeFormat);
+
+                DateTime afterRead = DateTime.Now;
+                int timeElapsed = (int)(afterRead - beforeRead).TotalMilliseconds;
+                m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, null, true);
+                if (aryResult != null)
+                {
+                    List<AnnotationData> tempListAnnotation = new List<AnnotationData>();
+                    for (var i = 0; i < aryResult.Length; i++)
+                    {
+                        //add rect annotation
+                        var penColor = Color.Red;
+                        //if (aryResult[i].IsUnrecognized)
+                        //    penColor = Color.Blue;
+
+                        var rectAnnotation = new AnnotationData();
+                        rectAnnotation.AnnotationType = AnnotationType.enumRectangle;
+                        Rectangle boundingrect = ConvertLocationPointToRect(aryResult[i].LocalizationResult.ResultPoints);
+                        rectAnnotation.StartPoint = new Point(boundingrect.Left, boundingrect.Top);
+                        rectAnnotation.EndPoint = new Point((boundingrect.Left + boundingrect.Size.Width), (boundingrect.Top + boundingrect.Size.Height));
+                        rectAnnotation.FillColor = Color.Transparent.ToArgb();
+                        rectAnnotation.PenColor = penColor.ToArgb();
+                        rectAnnotation.PenWidth = 3;
+                        rectAnnotation.GUID = Guid.NewGuid();
+
+                        float fsize = bmp.Width / 48.0f;
+                        if (fsize < 25)
+                            fsize = 25;
+
+                        Font textFont = new Font("Times New Roman", fsize, FontStyle.Bold);
+
+                        string strNo = "[" + (i + 1) + "]";
+                        SizeF textSize = Graphics.FromHwnd(IntPtr.Zero).MeasureString(strNo, textFont);
+
+                        var textAnnotation = new AnnotationData();
+                        textAnnotation.AnnotationType = AnnotationType.enumText;
+                        textAnnotation.StartPoint = new Point(boundingrect.Left, (int)(boundingrect.Top - textSize.Height * 1.25f));
+                        textAnnotation.EndPoint = new Point((textAnnotation.StartPoint.X + (int)textSize.Width * 2), (int)(textAnnotation.StartPoint.Y + textSize.Height * 1.25f));
+                        if (textAnnotation.StartPoint.X < 0)
+                        {
+                            textAnnotation.EndPoint = new Point((textAnnotation.EndPoint.X + textAnnotation.StartPoint.X), textAnnotation.EndPoint.Y);
+                            textAnnotation.StartPoint = new Point(0, textAnnotation.StartPoint.Y);
+                        }
+                        if (textAnnotation.StartPoint.Y < 0)
+                        {
+                            textAnnotation.EndPoint = new Point(textAnnotation.EndPoint.X, (textAnnotation.EndPoint.Y - textAnnotation.StartPoint.Y));
+                            textAnnotation.StartPoint = new Point(textAnnotation.StartPoint.X, 0);
+                        }
+
+                        textAnnotation.TextContent = strNo;
+                        AnnoTextFont tempFont = new AnnoTextFont();
+                        tempFont.TextColor = Color.Blue.ToArgb();
+                        tempFont.Size = (int)fsize;
+                        tempFont.Name = "Times New Roman";
+                        textAnnotation.FontType = tempFont;
+                        textAnnotation.GUID = Guid.NewGuid();
+
+                        tempListAnnotation.Add(rectAnnotation);
+                        tempListAnnotation.Add(textAnnotation);
+                    }
+                    m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation, tempListAnnotation, true);
+                }
+
+                this.ShowResult(aryResult, timeElapsed);
+
             }
             catch (Exception exp)
             {
                 MessageBox.Show(exp.Message, "Decoding error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        private void ShowSelectedImageArea()
+        private void ShowResult(TextResult[] aryResult, int timeElapsed)
         {
-            if (m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer >= 0)
+            string strResult;
+
+            if (aryResult == null)
             {
-                Rectangle recSelArea = dsViewer.GetSelectionRect(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
-                Image imgCurrent = m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer);
-                if (recSelArea.IsEmpty)
-                {
-                    tbxLeft.Text = "0";
-                    tbxRight.Text = imgCurrent.Width.ToString();
-                    tbxTop.Text = "0";
-                    tbxBottom.Text = imgCurrent.Height.ToString();
-                }
-                else
-                {
-                    tbxLeft.Text = recSelArea.Left < 0 ? "0" : (recSelArea.Left > imgCurrent.Width ? imgCurrent.Width.ToString() : recSelArea.Left.ToString());
-                    tbxRight.Text = recSelArea.Right < 0 ? "0" : (recSelArea.Right > imgCurrent.Width ? imgCurrent.Width.ToString() : recSelArea.Right.ToString());
-                    tbxTop.Text = recSelArea.Top < 0 ? "0" : (recSelArea.Top > imgCurrent.Height ? imgCurrent.Height.ToString() : recSelArea.Top.ToString());
-                    tbxBottom.Text = recSelArea.Bottom < 0 ? "0" : (recSelArea.Bottom > imgCurrent.Height ? imgCurrent.Height.ToString() : recSelArea.Bottom.ToString());
-                }
+                strResult = "No barcode found. Total time spent: " + timeElapsed + " ms\r\n";
             }
             else
             {
-                tbxLeft.Text = "0";
-                tbxRight.Text = "0";
-                tbxTop.Text = "0";
-                tbxBottom.Text = "0";
+                strResult = "Total barcode(s) found: " + aryResult.Length + ". Total time spent: " + timeElapsed + " ms\r\n";
+
+
+                for (var i = 0; i < aryResult.Length; i++)
+                {
+                    strResult += string.Format("  Barcode: {0}\r\n", (i + 1));
+                    strResult += string.Format("    Type: {0}\r\n", aryResult[i].BarcodeFormat.ToString());
+                    strResult = AddBarcodeText(strResult, aryResult[i].BarcodeText);
+                    strResult += "\r\n";
+                }
             }
+            MessageBox.Show(strResult, "Barcodes Results");
+        }
+        private string AddBarcodeText(string result, string barcodetext)
+        {
+            string temp = "";
+            string temp1 = barcodetext;
+            for (int j = 0; j < temp1.Length; j++)
+            {
+                if (temp1[j] == '\0')
+                {
+                    temp += "\\";
+                    temp += "0";
+                }
+                else
+                {
+                    temp += temp1[j].ToString();
+                }
+            }
+            result += string.Format("    Value: {0}\r\n", temp);
+            return result;
+        }
+        private Rectangle ConvertLocationPointToRect(Point[] points)
+        {
+            int left = points[0].X, top = points[0].Y, right = points[1].X, bottom = points[1].Y;
+            for (int i = 0; i < points.Length; i++)
+            {
+
+                if (points[i].X < left)
+                {
+                    left = points[i].X;
+                }
+
+                if (points[i].X > right)
+                {
+                    right = points[i].X;
+                }
+
+                if (points[i].Y < top)
+                {
+                    top = points[i].Y;
+                }
+
+                if (points[i].Y > bottom)
+                {
+                    bottom = points[i].Y;
+                }
+            }
+            Rectangle temp = new Rectangle(left, top, (right - left), (bottom - top));
+            return temp;
         }
 
-        #endregion Read Barcode
+    #endregion Read Barcode
 
-        #region Add Barcode
+    #region Add Barcode
 
-        private void picboxAddBarcode_Click(object sender, EventArgs e)
+    private void picboxAddBarcode_Click(object sender, EventArgs e)
         {
             if (picboxAddBarcode.Enabled)
             {
@@ -2042,12 +2091,10 @@ namespace DotNet_TWAIN_Demo
             if (isToCrop)
                 isToCrop = false;
             EnableAllFunctionButtons();
-            ShowSelectedImageArea();
         }
 
         private void dsViewer_OnImageAreaSelected(short sImageIndex, int left, int top, int right, int bottom)
         {
-            ShowSelectedImageArea();
         }
 
         private void dsViewer_OnMouseClick(short sImageIndex)

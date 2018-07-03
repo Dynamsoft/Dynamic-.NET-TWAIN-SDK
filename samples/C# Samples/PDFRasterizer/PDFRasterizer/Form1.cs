@@ -17,7 +17,7 @@ namespace Rasterizer
     {
         private Dynamsoft.PDF.PDFRasterizer m_PDFRasteizer = null;
         private PDFCreator m_PDFCreator = null;
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
         private ImageCore m_ImageCore = null;
         public Form1()
         {

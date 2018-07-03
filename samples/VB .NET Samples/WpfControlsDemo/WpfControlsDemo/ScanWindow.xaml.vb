@@ -186,14 +186,21 @@ Namespace WpfControlsDemo
         Private m_RefreshInfo As RefreshImageBufferInfo
 
         Private Sub RefreshImageInfo(iCurrentIndex As Integer, iTotalImageCount As Integer)
-            m_CurrentImageTextBox.Text = iCurrentIndex.ToString()
             m_TotalImageTextBox.Text = iTotalImageCount.ToString()
+            m_CurrentImageTextBox.Text = iCurrentIndex.ToString()
         End Sub
+
+        Delegate Function OnRefreshImageHandler(iCurrentIndex As Integer, iTotalImageCount As Integer)
+        Private Function OnRefreshImage(iCurrentIndex As Integer, iTotalImageCount As Integer)
+            m_TotalImageTextBox.Text = iTotalImageCount.ToString()
+            m_CurrentImageTextBox.Text = iCurrentIndex.ToString()
+        End Function
 
         Public Function OnPostTransfer(bit As System.Drawing.Bitmap) As Boolean Implements IAcquireCallback.OnPostTransfer
             If m_CoreForImageThum IsNot Nothing Then
                 m_CoreForImageThum.IO.LoadImage(bit)
-                m_RefreshInfo((m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer + 1), m_CoreForImageThum.ImageBuffer.HowManyImagesInBuffer())
+                Dim mRefreshImage As New OnRefreshImageHandler(AddressOf OnRefreshImage)
+                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, mRefreshImage, (m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer + 1), m_CoreForImageThum.ImageBuffer.HowManyImagesInBuffer())
             End If
 
             If m_CoreForViewer IsNot Nothing Then

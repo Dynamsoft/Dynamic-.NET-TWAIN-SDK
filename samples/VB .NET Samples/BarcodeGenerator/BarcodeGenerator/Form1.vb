@@ -24,7 +24,7 @@ Partial Public Class Form1
     Private m_PDFRasterizer As PDFRasterizer = Nothing
     Public Sub New()
         InitializeComponent()
-        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
         m_ImageCore = New ImageCore()
         dsViewer1.Bind(m_ImageCore)
 
@@ -58,7 +58,7 @@ Partial Public Class Form1
 
     End Sub
 
-    Private Sub btnLoadImage_Click(sender As Object, e As EventArgs)
+    Private Sub btnLoadImage_Click(sender As Object, e As EventArgs) Handles btnLoadImage.Click
         Try
             Dim openfdlg As New OpenFileDialog()
             openfdlg.Filter = "All Support Files|*.JPG;*.JPEG;*.JPE;*.JFIF;*.BMP;*.PNG;*.TIF;*.TIFF;*.PDF;*.GIF|JPEG|*.JPG;*.JPEG;*.JPE;*.Jfif|BMP|*.BMP|PNG|*.PNG|TIFF|*.TIF;*.TIFF|PDF|*.PDF|GIF|*.GIF"
@@ -81,15 +81,15 @@ Partial Public Class Form1
         End Try
     End Sub
 
-    Private Sub btnAddBarcode_Click(sender As Object, e As EventArgs)
+    Private Sub btnAddBarcode_Click(sender As Object, e As EventArgs) Handles btnAddBarcode.Click
         Try
             If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 Then
                 Me.labMsg.Text = ""
                 Me.labmsg2.Text = ""
 
                 If txtBarcodeContent.Text <> "" AndAlso txtBarcodeLocationX.Text <> "" AndAlso txtBarocdeLocationY.Text <> "" AndAlso txtBarcodeScale.Text <> "" Then
-                    Dim temp As Bitmap = m_Generator.AddBarcode(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer), barcodeformat, txtBarcodeContent.Text, txtHumanReadableTxt.Text, Integer.Parse(txtBarcodeLocationX.Text), Integer.Parse(txtBarocdeLocationY.Text), _
-                        Single.Parse(txtBarcodeScale.Text))
+                    Dim temp As Bitmap = m_Generator.AddBarcode(m_ImageCore.ImageBuffer.GetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer), barcodeformat, txtBarcodeContent.Text, txtHumanReadableTxt.Text, Integer.Parse(txtBarcodeLocationX.Text), Integer.Parse(txtBarocdeLocationY.Text),
+                            Single.Parse(txtBarcodeScale.Text))
                     m_ImageCore.ImageBuffer.SetBitmap(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, temp)
                 Else
                     If txtBarcodeContent.Text = "" Then
@@ -123,7 +123,7 @@ Partial Public Class Form1
         End Try
     End Sub
 
-    Private Sub btnSave_Click(sender As Object, e As EventArgs)
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         Try
             If m_ImageCore.ImageBuffer.HowManyImagesInBuffer > 0 Then
                 Me.labMsg.Text = ""
@@ -198,45 +198,70 @@ Partial Public Class Form1
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         End Try
-        
-    End Sub
 
-    Private Sub rdbBMP_CheckedChanged(sender As Object, e As EventArgs)
+    End Sub
+    Private Sub btnCreateBarcode_Click(ByVal sender As Object, ByVal e As EventArgs) Handles btnCreateBarcode.Click
+        Try
+            Me.labMsg.Text = ""
+            Me.labmsg2.Text = ""
+
+            If txtBarcodeContent.Text <> "" AndAlso txtBarcodeScale.Text <> "" Then
+                Dim barcodeBit As Bitmap = m_Generator.CreateBarcode(barcodeformat, txtBarcodeContent.Text, txtHumanReadableTxt.Text, Single.Parse(txtBarcodeScale.Text))
+                m_ImageCore.IO.LoadImage(barcodeBit)
+            Else
+
+                If txtBarcodeContent.Text = "" Then
+                    txtBarcodeContent.Focus()
+                    Me.labMsg.ForeColor = Color.Red
+                    Me.labMsg.Text = "BarcodeContent can not be empty"
+                    Me.labMsg.Location = New Point(Me.groupBox2.Size.Width / 2 - Me.labMsg.Size.Width / 2, Me.labMsg.Location.Y)
+                ElseIf txtBarcodeScale.Text = "" Then
+                    txtBarcodeScale.Focus()
+                    Me.labMsg.ForeColor = Color.Red
+                    Me.labMsg.Text = "BarcodeScale can not be empty"
+                    Me.labMsg.Location = New Point(Me.groupBox2.Size.Width / 2 - Me.labMsg.Size.Width / 2, Me.labMsg.Location.Y)
+                End If
+            End If
+
+        Catch
+        End Try
+    End Sub
+    Private Sub rdbBMP_CheckedChanged(sender As Object, e As EventArgs) Handles rdbBMP.CheckedChanged
         chbMultiPagePDF.Checked = False
         chbMultiPagePDF.Enabled = False
         chbMultiPageTIFF.Checked = False
         chbMultiPageTIFF.Enabled = False
     End Sub
 
-    Private Sub rdbJPEG_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub rdbJPEG_CheckedChanged(sender As Object, e As EventArgs) Handles rdbJPEG.CheckedChanged
         chbMultiPagePDF.Checked = False
         chbMultiPagePDF.Enabled = False
         chbMultiPageTIFF.Checked = False
         chbMultiPageTIFF.Enabled = False
     End Sub
 
-    Private Sub rdbPNG_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub rdbPNG_CheckedChanged(sender As Object, e As EventArgs) Handles  rdbPNG.CheckedChanged
         chbMultiPagePDF.Checked = False
         chbMultiPagePDF.Enabled = False
         chbMultiPageTIFF.Checked = False
         chbMultiPageTIFF.Enabled = False
     End Sub
 
-    Private Sub rdbTIFF_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub rdbTIFF_CheckedChanged(sender As Object, e As EventArgs) Handles rdbTIFF.CheckedChanged
         chbMultiPagePDF.Checked = False
         chbMultiPagePDF.Enabled = False
         chbMultiPageTIFF.Checked = True
         chbMultiPageTIFF.Enabled = True
     End Sub
 
-    Private Sub rdbPDF_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub rdbPDF_CheckedChanged(sender As Object, e As EventArgs) Handles rdbPDF.CheckedChanged
         chbMultiPagePDF.Checked = True
         chbMultiPagePDF.Enabled = True
         chbMultiPageTIFF.Checked = False
         chbMultiPageTIFF.Enabled = False
     End Sub
 
-    Private Sub cmbBarcodeFormat_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub cmbBarcodeFormat_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbBarcodeFormat.SelectedIndexChanged
         Select Case cmbBarcodeFormat.SelectedIndex
             Case 0
                 barcodeformat = Dynamsoft.Barcode.Enums.EnumBarcodeFormat.CODE_39
@@ -253,7 +278,7 @@ Partial Public Class Form1
         End Select
     End Sub
 
-    Private Sub txtBarcodeLocationX_KeyPress(sender As Object, e As KeyPressEventArgs)
+    Private Sub txtBarcodeLocationX_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtBarcodeLocationX.KeyPress
         Dim array As Byte() = System.Text.Encoding.[Default].GetBytes(e.KeyChar.ToString())
         If Not Char.IsDigit(e.KeyChar) OrElse array.LongLength = 2 Then
             e.Handled = True
@@ -263,7 +288,7 @@ Partial Public Class Form1
         End If
     End Sub
 
-    Private Sub txtBarocdeLocationY_KeyPress(sender As Object, e As KeyPressEventArgs)
+    Private Sub txtBarocdeLocationY_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtBarocdeLocationY.KeyPress
         Dim array As Byte() = System.Text.Encoding.[Default].GetBytes(e.KeyChar.ToString())
         If Not Char.IsDigit(e.KeyChar) OrElse array.LongLength = 2 Then
             e.Handled = True
@@ -273,7 +298,7 @@ Partial Public Class Form1
         End If
     End Sub
 
-    Private Sub txtBarcodeScale_KeyPress(sender As Object, e As KeyPressEventArgs)
+    Private Sub txtBarcodeScale_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtBarcodeScale.KeyPress
         Dim array As Byte() = System.Text.Encoding.[Default].GetBytes(e.KeyChar.ToString())
         If Not Char.IsDigit(e.KeyChar) OrElse array.LongLength = 2 Then
             e.Handled = True

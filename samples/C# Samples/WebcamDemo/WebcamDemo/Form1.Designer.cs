@@ -37,8 +37,17 @@
             this.lbContainer = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
+            this.picbox90 = new System.Windows.Forms.PictureBox();
+            this.picbox180 = new System.Windows.Forms.PictureBox();
+            this.picbox270 = new System.Windows.Forms.PictureBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cbxResolution = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picbox90)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picbox180)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picbox270)).BeginInit();
             this.SuspendLayout();
             // 
             // btnCaptureImage
@@ -57,6 +66,7 @@
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(275, 295);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 2;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseClick);
@@ -131,12 +141,83 @@
             this.dsViewer1.Size = new System.Drawing.Size(277, 295);
             this.dsViewer1.TabIndex = 23;
             // 
+            // picbox90
+            // 
+            this.picbox90.Image = global::WebcamDemo.Properties.Resources._90_normal;
+            this.picbox90.Location = new System.Drawing.Point(15, 174);
+            this.picbox90.Name = "picbox90";
+            this.picbox90.Size = new System.Drawing.Size(24, 21);
+            this.picbox90.TabIndex = 24;
+            this.picbox90.TabStop = false;
+            this.picbox90.Click += new System.EventHandler(this.picbox90_Click);
+            this.picbox90.MouseLeave += new System.EventHandler(this.picbox90_MouseLeave);
+            this.picbox90.MouseHover += new System.EventHandler(this.picbox90_MouseHover);
+            // 
+            // picbox180
+            // 
+            this.picbox180.Image = global::WebcamDemo.Properties.Resources._180_normal;
+            this.picbox180.Location = new System.Drawing.Point(55, 174);
+            this.picbox180.Name = "picbox180";
+            this.picbox180.Size = new System.Drawing.Size(24, 21);
+            this.picbox180.TabIndex = 25;
+            this.picbox180.TabStop = false;
+            this.picbox180.Click += new System.EventHandler(this.picbox180_Click);
+            this.picbox180.MouseLeave += new System.EventHandler(this.picbox180_MouseLeave);
+            this.picbox180.MouseHover += new System.EventHandler(this.picbox180_MouseHover);
+            // 
+            // picbox270
+            // 
+            this.picbox270.Image = global::WebcamDemo.Properties.Resources._270_normal;
+            this.picbox270.Location = new System.Drawing.Point(95, 174);
+            this.picbox270.Name = "picbox270";
+            this.picbox270.Size = new System.Drawing.Size(24, 21);
+            this.picbox270.TabIndex = 26;
+            this.picbox270.TabStop = false;
+            this.picbox270.Click += new System.EventHandler(this.picbox270_Click);
+            this.picbox270.MouseLeave += new System.EventHandler(this.picbox270_MouseLeave);
+            this.picbox270.MouseHover += new System.EventHandler(this.picbox270_MouseHover);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label3.Location = new System.Drawing.Point(15, 79);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(71, 13);
+            this.label3.TabIndex = 27;
+            this.label3.Text = "Resolution:";
+            // 
+            // cbxResolution
+            // 
+            this.cbxResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxResolution.FormattingEnabled = true;
+            this.cbxResolution.Location = new System.Drawing.Point(15, 101);
+            this.cbxResolution.Name = "cbxResolution";
+            this.cbxResolution.Size = new System.Drawing.Size(131, 21);
+            this.cbxResolution.TabIndex = 28;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label4.Location = new System.Drawing.Point(18, 142);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(49, 13);
+            this.label4.TabIndex = 29;
+            this.label4.Text = "Rotate:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(749, 347);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.cbxResolution);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.picbox270);
+            this.Controls.Add(this.picbox180);
+            this.Controls.Add(this.picbox90);
             this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.lbContainer);
@@ -151,6 +232,10 @@
             this.Text = "Webcam Demo";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picbox90)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picbox180)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picbox270)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -166,6 +251,12 @@
         private System.Windows.Forms.Label lbContainer;
         private System.Windows.Forms.Panel panel1;
         private Dynamsoft.Forms.DSViewer dsViewer1;
+        private System.Windows.Forms.PictureBox picbox90;
+        private System.Windows.Forms.PictureBox picbox180;
+        private System.Windows.Forms.PictureBox picbox270;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox cbxResolution;
+        private System.Windows.Forms.Label label4;
     }
 }
 

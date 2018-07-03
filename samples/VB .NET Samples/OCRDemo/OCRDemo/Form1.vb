@@ -22,7 +22,7 @@ Partial Public Class Form1
 
     Public Sub New()
         InitializeComponent()
-        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
         m_Tesseract = New Tesseract(m_StrProductKey)
         m_ImageCore = New ImageCore()
         dsViewer1.Bind(m_ImageCore)
@@ -89,7 +89,7 @@ Partial Public Class Form1
     Private Sub OCR(isOcrOnRectangleArea As Boolean)
         Dim languageFolder As String = m_strCurrentDirectory
         If m_bSamplesExist Then
-            languageFolder = m_strCurrentDirectory & "Samples\Bin\"
+            languageFolder = m_strCurrentDirectory & "Samples\Bin\tessdata"
         End If
 
         m_Tesseract.TessDataPath = languageFolder
@@ -215,5 +215,13 @@ Partial Public Class Form1
 
     Private Sub btnSelectedOCR_Click(sender As Object, e As EventArgs) Handles btnSelectedOCR.Click
         OCR(False)
+    End Sub
+
+    Private Sub btnRemoveAll_Click(sender As Object, e As EventArgs) Handles btnRemoveAll.Click
+        m_ImageCore.ImageBuffer.RemoveAllImages()
+    End Sub
+
+    Private Sub btnRemoveSelected_Click(sender As Object, e As EventArgs) Handles btnRemoveSelected.Click
+        m_ImageCore.ImageBuffer.RemoveImages(dsViewer1.CurrentSelectedImageIndicesInBuffer)
     End Sub
 End Class

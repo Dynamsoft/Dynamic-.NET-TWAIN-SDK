@@ -16,9 +16,11 @@ namespace WebcamDemo
     public partial class Form1 : Form
     {
         private int m_iDesignWidth = 755;
+        private int iControlWidth = 275;
+        private int iControlHeight = 295;
         private CameraManager m_CameraManager = null;
         private ImageCore m_ImageCore = null;
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
 
         private Camera m_CurrentCamera = null;
 
@@ -53,7 +55,6 @@ namespace WebcamDemo
             {
                 MessageBox.Show(exp.Message);
             }
-
         }
 
         private void btnRemoveAllImages_Click(object sender, EventArgs e)
@@ -74,15 +75,47 @@ namespace WebcamDemo
         {
             if (m_CurrentCamera != null)
             {
+                m_CurrentCamera.OnFrameCaptrue -= m_CurrentCamera_OnFrameCaptrue;
                 m_CurrentCamera.Close();
             }
             if (m_CameraManager != null)
             {
                 m_CurrentCamera = m_CameraManager.SelectCamera((short)cbxSources.SelectedIndex);
-                m_CurrentCamera.SetVideoContainer(pictureBox1.Handle);
                 m_CurrentCamera.Open();
-                ResizeVideoWindow();
-            }      
+
+                m_CurrentCamera.OnFrameCaptrue += m_CurrentCamera_OnFrameCaptrue;
+                ResizePictureBox();
+            }
+            if (m_CurrentCamera != null)
+            {
+                cbxResolution.Items.Clear();
+                foreach (CamResolution camR in m_CurrentCamera.SupportedResolutions)
+                {
+                    cbxResolution.Items.Add(camR.ToString());
+                }
+                cbxResolution.SelectedIndexChanged += cbxResolution_SelectedIndexChanged;
+                if (cbxResolution.Items.Count > 0)
+                    cbxResolution.SelectedIndex = 0;
+                ResizePictureBox();
+            }
+
+        }
+        private void cbxResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbxResolution.Text != null)
+            {
+                string[] strWXH = cbxResolution.Text.Split(new char[] { ' ' });
+                if (strWXH.Length == 3)
+                {
+                    try
+                    {
+                        m_CurrentCamera.CurrentResolution = new CamResolution(int.Parse(strWXH[0]), int.Parse(strWXH[2]));
+                    }
+                    catch { }
+                }
+                m_CurrentCamera.RotateVideo(Dynamsoft.UVC.Enums.EnumVideoRotateType.Rotate_0);
+                ResizePictureBox();
+            }
         }
 
 
@@ -100,22 +133,120 @@ namespace WebcamDemo
             Rectangle tempRect = new Rectangle(tempFocusPoint,new Size(50,50));
             m_CurrentCamera.FocusOnArea(tempRect);
         }
-
-        private void ResizeVideoWindow()
+        
+        private void ResizePictureBox()
         {
+            if (m_CurrentCamera != null)
+            {
                 CamResolution camResolution = m_CurrentCamera.CurrentResolution;
                 if (camResolution != null && camResolution.Width > 0 && camResolution.Height > 0)
                 {
                     {
-                        int iVideoWidth = pictureBox1.Width;
-                        int iVideoHeight = pictureBox1.Width * camResolution.Height / camResolution.Width;
+                        int iVideoWidth = iControlWidth;
+                        int iVideoHeight = iControlWidth * camResolution.Height / camResolution.Width;
                         int iContentHeight = panel1.Height - panel1.Margin.Top - panel1.Margin.Bottom - panel1.Padding.Top - panel1.Padding.Bottom;
                         if (iVideoHeight < iContentHeight)
-                            m_CurrentCamera.ResizeVideoWindow(0, (iContentHeight - iVideoHeight) / 2, iVideoWidth, iVideoHeight);
+                        {
+                            pictureBox1.Location = new Point(0, (iContentHeight - iVideoHeight) / 2);
+                            pictureBox1.Size = new Size(iVideoWidth, iVideoHeight);
+                        }
                         else
-                            m_CurrentCamera.ResizeVideoWindow(0, 0, pictureBox1.Width, pictureBox1.Height);
+                        {
+                            pictureBox1.Location = new Point(0, 0);
+                            pictureBox1.Size = new Size(pictureBox1.Width, pictureBox1.Height);
+                        }
                     }
                 }
+            }
         }
+        private void RotatePictureBox()
+        {
+            if (m_CurrentCamera != null)
+            { 
+                CamResolution camResolution = m_CurrentCamera.CurrentResolution;
+                if (camResolution != null && camResolution.Width > 0 && camResolution.Height > 0)
+                {
+                    if (camResolution.Width / camResolution.Height > iControlWidth / iControlHeight)
+                    {
+                        int iVideoHeight = iControlHeight;
+                        int iVideoWidth = iControlHeight * camResolution.Height / camResolution.Width;
+                        int iContentWidth = panel1.Width - panel1.Margin.Left - panel1.Margin.Right - panel1.Padding.Left - panel1.Padding.Right;
+                        pictureBox1.Location = new Point((iContentWidth - iVideoWidth) / 2, 0);
+                        pictureBox1.Size = new Size(iVideoWidth, iVideoHeight);
+                    }
+                    else
+                    {
+                        int iVideoWidth = iControlWidth;
+                        int iVideoHeight = iControlWidth * camResolution.Width / camResolution.Height;
+                        int iContentHeight = panel1.Height - panel1.Margin.Top - panel1.Margin.Bottom - panel1.Padding.Top - panel1.Padding.Bottom;
+                        pictureBox1.Location = new Point(0, (iContentHeight - iVideoHeight) / 2);
+                        pictureBox1.Size = new Size(iVideoWidth, iVideoHeight);
+                    }
+                }
+            }
+        }
+        private void SetPicture(Image img)
+        {
+            Bitmap temp = ((Bitmap)(img)).Clone(new Rectangle(0, 0, img.Width, img.Height), img.PixelFormat);
+            if (pictureBox1.InvokeRequired)
+            {
+                pictureBox1.BeginInvoke(new MethodInvoker(
+                delegate ()
+                {
+                    pictureBox1.Image = temp;
+                }));
+            }
+            else
+            {
+                pictureBox1.Image = temp;
+            }
+
+        }
+        private void picbox90_Click(object sender, EventArgs e)
+        {
+            m_CurrentCamera.RotateVideo(Dynamsoft.UVC.Enums.EnumVideoRotateType.Rotate_90);
+            RotatePictureBox();
+        }
+
+        private void picbox180_Click(object sender, EventArgs e)
+        {
+            m_CurrentCamera.RotateVideo(Dynamsoft.UVC.Enums.EnumVideoRotateType.Rotate_180);
+            ResizePictureBox();
+        }
+
+        private void picbox270_Click(object sender, EventArgs e)
+        {
+            m_CurrentCamera.RotateVideo(Dynamsoft.UVC.Enums.EnumVideoRotateType.Rotate_270);
+            RotatePictureBox();
+        }
+        void m_CurrentCamera_OnFrameCaptrue(Bitmap bitmap)
+        {
+            SetPicture(bitmap);
+        }
+        private void picbox90_MouseHover(object sender, EventArgs e)
+        {
+            picbox90.Image = global::WebcamDemo.Properties.Resources._90_hover;
+        }
+        private void picbox90_MouseLeave(object sender, EventArgs e)
+        {
+            picbox90.Image = global::WebcamDemo.Properties.Resources._90_normal;
+        }
+        private void picbox180_MouseHover(object sender, EventArgs e)
+        {
+            picbox180.Image = global::WebcamDemo.Properties.Resources._180_hover;
+        }
+        private void picbox180_MouseLeave(object sender, EventArgs e)
+        {
+            picbox180.Image = global::WebcamDemo.Properties.Resources._180_normal;
+        }
+        private void picbox270_MouseHover(object sender, EventArgs e)
+        {
+            picbox270.Image = global::WebcamDemo.Properties.Resources._270_hover;
+        }
+        private void picbox270_MouseLeave(object sender, EventArgs e)
+        {
+            picbox270.Image = global::WebcamDemo.Properties.Resources._270_normal;
+        }
+        
     }
 }

@@ -3,13 +3,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="WebcamDemo" Height="437.075" Width="898.123" xmlns:my="clr-namespace:Dynamsoft.WPF;assembly=Dynamsoft.WPF.Viewer">
     <Grid>
-        <Button Name="btnCaptureImage" Content="Capture Image" HorizontalAlignment="Left" Margin="36,0,0,154" VerticalAlignment="Bottom" Width="136" Height="21.96" Click="btnCaptureImage_Click" />
-        <ComboBox Name="cbxSources" HorizontalAlignment="Left" Margin="36,63,0,0" VerticalAlignment="Top"  Width="136" RenderTransformOrigin="-0.134,0.114"/>
-        <Button Name="btnRemoveAllImage" Content="Remove All Images" HorizontalAlignment="Left" Margin="36,282,0,0" VerticalAlignment="Top" Height="21.96" Width="136" Click="btnRemoveAllImage_Click" />
+        <Button Name="btnCaptureImage" Content="Capture Image" HorizontalAlignment="Left" Margin="36,0,0,154" VerticalAlignment="Bottom" Width="136" Click="btnCaptureImage_Click" />
+        <ComboBox Name="cbxSources" HorizontalAlignment="Left" Margin="36,63,0,0" VerticalAlignment="Top" Width="136" RenderTransformOrigin="-0.134,0.114"/>
+        <Button Name="btnRemoveAllImage" Content="Remove All Images" HorizontalAlignment="Left" Margin="36,282,0,0" VerticalAlignment="Top" Width="136" Click="btnRemoveAllImage_Click" />
         <Label Content="WebCam Source:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="36,24,0,0"/>
         <Label Content="ImageContainer:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="251,24,0,0"/>
         <Label Content="VideoContainer" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="567,24,0,0"/>
+        <Label Content="Resolution:" HorizontalAlignment="Left" Margin="36,90,0,0" VerticalAlignment="Top"/>
 
+        <ComboBox x:Name="cbxResolution" HorizontalAlignment="Left" Margin="36,121,0,0" VerticalAlignment="Top" Width="136" SelectionChanged="cbxResolution_SelectionChanged"/>
+        <Label Name="btnRotate90" HorizontalAlignment="Left" Margin="36,180,0,0" VerticalAlignment="Top" Width="24" Height="21" ToolTip="Rotate Video 90°" MouseEnter="btnRotate90_MouseEnter" MouseLeave="btnRotate90_MouseLeave" MouseDown="btnRotate90_Click"/>
+        <Label Name="btnRotate180" HorizontalAlignment="Left" Margin="94,180,0,0" VerticalAlignment="Top" Width="24" Height="21" ToolTip="Rotate Video 180°" Mouse.MouseEnter="btnRotate180_MouseEnter" MouseLeave="btnRotate180_MouseLeave" MouseDown="btnRotate180_Click"/>
+        <Label Name="btnRotate270" HorizontalAlignment="Left" Margin="148,180,0,0" VerticalAlignment="Top" Width="24" Height="21" ToolTip="Rotate Video 270°" Mouse.MouseEnter="btnRotate270_MouseEnter" MouseLeave="btnRotate270_MouseLeave" MouseDown="btnRotate270_Click"/>
         <Border Name="border1" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="295" Margin="567,58,0,0" VerticalAlignment="Top" Width="275">
             <Image Name="image1" HorizontalAlignment="Left" Height="295" Margin="0,0,0,0" VerticalAlignment="Top" Width="275" Stretch="Fill"  />
         </Border>

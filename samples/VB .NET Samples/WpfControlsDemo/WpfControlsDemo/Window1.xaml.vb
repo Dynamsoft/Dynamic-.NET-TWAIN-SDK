@@ -38,7 +38,8 @@ Namespace WpfControlsDemo
                 strCurrentDirectory = System.Reflection.Assembly.GetExecutingAssembly().Location.Substring(0, index)
                 imageDirectory = strCurrentDirectory & "Samples\Bin\Images\WpfDemoImages\"
 
-                strTessdataDirectory = strCurrentDirectory & "Samples\Bin"
+                strTessdataDirectory = strCurrentDirectory & "Samples\Bin\tessdata"
+                mSettingsPath = strCurrentDirectory & "Samples\Bin\Templates\"
             Else
                 index = System.Reflection.Assembly.GetExecutingAssembly().Location.LastIndexOf("\")
                 If index <> -1 Then
@@ -55,7 +56,7 @@ Namespace WpfControlsDemo
         Private m_StrProductKey As String
         Public Sub New()
             InitializeComponent()
-            m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+            m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
             m_CoreForImageViewer = New ImageCore()
             m_CoreForImageThum = New ImageCore()
             m_TwainManager = New TwainManager(m_StrProductKey)
@@ -93,6 +94,7 @@ Namespace WpfControlsDemo
         Public Shared ReadOnly imageDirectory As String
         Public Shared ReadOnly strCurrentDirectory As String
         Public Shared ReadOnly strTessdataDirectory As String
+        Public Shared ReadOnly mSettingsPath As String
 
         Private Sub Button_MouseEnter(sender As Object, e As MouseEventArgs)
             Dim btn As Button = DirectCast(sender, Button)
@@ -277,32 +279,83 @@ Namespace WpfControlsDemo
 
         Private Sub Barcode_Click(sender As Object, e As RoutedEventArgs)
             If m_CoreForImageThum.ImageBuffer.HowManyImagesInBuffer > 0 Then
-                Dim bmp As System.Drawing.Bitmap = Nothing
-                Try
-                    Dim reader As New BarcodeReader()
-                    reader.LicenseKeys = m_StrProductKey
-                    Dim aryResult As BarcodeResult() = reader.DecodeBitmap(m_CoreForImageThum.ImageBuffer.GetBitmap(m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer))
-                    If aryResult Is Nothing Then
-                        Dim strResult As String = "The barcode for selected format is not found." & vbCr & vbLf
-                        MessageBox.Show(strResult, "Barcodes Results")
-                    Else
-                        Dim strResult As String = aryResult.Length & " total barcode found." & vbCr & vbLf
-                        For i As Integer = 0 To aryResult.Length - 1
 
-                            strResult += [String].Format("Result {0}" & vbCr & vbLf & " Barcode Format: {1}    Barcode Text: {2}" & vbCr & vbLf, (i + 1), aryResult(i).BarcodeFormat, aryResult(i).BarcodeText)
-                        Next
-                        MessageBox.Show(strResult, "Barcodes Results")
-                    End If
+                Try
+                    Dim m_BarcodeReader As BarcodeReader = New BarcodeReader()
+                    m_BarcodeReader.LicenseKeys = m_StrProductKey
+                    m_BarcodeReader.LoadSettingsFromFile(mSettingsPath & "template_aggregation.json")
+                    Dim bmp As Bitmap = CType((m_CoreForImageThum.ImageBuffer.GetBitmap(m_CoreForImageThum.ImageBuffer.CurrentImageIndexInBuffer)), Bitmap)
+                    Dim beforeRead As DateTime = DateTime.Now
+                    Dim aryResult As TextResult() = m_BarcodeReader.DecodeBitmap(bmp, "All_DEFAULT")
+                    Dim afterRead As DateTime = DateTime.Now
+                    Dim timeElapsed As Integer = CInt((afterRead - beforeRead).TotalMilliseconds)
+                    Me.ShowResult(aryResult, timeElapsed)
                 Catch exp As Exception
                     MessageBox.Show(exp.Message, "Decoding Error", MessageBoxButton.OK, MessageBoxImage.[Error])
-                Finally
-                    If bmp IsNot Nothing Then
-                        bmp.Dispose()
-                    End If
                 End Try
             End If
         End Sub
+        Private Sub ShowResult(aryResult As TextResult(), timeElapsed As Integer)
+            Dim strResult As String
 
+            If aryResult Is Nothing Then
+                strResult = "No barcode found. Total time spent: " & timeElapsed & " ms" & vbCrLf
+            Else
+                strResult = "Total barcode(s) found: " & aryResult.Length & ". Total time spent: " & timeElapsed & " ms" & vbCrLf
+                Dim i As Integer
+                For i = 0 To aryResult.Length - 1
+                    strResult += String.Format("  Barcode: {0}" & vbCrLf, (i + 1))
+                    strResult += String.Format("    Type: {0}" & vbCrLf, aryResult(i).BarcodeFormat.ToString())
+                    strResult = AddBarcodeText(strResult, aryResult(i).BarcodeText)
+                    strResult += vbCrLf
+                Next
+            End If
+
+            MessageBox.Show(strResult, "Barcodes Results")
+        End Sub
+        Private Function AddBarcodeText(result As String, barcodetext As String) As String
+            Dim temp As String = ""
+            Dim temp1 As String = barcodetext
+
+            For j As Integer = 0 To temp1.Length - 1
+
+                If temp1(j) = vbNullChar Then
+                    temp += "\"
+                    temp += "0"
+                Else
+                    temp += temp1(j).ToString()
+                End If
+            Next
+
+            result += String.Format("    Value: {0}" & vbCrLf, temp)
+            Return result
+        End Function
+
+        Private Function ConvertLocationPointToRect(points As System.Drawing.Point()) As System.Drawing.Rectangle
+            Dim left As Integer = points(0).X, top As Integer = points(0).Y, right As Integer = points(1).X, bottom As Integer = points(1).Y
+
+            For i As Integer = 0 To points.Length - 1
+
+                If points(i).X < left Then
+                    left = points(i).X
+                End If
+
+                If points(i).X > right Then
+                    right = points(i).X
+                End If
+
+                If points(i).Y < top Then
+                    top = points(i).Y
+                End If
+
+                If points(i).Y > bottom Then
+                    bottom = points(i).Y
+                End If
+            Next
+
+            Dim temp As System.Drawing.Rectangle = New System.Drawing.Rectangle(left, top, (right - left), (bottom - top))
+            Return temp
+        End Function
 
         Private m_Tesseract As Tesseract = Nothing
         Private Sub OCR_Click(sender As Object, e As RoutedEventArgs)

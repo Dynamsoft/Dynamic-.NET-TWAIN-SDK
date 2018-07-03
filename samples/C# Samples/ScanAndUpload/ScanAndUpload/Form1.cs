@@ -24,7 +24,7 @@ namespace ScanAndUpload
         string m_strServerName = "www.dynamsoft.com";
         string m_strPort = "80";
         string m_strActionPage = "/demo/DNT/SaveToDB.aspx";
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
 
         public Form1()
         {
@@ -232,6 +232,7 @@ namespace ScanAndUpload
         public bool OnPostTransfer(Bitmap bit)
         {
             m_ImageCore.IO.LoadImage(bit);
+			TextBox.CheckForIllegalCrossThreadCalls = false;
             this.txtboxErrMessage.AppendText("Image acquired successfully. \r\n");
             return true;
         }

@@ -22,7 +22,7 @@ Namespace Rasterizer
         Public Sub New()
             InitializeComponent()
             Initialization()
-            m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+            m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
             m_PDFRasteizer = New Dynamsoft.PDF.PDFRasterizer(m_StrProductKey)
             m_PDFCreator = New PDFCreator(m_StrProductKey)
             m_ImageCore = New ImageCore()

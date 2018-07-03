@@ -49,6 +49,8 @@
             this.lblViewMode = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.dsViewer1 = new Dynamsoft.Forms.DSViewer();
+            this.btnRemoveAll = new System.Windows.Forms.Button();
+            this.btnRemoveSelected = new System.Windows.Forms.Button();
             this.grpOCRResult.SuspendLayout();
             this.grpSelectedArea.SuspendLayout();
             this.SuspendLayout();
@@ -89,7 +91,7 @@
             this.lblFormat.Name = "lblFormat";
             this.lblFormat.Size = new System.Drawing.Size(111, 13);
             this.lblFormat.TabIndex = 6;
-            this.lblFormat.Text = "Ocr Result File Format";
+            this.lblFormat.Text = "OCR Result File Format";
             // 
             // grpOCRResult
             // 
@@ -132,7 +134,7 @@
             this.lblLanguage.Name = "lblLanguage";
             this.lblLanguage.Size = new System.Drawing.Size(75, 13);
             this.lblLanguage.TabIndex = 10;
-            this.lblLanguage.Text = "Ocr Language";
+            this.lblLanguage.Text = "OCR Language";
             // 
             // grpSelectedArea
             // 
@@ -149,7 +151,7 @@
             this.grpSelectedArea.Size = new System.Drawing.Size(210, 79);
             this.grpSelectedArea.TabIndex = 20;
             this.grpSelectedArea.TabStop = false;
-            this.grpSelectedArea.Text = "Selected Rectangle Area Of the Image";
+            this.grpSelectedArea.Text = "Selected Rectangle Area of the Image";
             // 
             // tbxTop
             // 
@@ -250,7 +252,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(470, 465);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(293, 13);
+            this.label1.Size = new System.Drawing.Size(237, 13);
             this.label1.TabIndex = 23;
             this.label1.Text = "Note: PDF library is used when loading PDF files.";
             // 
@@ -263,11 +265,33 @@
             this.dsViewer1.Size = new System.Drawing.Size(520, 439);
             this.dsViewer1.TabIndex = 24;
             // 
+            // btnRemoveAll
+            // 
+            this.btnRemoveAll.Location = new System.Drawing.Point(577, 379);
+            this.btnRemoveAll.Name = "btnRemoveAll";
+            this.btnRemoveAll.Size = new System.Drawing.Size(142, 23);
+            this.btnRemoveAll.TabIndex = 25;
+            this.btnRemoveAll.Text = "Remove All Images";
+            this.btnRemoveAll.UseVisualStyleBackColor = true;
+            this.btnRemoveAll.Click += new System.EventHandler(this.btnRemoveAll_Click);
+            // 
+            // btnRemoveSelected
+            // 
+            this.btnRemoveSelected.Location = new System.Drawing.Point(577, 419);
+            this.btnRemoveSelected.Name = "btnRemoveSelected";
+            this.btnRemoveSelected.Size = new System.Drawing.Size(142, 23);
+            this.btnRemoveSelected.TabIndex = 26;
+            this.btnRemoveSelected.Text = "Remove Selected Images";
+            this.btnRemoveSelected.UseVisualStyleBackColor = true;
+            this.btnRemoveSelected.Click += new System.EventHandler(this.btnRemoveSelected_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(764, 482);
+            this.Controls.Add(this.btnRemoveSelected);
+            this.Controls.Add(this.btnRemoveAll);
             this.Controls.Add(this.dsViewer1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblViewMode);
@@ -312,6 +336,8 @@
         private System.Windows.Forms.Label lblViewMode;
         private System.Windows.Forms.Label label1;
         private Dynamsoft.Forms.DSViewer dsViewer1;
+        private System.Windows.Forms.Button btnRemoveAll;
+        private System.Windows.Forms.Button btnRemoveSelected;
     }
 }
 

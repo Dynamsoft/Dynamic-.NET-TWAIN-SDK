@@ -43,6 +43,8 @@ Partial Class Form1
         Me.lblViewMode = New System.Windows.Forms.Label()
         Me.label1 = New System.Windows.Forms.Label()
         Me.dsViewer1 = New Dynamsoft.Forms.DSViewer()
+        Me.btnRemoveAll = New System.Windows.Forms.Button()
+        Me.btnRemoveSelected = New System.Windows.Forms.Button()
         Me.grpOCRResult.SuspendLayout()
         Me.grpSelectedArea.SuspendLayout()
         Me.SuspendLayout()
@@ -81,7 +83,7 @@ Partial Class Form1
         Me.lblFormat.Name = "lblFormat"
         Me.lblFormat.Size = New System.Drawing.Size(111, 13)
         Me.lblFormat.TabIndex = 6
-        Me.lblFormat.Text = "Ocr Result File Format"
+        Me.lblFormat.Text = "OCR Result File Format"
         '
         'grpOCRResult
         '
@@ -123,7 +125,7 @@ Partial Class Form1
         Me.lblLanguage.Name = "lblLanguage"
         Me.lblLanguage.Size = New System.Drawing.Size(75, 13)
         Me.lblLanguage.TabIndex = 10
-        Me.lblLanguage.Text = "Ocr Language"
+        Me.lblLanguage.Text = "OCR Language"
         '
         'grpSelectedArea
         '
@@ -140,7 +142,7 @@ Partial Class Form1
         Me.grpSelectedArea.Size = New System.Drawing.Size(210, 79)
         Me.grpSelectedArea.TabIndex = 20
         Me.grpSelectedArea.TabStop = False
-        Me.grpSelectedArea.Text = "Selected Rectangle Area Of the Image"
+        Me.grpSelectedArea.Text = "Selected Rectangle Area of the Image"
         '
         'tbxTop
         '
@@ -236,7 +238,7 @@ Partial Class Form1
         Me.label1.AutoSize = True
         Me.label1.Location = New System.Drawing.Point(470, 465)
         Me.label1.Name = "label1"
-        Me.label1.Size = New System.Drawing.Size(293, 13)
+        Me.label1.Size = New System.Drawing.Size(237, 13)
         Me.label1.TabIndex = 23
         Me.label1.Text = "Note: PDF library is used when loading PDF files."
         '
@@ -245,15 +247,35 @@ Partial Class Form1
         Me.dsViewer1.Location = New System.Drawing.Point(12, 12)
         Me.dsViewer1.Name = "dsViewer1"
         Me.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.dsViewer1.SelectionRectAspectRatio = 0.0R
+        Me.dsViewer1.SelectionRectAspectRatio = 0R
         Me.dsViewer1.Size = New System.Drawing.Size(520, 439)
         Me.dsViewer1.TabIndex = 24
+        '
+        'btnRemoveAll
+        '
+        Me.btnRemoveAll.Location = New System.Drawing.Point(577, 379)
+        Me.btnRemoveAll.Name = "btnRemoveAll"
+        Me.btnRemoveAll.Size = New System.Drawing.Size(142, 23)
+        Me.btnRemoveAll.TabIndex = 25
+        Me.btnRemoveAll.Text = "Remove All Images"
+        Me.btnRemoveAll.UseVisualStyleBackColor = True
+        '
+        'btnRemoveSelected
+        '
+        Me.btnRemoveSelected.Location = New System.Drawing.Point(577, 419)
+        Me.btnRemoveSelected.Name = "btnRemoveSelected"
+        Me.btnRemoveSelected.Size = New System.Drawing.Size(142, 23)
+        Me.btnRemoveSelected.TabIndex = 26
+        Me.btnRemoveSelected.Text = "Remove Selected Images"
+        Me.btnRemoveSelected.UseVisualStyleBackColor = True
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(764, 482)
+        Me.Controls.Add(Me.btnRemoveSelected)
+        Me.Controls.Add(Me.btnRemoveAll)
         Me.Controls.Add(Me.dsViewer1)
         Me.Controls.Add(Me.label1)
         Me.Controls.Add(Me.lblViewMode)
@@ -274,7 +296,7 @@ Partial Class Form1
 
     End Sub
 
-	#End Region
+#End Region
 
     Private WithEvents btnLoad As System.Windows.Forms.Button
     Private WithEvents btnSelectedOCR As System.Windows.Forms.Button
@@ -297,5 +319,7 @@ Partial Class Form1
 	Private lblViewMode As System.Windows.Forms.Label
 	Private label1 As System.Windows.Forms.Label
 	Private dsViewer1 As Dynamsoft.Forms.DSViewer
+    Friend WithEvents btnRemoveAll As Windows.Forms.Button
+    Friend WithEvents btnRemoveSelected As Windows.Forms.Button
 End Class
 

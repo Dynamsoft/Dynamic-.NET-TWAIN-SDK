@@ -18,7 +18,7 @@ namespace CustomCapabilityDemo
     {
         private TwainManager m_TwainManager = null;
         private ImageCore m_ImageCore = null;
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
         public Form1()
         {
             InitializeComponent();

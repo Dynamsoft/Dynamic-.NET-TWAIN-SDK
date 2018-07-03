@@ -27,7 +27,7 @@ Partial Public Class Form1
 
     Public Sub New()
         InitializeComponent()
-        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
         m_TwainManager = New TwainManager(m_StrProductKey)
         m_ImageCore = New ImageCore()
         dsViewer1.Bind(m_ImageCore)
@@ -194,6 +194,7 @@ Partial Public Class Form1
 
     Public Function OnPostTransfer(bit As Bitmap) As Boolean Implements IAcquireCallback.OnPostTransfer
         m_ImageCore.IO.LoadImage(bit)
+		TextBox.CheckForIllegalCrossThreadCalls = False
         Me.txtboxErrMessage.AppendText("Image acquired successfully. " & vbCr & vbLf)
         Return True
     End Function

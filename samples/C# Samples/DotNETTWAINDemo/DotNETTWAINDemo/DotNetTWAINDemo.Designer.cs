@@ -110,18 +110,7 @@ namespace DotNet_TWAIN_Demo
             this.panelReadBarcode = new System.Windows.Forms.Panel();
             this.picboxReadBarcode = new System.Windows.Forms.PictureBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.tbxBottom = new System.Windows.Forms.TextBox();
-            this.tbxMaxBarcodeReads = new System.Windows.Forms.TextBox();
             this.cbxBarcodeFormat = new System.Windows.Forms.ComboBox();
-            this.tbxTop = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.tbxRight = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.tbxLeft = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
             this.panelOCR = new System.Windows.Forms.Panel();
             this.picboxOCR = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -828,6 +817,7 @@ namespace DotNet_TWAIN_Demo
             this.cbxResolutionForWebcam.Name = "cbxResolutionForWebcam";
             this.cbxResolutionForWebcam.Size = new System.Drawing.Size(130, 23);
             this.cbxResolutionForWebcam.TabIndex = 90;
+			this.cbxResolutionForWebcam.SelectedIndexChanged += new System.EventHandler(this.cbxResolutionForWebcam_SelectedIndexChanged);
             // 
             // label21
             // 
@@ -1190,29 +1180,18 @@ namespace DotNet_TWAIN_Demo
             this.panelReadBarcode.BackColor = System.Drawing.Color.Transparent;
             this.panelReadBarcode.Controls.Add(this.picboxReadBarcode);
             this.panelReadBarcode.Controls.Add(this.label6);
-            this.panelReadBarcode.Controls.Add(this.label7);
-            this.panelReadBarcode.Controls.Add(this.tbxBottom);
-            this.panelReadBarcode.Controls.Add(this.tbxMaxBarcodeReads);
             this.panelReadBarcode.Controls.Add(this.cbxBarcodeFormat);
-            this.panelReadBarcode.Controls.Add(this.tbxTop);
-            this.panelReadBarcode.Controls.Add(this.label8);
-            this.panelReadBarcode.Controls.Add(this.label9);
-            this.panelReadBarcode.Controls.Add(this.tbxRight);
-            this.panelReadBarcode.Controls.Add(this.label10);
-            this.panelReadBarcode.Controls.Add(this.label11);
-            this.panelReadBarcode.Controls.Add(this.tbxLeft);
-            this.panelReadBarcode.Controls.Add(this.label12);
             this.panelReadBarcode.Location = new System.Drawing.Point(1, 41);
             this.panelReadBarcode.Margin = new System.Windows.Forms.Padding(0);
             this.panelReadBarcode.Name = "panelReadBarcode";
-            this.panelReadBarcode.Size = new System.Drawing.Size(248, 225);
+            this.panelReadBarcode.Size = new System.Drawing.Size(248, 100);
             this.panelReadBarcode.TabIndex = 2;
             this.panelReadBarcode.Visible = false;
             // 
             // picboxReadBarcode
             // 
             this.picboxReadBarcode.Image = global::DotNet_TWAIN_Demo.Properties.Resources.picboxReadBarcode_Disabled;
-            this.picboxReadBarcode.Location = new System.Drawing.Point(38, 176);
+            this.picboxReadBarcode.Location = new System.Drawing.Point(38, 50);
             this.picboxReadBarcode.Name = "picboxReadBarcode";
             this.picboxReadBarcode.Size = new System.Drawing.Size(180, 38);
             this.picboxReadBarcode.TabIndex = 15;
@@ -1234,33 +1213,6 @@ namespace DotNet_TWAIN_Demo
             this.label6.TabIndex = 2;
             this.label6.Text = "Barcode Format :";
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.BackColor = System.Drawing.Color.Transparent;
-            this.label7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(18, 49);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(147, 15);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "Maximum Barcode Reads :";
-            // 
-            // tbxBottom
-            // 
-            this.tbxBottom.Location = new System.Drawing.Point(169, 141);
-            this.tbxBottom.Name = "tbxBottom";
-            this.tbxBottom.ReadOnly = true;
-            this.tbxBottom.Size = new System.Drawing.Size(60, 20);
-            this.tbxBottom.TabIndex = 14;
-            // 
-            // tbxMaxBarcodeReads
-            // 
-            this.tbxMaxBarcodeReads.Location = new System.Drawing.Point(177, 47);
-            this.tbxMaxBarcodeReads.Name = "tbxMaxBarcodeReads";
-            this.tbxMaxBarcodeReads.Size = new System.Drawing.Size(50, 20);
-            this.tbxMaxBarcodeReads.TabIndex = 4;
-            this.tbxMaxBarcodeReads.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbxBarcodeLocation_KeyPress);
-            // 
             // cbxBarcodeFormat
             // 
             this.cbxBarcodeFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1270,85 +1222,7 @@ namespace DotNet_TWAIN_Demo
             this.cbxBarcodeFormat.Name = "cbxBarcodeFormat";
             this.cbxBarcodeFormat.Size = new System.Drawing.Size(106, 21);
             this.cbxBarcodeFormat.TabIndex = 5;
-            // 
-            // tbxTop
-            // 
-            this.tbxTop.Location = new System.Drawing.Point(55, 141);
-            this.tbxTop.Name = "tbxTop";
-            this.tbxTop.ReadOnly = true;
-            this.tbxTop.Size = new System.Drawing.Size(60, 20);
-            this.tbxTop.TabIndex = 13;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.BackColor = System.Drawing.Color.Transparent;
-            this.label8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(18, 77);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(211, 15);
-            this.label8.TabIndex = 6;
-            this.label8.Text = "Selected Rectangle Area Of the Image :";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.BackColor = System.Drawing.Color.Transparent;
-            this.label9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(19, 109);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(33, 15);
-            this.label9.TabIndex = 7;
-            this.label9.Text = "Left :";
-            // 
-            // tbxRight
-            // 
-            this.tbxRight.Location = new System.Drawing.Point(169, 106);
-            this.tbxRight.Name = "tbxRight";
-            this.tbxRight.ReadOnly = true;
-            this.tbxRight.Size = new System.Drawing.Size(60, 20);
-            this.tbxRight.TabIndex = 12;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.BackColor = System.Drawing.Color.Transparent;
-            this.label10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(127, 109);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(41, 15);
-            this.label10.TabIndex = 8;
-            this.label10.Text = "Right :";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.BackColor = System.Drawing.Color.Transparent;
-            this.label11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(18, 143);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(34, 15);
-            this.label11.TabIndex = 9;
-            this.label11.Text = "Top :";
-            // 
-            // tbxLeft
-            // 
-            this.tbxLeft.Location = new System.Drawing.Point(55, 107);
-            this.tbxLeft.Name = "tbxLeft";
-            this.tbxLeft.ReadOnly = true;
-            this.tbxLeft.Size = new System.Drawing.Size(60, 20);
-            this.tbxLeft.TabIndex = 11;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.BackColor = System.Drawing.Color.Transparent;
-            this.label12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(115, 143);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(53, 15);
-            this.label12.TabIndex = 10;
-            this.label12.Text = "Bottom :";
+            this.cbxBarcodeFormat.SelectedIndexChanged += new System.EventHandler(cbxBarcodeFormat_SelectedIndexChanged);
             // 
             // panelOCR
             // 
@@ -1618,7 +1492,7 @@ namespace DotNet_TWAIN_Demo
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(894, 18);
             this.label25.TabIndex = 89;
-            this.label25.Text = "Note: PDF library is used when loading PDF files.          @2017 Dynams" +
+            this.label25.Text = "Note: PDF library is used when loading PDF files.          @2018 Dynams" +
                 "oft Corporation. All rights reserved.";
             this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -1952,18 +1826,7 @@ namespace DotNet_TWAIN_Demo
         private System.Windows.Forms.PictureBox picboxOCR;
         private System.Windows.Forms.Panel panelOCR;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox tbxMaxBarcodeReads;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.ComboBox cbxBarcodeFormat;
-        private System.Windows.Forms.TextBox tbxBottom;
-        private System.Windows.Forms.TextBox tbxTop;
-        private System.Windows.Forms.TextBox tbxRight;
-        private System.Windows.Forms.TextBox tbxLeft;
         private System.Windows.Forms.PictureBox picboxReadBarcode;
         private System.Windows.Forms.Panel panelReadBarcode;
         private System.Windows.Forms.Panel panelAddBarcode;

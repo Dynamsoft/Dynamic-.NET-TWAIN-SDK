@@ -25,7 +25,7 @@ Partial Public Class Form1
     Private m_SeletedAnnotation As New List(Of AnnotationData)()
     Public Sub New()
         InitializeComponent()
-        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
         m_ImageCore = New ImageCore()
         dsViewer1.Bind(m_ImageCore)
         m_Rasterizer = New PDFRasterizer(m_StrProductKey)

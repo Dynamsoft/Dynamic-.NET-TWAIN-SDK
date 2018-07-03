@@ -31,6 +31,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnLoadImage = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnCreateBarcode = new System.Windows.Forms.Button();
             this.labMsg = new System.Windows.Forms.Label();
             this.cmbBarcodeFormat = new System.Windows.Forms.ComboBox();
             this.btnAddBarcode = new System.Windows.Forms.Button();
@@ -86,6 +87,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnCreateBarcode);
             this.groupBox2.Controls.Add(this.labMsg);
             this.groupBox2.Controls.Add(this.cmbBarcodeFormat);
             this.groupBox2.Controls.Add(this.btnAddBarcode);
@@ -103,6 +105,16 @@
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Add Barcode";
+            // 
+            // btnCreateBarcode
+            // 
+            this.btnCreateBarcode.Location = new System.Drawing.Point(147, 193);
+            this.btnCreateBarcode.Name = "btnCreateBarcode";
+            this.btnCreateBarcode.Size = new System.Drawing.Size(103, 25);
+            this.btnCreateBarcode.TabIndex = 12;
+            this.btnCreateBarcode.Text = "Create Barcode";
+            this.btnCreateBarcode.UseVisualStyleBackColor = true;
+            this.btnCreateBarcode.Click += new System.EventHandler(this.btnCreateBarcode_Click);
             // 
             // labMsg
             // 
@@ -123,7 +135,7 @@
             // 
             // btnAddBarcode
             // 
-            this.btnAddBarcode.Location = new System.Drawing.Point(83, 195);
+            this.btnAddBarcode.Location = new System.Drawing.Point(21, 193);
             this.btnAddBarcode.Name = "btnAddBarcode";
             this.btnAddBarcode.Size = new System.Drawing.Size(103, 25);
             this.btnAddBarcode.TabIndex = 5;
@@ -354,7 +366,7 @@
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(330, 459);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(293, 13);
+            this.label7.Size = new System.Drawing.Size(237, 13);
             this.label7.TabIndex = 4;
             this.label7.Text = "Note: PDF library is used when loading PDF files.";
             // 
@@ -363,7 +375,7 @@
             this.dsViewer1.Location = new System.Drawing.Point(12, 12);
             this.dsViewer1.Name = "dsViewer1";
             this.dsViewer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.dsViewer1.SelectionRectAspectRatio = 0;
+            this.dsViewer1.SelectionRectAspectRatio = 0D;
             this.dsViewer1.Size = new System.Drawing.Size(327, 443);
             this.dsViewer1.TabIndex = 5;
             // 
@@ -426,6 +438,7 @@
         private System.Windows.Forms.Label labmsg2;
         private System.Windows.Forms.Label label7;
         private Dynamsoft.Forms.DSViewer dsViewer1;
+        private System.Windows.Forms.Button btnCreateBarcode;
     }
 }
 

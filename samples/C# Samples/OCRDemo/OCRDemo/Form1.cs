@@ -17,7 +17,7 @@ namespace OCRDemo
 {
     public partial class Form1 : Form,IConvertCallback
     {
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
         private ImageCore m_ImageCore = null;
         private Tesseract m_Tesseract = null;
         private PDFRasterizer m_PDFRasterizer = null;
@@ -92,11 +92,11 @@ namespace OCRDemo
             string languageFolder = m_strCurrentDirectory;
             if (m_bSamplesExist)
             {
-                languageFolder = m_strCurrentDirectory + @"Samples\Bin\";
+                languageFolder = m_strCurrentDirectory + @"Samples\Bin\tessdata";
             }
             else
             {
-                languageFolder = Application.StartupPath + "\\Bin";
+                languageFolder = Application.StartupPath + "\\Bin\\tessdata";
             }
 
             m_Tesseract.TessDataPath = languageFolder;
@@ -253,6 +253,16 @@ int.Parse(tbxTop.Text), int.Parse(tbxRight.Text), int.Parse(tbxBottom.Text));
         {
             m_ImageCore.IO.LoadImage(result.Image);
             m_ImageCore.ImageBuffer.SetMetaData(m_ImageCore.ImageBuffer.CurrentImageIndexInBuffer, EnumMetaDataType.enumAnnotation,result.Annotations,true);
+        }
+
+        private void btnRemoveAll_Click(object sender, EventArgs e)
+        {
+            m_ImageCore.ImageBuffer.RemoveAllImages();
+        }
+
+        private void btnRemoveSelected_Click(object sender, EventArgs e)
+        {
+            m_ImageCore.ImageBuffer.RemoveImages(dsViewer1.CurrentSelectedImageIndicesInBuffer);
         }
     }
 }

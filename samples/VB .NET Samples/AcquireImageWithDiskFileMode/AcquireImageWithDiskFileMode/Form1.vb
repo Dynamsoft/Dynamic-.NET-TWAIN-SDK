@@ -22,7 +22,7 @@ Partial Public Class Form1
 
     Public Sub New()
         InitializeComponent()
-        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
         m_ImageCore = New ImageCore()
         m_TwainManager = New TwainManager(m_StrProductKey)
         dsViewer1.Bind(m_ImageCore)

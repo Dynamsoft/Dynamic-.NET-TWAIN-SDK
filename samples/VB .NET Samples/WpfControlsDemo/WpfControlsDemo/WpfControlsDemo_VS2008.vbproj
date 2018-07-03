@@ -55,10 +55,6 @@
     <Import Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Dynamsoft.BarcodeGenerator, Version=7.0.0.309, Culture=neutral, PublicKeyToken=298ad97013b423eb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.BarcodeGenerator.dll</HintPath>
-    </Reference>
     <Reference Include="Dynamsoft.BarcodeReader, Version=5.0.0.214, Culture=neutral, PublicKeyToken=ad0967c36e09320a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Redistributable\Assembly\For .NETFramework 2.0\Dynamsoft.BarcodeReader.dll</HintPath>

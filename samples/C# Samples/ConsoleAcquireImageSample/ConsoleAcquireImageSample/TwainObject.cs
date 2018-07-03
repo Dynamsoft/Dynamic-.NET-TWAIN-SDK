@@ -13,7 +13,7 @@ namespace ConsoleAcquireImageSample
     {
         private TwainManager m_TwainManager = null;
         short iPageNumber = 0;
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
         public TwainObject()
         {
             m_TwainManager = new TwainManager(m_StrProductKey);

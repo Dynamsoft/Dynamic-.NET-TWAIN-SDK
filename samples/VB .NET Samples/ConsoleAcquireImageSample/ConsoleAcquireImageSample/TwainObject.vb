@@ -11,7 +11,7 @@ Public Class TwainObject
     Private iPageNumber As Short = 0
     Private m_StrProductKey As String
     Public Sub New()
-        m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk="
+        m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU="
         m_TwainManager = New TwainManager(m_StrProductKey)
     End Sub
 

@@ -104,18 +104,7 @@ Partial Class DotNetTWAINDemo
 		Me.panelReadBarcode = New System.Windows.Forms.Panel()
 		Me.picboxReadBarcode = New System.Windows.Forms.PictureBox()
 		Me.label6 = New System.Windows.Forms.Label()
-		Me.label7 = New System.Windows.Forms.Label()
-		Me.tbxBottom = New System.Windows.Forms.TextBox()
-		Me.tbxMaxBarcodeReads = New System.Windows.Forms.TextBox()
 		Me.cbxBarcodeFormat = New System.Windows.Forms.ComboBox()
-		Me.tbxTop = New System.Windows.Forms.TextBox()
-		Me.label8 = New System.Windows.Forms.Label()
-		Me.label9 = New System.Windows.Forms.Label()
-		Me.tbxRight = New System.Windows.Forms.TextBox()
-		Me.label10 = New System.Windows.Forms.Label()
-		Me.label11 = New System.Windows.Forms.Label()
-		Me.tbxLeft = New System.Windows.Forms.TextBox()
-		Me.label12 = New System.Windows.Forms.Label()
 		Me.panelOCR = New System.Windows.Forms.Panel()
 		Me.picboxOCR = New System.Windows.Forms.PictureBox()
 		Me.label2 = New System.Windows.Forms.Label()
@@ -212,7 +201,7 @@ Partial Class DotNetTWAINDemo
 		' 
 		' picboxHand
 		' 
-        Me.picboxHand.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxHand_Leave
+        Me.picboxHand.Image = Global.DotNet_TWAIN_Demo.picboxHand_Leave
         Me.picboxHand.Location = New System.Drawing.Point(11, 81)
         Me.picboxHand.Name = "picboxHand"
         Me.picboxHand.Size = New System.Drawing.Size(60, 36)
@@ -228,7 +217,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxCrop
         ' 
-        Me.picboxCrop.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxCrop_Leave
+        Me.picboxCrop.Image = Global.DotNet_TWAIN_Demo.picboxCrop_Leave
         Me.picboxCrop.Location = New System.Drawing.Point(70, 265)
         Me.picboxCrop.Name = "picboxCrop"
         Me.picboxCrop.Size = New System.Drawing.Size(60, 36)
@@ -244,7 +233,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxPoint
         ' 
-        Me.picboxPoint.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxPoint_Leave
+        Me.picboxPoint.Image = Global.DotNet_TWAIN_Demo.picboxPoint_Leave
         Me.picboxPoint.Location = New System.Drawing.Point(70, 81)
         Me.picboxPoint.Name = "picboxPoint"
         Me.picboxPoint.Size = New System.Drawing.Size(61, 36)
@@ -260,7 +249,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxCut
         ' 
-        Me.picboxCut.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxCut_Leave
+        Me.picboxCut.Image = Global.DotNet_TWAIN_Demo.picboxCut_Leave
         Me.picboxCut.Location = New System.Drawing.Point(11, 265)
         Me.picboxCut.Name = "picboxCut"
         Me.picboxCut.Size = New System.Drawing.Size(61, 36)
@@ -286,7 +275,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxFlip
         ' 
-        Me.picboxFlip.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxFlip_Leave
+        Me.picboxFlip.Image = Global.DotNet_TWAIN_Demo.picboxFlip_Leave
         Me.picboxFlip.Location = New System.Drawing.Point(70, 195)
         Me.picboxFlip.Name = "picboxFlip"
         Me.picboxFlip.Size = New System.Drawing.Size(61, 36)
@@ -302,7 +291,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxRotateLeft
         ' 
-        Me.picboxRotateLeft.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxRotateLeft_Leave
+        Me.picboxRotateLeft.Image = Global.DotNet_TWAIN_Demo.picboxRotateLeft_Leave
         Me.picboxRotateLeft.Location = New System.Drawing.Point(70, 152)
         Me.picboxRotateLeft.Name = "picboxRotateLeft"
         Me.picboxRotateLeft.Size = New System.Drawing.Size(61, 36)
@@ -318,7 +307,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxMirror
         ' 
-        Me.picboxMirror.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxMirror_Leave
+        Me.picboxMirror.Image = Global.DotNet_TWAIN_Demo.picboxMirror_Leave
         Me.picboxMirror.Location = New System.Drawing.Point(11, 195)
         Me.picboxMirror.Name = "picboxMirror"
         Me.picboxMirror.Size = New System.Drawing.Size(60, 36)
@@ -334,7 +323,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxRotateRight
         ' 
-        Me.picboxRotateRight.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxRotateRight_Leave
+        Me.picboxRotateRight.Image = Global.DotNet_TWAIN_Demo.picboxRotateRight_Leave
         Me.picboxRotateRight.Location = New System.Drawing.Point(11, 152)
         Me.picboxRotateRight.Name = "picboxRotateRight"
         Me.picboxRotateRight.Size = New System.Drawing.Size(60, 36)
@@ -362,7 +351,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxText
         ' 
-        Me.picboxText.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxText_Leave
+        Me.picboxText.Image = Global.DotNet_TWAIN_Demo.picboxText_Leave
         Me.picboxText.Location = New System.Drawing.Point(70, 378)
         Me.picboxText.Name = "picboxText"
         Me.picboxText.Size = New System.Drawing.Size(61, 36)
@@ -378,7 +367,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxEllipse
         ' 
-        Me.picboxEllipse.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxEllipse_Leave
+        Me.picboxEllipse.Image = Global.DotNet_TWAIN_Demo.picboxEllipse_Leave
         Me.picboxEllipse.Location = New System.Drawing.Point(70, 335)
         Me.picboxEllipse.Name = "picboxEllipse"
         Me.picboxEllipse.Size = New System.Drawing.Size(61, 36)
@@ -394,7 +383,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxRectangle
         ' 
-        Me.picboxRectangle.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxRectangle_Leave
+        Me.picboxRectangle.Image = Global.DotNet_TWAIN_Demo.picboxRectangle_Leave
         Me.picboxRectangle.Location = New System.Drawing.Point(11, 378)
         Me.picboxRectangle.Name = "picboxRectangle"
         Me.picboxRectangle.Size = New System.Drawing.Size(60, 36)
@@ -410,7 +399,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxLine
         ' 
-        Me.picboxLine.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxLine_Leave
+        Me.picboxLine.Image = Global.DotNet_TWAIN_Demo.picboxLine_Leave
         Me.picboxLine.Location = New System.Drawing.Point(11, 335)
         Me.picboxLine.Name = "picboxLine"
         Me.picboxLine.Size = New System.Drawing.Size(60, 36)
@@ -438,7 +427,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxZoomOut
         ' 
-        Me.picboxZoomOut.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxZoomOut_Leave
+        Me.picboxZoomOut.Image = Global.DotNet_TWAIN_Demo.picboxZoomOut_Leave
         Me.picboxZoomOut.Location = New System.Drawing.Point(70, 561)
         Me.picboxZoomOut.Name = "picboxZoomOut"
         Me.picboxZoomOut.Size = New System.Drawing.Size(61, 36)
@@ -454,7 +443,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxResample
         ' 
-        Me.picboxResample.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxResample_Leave
+        Me.picboxResample.Image = Global.DotNet_TWAIN_Demo.picboxResample_Leave
         Me.picboxResample.InitialImage = DirectCast(resources.GetObject("picboxResample.InitialImage"), System.Drawing.Image)
         Me.picboxResample.Location = New System.Drawing.Point(70, 518)
         Me.picboxResample.Name = "picboxResample"
@@ -471,7 +460,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxZoomIn
         ' 
-        Me.picboxZoomIn.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxZoomIn_Leave
+        Me.picboxZoomIn.Image = Global.DotNet_TWAIN_Demo.picboxZoomIn_Leave
         Me.picboxZoomIn.Location = New System.Drawing.Point(11, 561)
         Me.picboxZoomIn.Name = "picboxZoomIn"
         Me.picboxZoomIn.Size = New System.Drawing.Size(60, 36)
@@ -487,7 +476,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxZoom
         ' 
-        Me.picboxZoom.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxZoom_Leave
+        Me.picboxZoom.Image = Global.DotNet_TWAIN_Demo.picboxZoom_Leave
         Me.picboxZoom.Location = New System.Drawing.Point(11, 518)
         Me.picboxZoom.Name = "picboxZoom"
         Me.picboxZoom.Size = New System.Drawing.Size(60, 36)
@@ -515,7 +504,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxDeleteAll
         ' 
-        Me.picboxDeleteAll.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxDeleteAll_Leave
+        Me.picboxDeleteAll.Image = Global.DotNet_TWAIN_Demo.picboxDeleteAll_Leave
         Me.picboxDeleteAll.Location = New System.Drawing.Point(70, 631)
         Me.picboxDeleteAll.Name = "picboxDeleteAll"
         Me.picboxDeleteAll.Size = New System.Drawing.Size(61, 36)
@@ -531,7 +520,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxDelete
         ' 
-        Me.picboxDelete.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxDelete_Leave
+        Me.picboxDelete.Image = Global.DotNet_TWAIN_Demo.picboxDelete_Leave
         Me.picboxDelete.Location = New System.Drawing.Point(11, 631)
         Me.picboxDelete.Name = "picboxDelete"
         Me.picboxDelete.Size = New System.Drawing.Size(60, 36)
@@ -559,7 +548,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxFirst
         ' 
-        Me.picboxFirst.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxFirst_Leave
+        Me.picboxFirst.Image = Global.DotNet_TWAIN_Demo.picboxFirst_Leave
         Me.picboxFirst.Location = New System.Drawing.Point(159, 645)
         Me.picboxFirst.Name = "picboxFirst"
         Me.picboxFirst.Size = New System.Drawing.Size(50, 25)
@@ -575,7 +564,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxLast
         ' 
-        Me.picboxLast.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxLast_Leave
+        Me.picboxLast.Image = Global.DotNet_TWAIN_Demo.picboxLast_Leave
         Me.picboxLast.Location = New System.Drawing.Point(478, 645)
         Me.picboxLast.Name = "picboxLast"
         Me.picboxLast.Size = New System.Drawing.Size(50, 25)
@@ -591,7 +580,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxNext
         ' 
-        Me.picboxNext.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxNext_Leave
+        Me.picboxNext.Image = Global.DotNet_TWAIN_Demo.picboxNext_Leave
         Me.picboxNext.Location = New System.Drawing.Point(422, 645)
         Me.picboxNext.Name = "picboxNext"
         Me.picboxNext.Size = New System.Drawing.Size(50, 25)
@@ -607,7 +596,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxPrevious
         ' 
-        Me.picboxPrevious.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxPrevious_Leave
+        Me.picboxPrevious.Image = Global.DotNet_TWAIN_Demo.picboxPrevious_Leave
         Me.picboxPrevious.Location = New System.Drawing.Point(215, 645)
         Me.picboxPrevious.Name = "picboxPrevious"
         Me.picboxPrevious.Size = New System.Drawing.Size(50, 25)
@@ -634,7 +623,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxMin
         ' 
-        Me.picboxMin.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxMin_Leave
+        Me.picboxMin.Image = Global.DotNet_TWAIN_Demo.picboxMin_Leave
         Me.picboxMin.Location = New System.Drawing.Point(840, 10)
         Me.picboxMin.Name = "picboxMin"
         Me.picboxMin.Size = New System.Drawing.Size(20, 20)
@@ -648,7 +637,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxClose
         ' 
-        Me.picboxClose.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxClose_Leave
+        Me.picboxClose.Image = Global.DotNet_TWAIN_Demo.picboxClose_Leave
         Me.picboxClose.Location = New System.Drawing.Point(864, 10)
         Me.picboxClose.Name = "picboxClose"
         Me.picboxClose.Size = New System.Drawing.Size(20, 20)
@@ -737,7 +726,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxLoadImage
         ' 
-        Me.picboxLoadImage.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxLoadImage_Leave
+        Me.picboxLoadImage.Image = Global.DotNet_TWAIN_Demo.picboxLoadImage_Leave
         Me.picboxLoadImage.InitialImage = Nothing
         Me.picboxLoadImage.Location = New System.Drawing.Point(38, 42)
         Me.picboxLoadImage.Name = "picboxLoadImage"
@@ -795,7 +784,7 @@ Partial Class DotNetTWAINDemo
         ' picboxGrab
         ' 
         Me.picboxGrab.Enabled = False
-        Me.picboxGrab.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxGrab_Disabled
+        Me.picboxGrab.Image = Global.DotNet_TWAIN_Demo.picboxGrab_Disabled
         Me.picboxGrab.Location = New System.Drawing.Point(38, 80)
         Me.picboxGrab.Name = "picboxGrab"
         Me.picboxGrab.Size = New System.Drawing.Size(180, 38)
@@ -817,6 +806,7 @@ Partial Class DotNetTWAINDemo
         Me.cbxResolutionForWebcam.Name = "cbxResolutionForWebcam"
         Me.cbxResolutionForWebcam.Size = New System.Drawing.Size(130, 23)
         Me.cbxResolutionForWebcam.TabIndex = 90
+		AddHandler Me.cbxResolutionForWebcam.SelectedIndexChanged, New System.EventHandler(AddressOf Me.cbxResolutionForWebcam_SelectedIndexChanged)
         ' 
         ' label21
         ' 
@@ -905,7 +895,7 @@ Partial Class DotNetTWAINDemo
         ' picboxScan
         ' 
         Me.picboxScan.Enabled = False
-        Me.picboxScan.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxScan_Disabled
+        Me.picboxScan.Image = Global.DotNet_TWAIN_Demo.picboxScan_Disabled
         Me.picboxScan.Location = New System.Drawing.Point(37, 125)
         Me.picboxScan.Name = "picboxScan"
         Me.picboxScan.Size = New System.Drawing.Size(180, 38)
@@ -1038,7 +1028,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxAddBarcode
         ' 
-        Me.picboxAddBarcode.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxAddBarcode_Disabled
+        Me.picboxAddBarcode.Image = Global.DotNet_TWAIN_Demo.picboxAddBarcode_Disabled
         Me.picboxAddBarcode.Location = New System.Drawing.Point(38, 273)
         Me.picboxAddBarcode.Name = "picboxAddBarcode"
         Me.picboxAddBarcode.Size = New System.Drawing.Size(180, 38)
@@ -1179,29 +1169,18 @@ Partial Class DotNetTWAINDemo
         Me.panelReadBarcode.BackColor = System.Drawing.Color.Transparent
         Me.panelReadBarcode.Controls.Add(Me.picboxReadBarcode)
         Me.panelReadBarcode.Controls.Add(Me.label6)
-        Me.panelReadBarcode.Controls.Add(Me.label7)
-        Me.panelReadBarcode.Controls.Add(Me.tbxBottom)
-        Me.panelReadBarcode.Controls.Add(Me.tbxMaxBarcodeReads)
         Me.panelReadBarcode.Controls.Add(Me.cbxBarcodeFormat)
-        Me.panelReadBarcode.Controls.Add(Me.tbxTop)
-        Me.panelReadBarcode.Controls.Add(Me.label8)
-        Me.panelReadBarcode.Controls.Add(Me.label9)
-        Me.panelReadBarcode.Controls.Add(Me.tbxRight)
-        Me.panelReadBarcode.Controls.Add(Me.label10)
-        Me.panelReadBarcode.Controls.Add(Me.label11)
-        Me.panelReadBarcode.Controls.Add(Me.tbxLeft)
-        Me.panelReadBarcode.Controls.Add(Me.label12)
         Me.panelReadBarcode.Location = New System.Drawing.Point(1, 41)
         Me.panelReadBarcode.Margin = New System.Windows.Forms.Padding(0)
         Me.panelReadBarcode.Name = "panelReadBarcode"
-        Me.panelReadBarcode.Size = New System.Drawing.Size(248, 225)
+        Me.panelReadBarcode.Size = New System.Drawing.Size(248, 100)
         Me.panelReadBarcode.TabIndex = 2
         Me.panelReadBarcode.Visible = False
         ' 
         ' picboxReadBarcode
         ' 
-        Me.picboxReadBarcode.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxReadBarcode_Disabled
-        Me.picboxReadBarcode.Location = New System.Drawing.Point(38, 176)
+        Me.picboxReadBarcode.Image = Global.DotNet_TWAIN_Demo.picboxReadBarcode_Disabled
+        Me.picboxReadBarcode.Location = New System.Drawing.Point(38, 50)
         Me.picboxReadBarcode.Name = "picboxReadBarcode"
         Me.picboxReadBarcode.Size = New System.Drawing.Size(180, 38)
         Me.picboxReadBarcode.TabIndex = 15
@@ -1223,33 +1202,6 @@ Partial Class DotNetTWAINDemo
         Me.label6.TabIndex = 2
         Me.label6.Text = "Barcode Format :"
         ' 
-        ' label7
-        ' 
-        Me.label7.AutoSize = True
-        Me.label7.BackColor = System.Drawing.Color.Transparent
-        Me.label7.Font = New System.Drawing.Font("Segoe UI", 9.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.label7.Location = New System.Drawing.Point(18, 49)
-        Me.label7.Name = "label7"
-        Me.label7.Size = New System.Drawing.Size(147, 15)
-        Me.label7.TabIndex = 3
-        Me.label7.Text = "Maximum Barcode Reads :"
-        ' 
-        ' tbxBottom
-        ' 
-        Me.tbxBottom.Location = New System.Drawing.Point(169, 141)
-        Me.tbxBottom.Name = "tbxBottom"
-        Me.tbxBottom.[ReadOnly] = True
-        Me.tbxBottom.Size = New System.Drawing.Size(60, 20)
-        Me.tbxBottom.TabIndex = 14
-        ' 
-        ' tbxMaxBarcodeReads
-        ' 
-        Me.tbxMaxBarcodeReads.Location = New System.Drawing.Point(177, 47)
-        Me.tbxMaxBarcodeReads.Name = "tbxMaxBarcodeReads"
-        Me.tbxMaxBarcodeReads.Size = New System.Drawing.Size(50, 20)
-        Me.tbxMaxBarcodeReads.TabIndex = 4
-        AddHandler Me.tbxMaxBarcodeReads.KeyPress, New System.Windows.Forms.KeyPressEventHandler(AddressOf Me.tbxBarcodeLocation_KeyPress)
-        ' 
         ' cbxBarcodeFormat
         ' 
         Me.cbxBarcodeFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
@@ -1259,85 +1211,7 @@ Partial Class DotNetTWAINDemo
         Me.cbxBarcodeFormat.Name = "cbxBarcodeFormat"
         Me.cbxBarcodeFormat.Size = New System.Drawing.Size(106, 21)
         Me.cbxBarcodeFormat.TabIndex = 5
-        ' 
-        ' tbxTop
-        ' 
-        Me.tbxTop.Location = New System.Drawing.Point(55, 141)
-        Me.tbxTop.Name = "tbxTop"
-        Me.tbxTop.[ReadOnly] = True
-        Me.tbxTop.Size = New System.Drawing.Size(60, 20)
-        Me.tbxTop.TabIndex = 13
-        ' 
-        ' label8
-        ' 
-        Me.label8.AutoSize = True
-        Me.label8.BackColor = System.Drawing.Color.Transparent
-        Me.label8.Font = New System.Drawing.Font("Segoe UI", 9.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.label8.Location = New System.Drawing.Point(18, 77)
-        Me.label8.Name = "label8"
-        Me.label8.Size = New System.Drawing.Size(211, 15)
-        Me.label8.TabIndex = 6
-        Me.label8.Text = "Selected Rectangle Area Of the Image :"
-        ' 
-        ' label9
-        ' 
-        Me.label9.AutoSize = True
-        Me.label9.BackColor = System.Drawing.Color.Transparent
-        Me.label9.Font = New System.Drawing.Font("Segoe UI", 9.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.label9.Location = New System.Drawing.Point(19, 109)
-        Me.label9.Name = "label9"
-        Me.label9.Size = New System.Drawing.Size(33, 15)
-        Me.label9.TabIndex = 7
-        Me.label9.Text = "Left :"
-        ' 
-        ' tbxRight
-        ' 
-        Me.tbxRight.Location = New System.Drawing.Point(169, 106)
-        Me.tbxRight.Name = "tbxRight"
-        Me.tbxRight.[ReadOnly] = True
-        Me.tbxRight.Size = New System.Drawing.Size(60, 20)
-        Me.tbxRight.TabIndex = 12
-        ' 
-        ' label10
-        ' 
-        Me.label10.AutoSize = True
-        Me.label10.BackColor = System.Drawing.Color.Transparent
-        Me.label10.Font = New System.Drawing.Font("Segoe UI", 9.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.label10.Location = New System.Drawing.Point(127, 109)
-        Me.label10.Name = "label10"
-        Me.label10.Size = New System.Drawing.Size(41, 15)
-        Me.label10.TabIndex = 8
-        Me.label10.Text = "Right :"
-        ' 
-        ' label11
-        ' 
-        Me.label11.AutoSize = True
-        Me.label11.BackColor = System.Drawing.Color.Transparent
-        Me.label11.Font = New System.Drawing.Font("Segoe UI", 9.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.label11.Location = New System.Drawing.Point(18, 143)
-        Me.label11.Name = "label11"
-        Me.label11.Size = New System.Drawing.Size(34, 15)
-        Me.label11.TabIndex = 9
-        Me.label11.Text = "Top :"
-        ' 
-        ' tbxLeft
-        ' 
-        Me.tbxLeft.Location = New System.Drawing.Point(55, 107)
-        Me.tbxLeft.Name = "tbxLeft"
-        Me.tbxLeft.[ReadOnly] = True
-        Me.tbxLeft.Size = New System.Drawing.Size(60, 20)
-        Me.tbxLeft.TabIndex = 11
-        ' 
-        ' label12
-        ' 
-        Me.label12.AutoSize = True
-        Me.label12.BackColor = System.Drawing.Color.Transparent
-        Me.label12.Font = New System.Drawing.Font("Segoe UI", 9.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CByte(0))
-        Me.label12.Location = New System.Drawing.Point(115, 143)
-        Me.label12.Name = "label12"
-        Me.label12.Size = New System.Drawing.Size(53, 15)
-        Me.label12.TabIndex = 10
-        Me.label12.Text = "Bottom :"
+		AddHandler Me.cbxBarcodeFormat.SelectedIndexChanged, New System.EventHandler(AddressOf cbxBarcodeFormat_SelectedIndexChanged)
         ' 
         ' panelOCR
         ' 
@@ -1356,7 +1230,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxOCR
         ' 
-        Me.picboxOCR.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxOCR_Disabled
+        Me.picboxOCR.Image = Global.DotNet_TWAIN_Demo.picboxOCR_Disabled
         Me.picboxOCR.Location = New System.Drawing.Point(40, 132)
         Me.picboxOCR.Name = "picboxOCR"
         Me.picboxOCR.Size = New System.Drawing.Size(180, 38)
@@ -1488,7 +1362,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxSave
         ' 
-        Me.picboxSave.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxSave_Disabled
+        Me.picboxSave.Image = Global.DotNet_TWAIN_Demo.picboxSave_Disabled
         Me.picboxSave.Location = New System.Drawing.Point(38, 152)
         Me.picboxSave.Name = "picboxSave"
         Me.picboxSave.Size = New System.Drawing.Size(180, 38)
@@ -1571,7 +1445,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxFit
         ' 
-        Me.picboxFit.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxFit_Leave
+        Me.picboxFit.Image = Global.DotNet_TWAIN_Demo.picboxFit_Leave
         Me.picboxFit.Location = New System.Drawing.Point(11, 448)
         Me.picboxFit.Name = "picboxFit"
         Me.picboxFit.Size = New System.Drawing.Size(61, 36)
@@ -1587,7 +1461,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxOriginalSize
         ' 
-        Me.picboxOriginalSize.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxOriginalSize_Leave
+        Me.picboxOriginalSize.Image = Global.DotNet_TWAIN_Demo.picboxOriginalSize_Leave
         Me.picboxOriginalSize.Location = New System.Drawing.Point(70, 448)
         Me.picboxOriginalSize.Name = "picboxOriginalSize"
         Me.picboxOriginalSize.Size = New System.Drawing.Size(61, 36)
@@ -1607,7 +1481,7 @@ Partial Class DotNetTWAINDemo
         Me.label25.Name = "label25"
         Me.label25.Size = New System.Drawing.Size(894, 18)
         Me.label25.TabIndex = 89
-        Me.label25.Text = "Note: PDF library is used when loading PDF files.          @2017 Dynams" & "oft Corporation. All rights reserved."
+        Me.label25.Text = "Note: PDF library is used when loading PDF files.          @2018 Dynams" & "oft Corporation. All rights reserved."
         Me.label25.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         ' 
         ' lbCloseAnnotations
@@ -1643,7 +1517,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxTitle
         ' 
-        Me.picboxTitle.BackgroundImage = Global.DotNet_TWAIN_Demo.My.Resources.picboxAnnotationBar
+        Me.picboxTitle.BackgroundImage = Global.DotNet_TWAIN_Demo.picboxAnnotationBar
         Me.picboxTitle.Location = New System.Drawing.Point(0, 0)
         Me.picboxTitle.Name = "picboxTitle"
         Me.picboxTitle.Size = New System.Drawing.Size(206, 18)
@@ -1654,7 +1528,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxDeleteAnnotationA
         ' 
-        Me.picboxDeleteAnnotationA.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxDeleteAnnotationA_Leave
+        Me.picboxDeleteAnnotationA.Image = Global.DotNet_TWAIN_Demo.picboxDeleteAnnotationA_Leave
         Me.picboxDeleteAnnotationA.Location = New System.Drawing.Point(164, 18)
         Me.picboxDeleteAnnotationA.Name = "picboxDeleteAnnotationA"
         Me.picboxDeleteAnnotationA.Size = New System.Drawing.Size(43, 27)
@@ -1670,7 +1544,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxEllipseA
         ' 
-        Me.picboxEllipseA.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxEllipseA_Leave
+        Me.picboxEllipseA.Image = Global.DotNet_TWAIN_Demo.picboxEllipseA_Leave
         Me.picboxEllipseA.Location = New System.Drawing.Point(41, 18)
         Me.picboxEllipseA.Name = "picboxEllipseA"
         Me.picboxEllipseA.Size = New System.Drawing.Size(42, 27)
@@ -1686,7 +1560,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxRectangleA
         ' 
-        Me.picboxRectangleA.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxRectangleA_Leave
+        Me.picboxRectangleA.Image = Global.DotNet_TWAIN_Demo.picboxRectangleA_Leave
         Me.picboxRectangleA.Location = New System.Drawing.Point(82, 18)
         Me.picboxRectangleA.Name = "picboxRectangleA"
         Me.picboxRectangleA.Size = New System.Drawing.Size(42, 27)
@@ -1702,7 +1576,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxTextA
         ' 
-        Me.picboxTextA.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxTextA_Leave
+        Me.picboxTextA.Image = Global.DotNet_TWAIN_Demo.picboxTextA_Leave
         Me.picboxTextA.Location = New System.Drawing.Point(123, 18)
         Me.picboxTextA.Name = "picboxTextA"
         Me.picboxTextA.Size = New System.Drawing.Size(42, 27)
@@ -1718,7 +1592,7 @@ Partial Class DotNetTWAINDemo
         ' 
         ' picboxLineA
         ' 
-        Me.picboxLineA.Image = Global.DotNet_TWAIN_Demo.My.Resources.picboxLineA_Leave
+        Me.picboxLineA.Image = Global.DotNet_TWAIN_Demo.picboxLineA_Leave
         Me.picboxLineA.Location = New System.Drawing.Point(-1, 18)
         Me.picboxLineA.Name = "picboxLineA"
         Me.picboxLineA.Size = New System.Drawing.Size(43, 27)
@@ -1752,7 +1626,7 @@ Partial Class DotNetTWAINDemo
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0F, 15.0F)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.BackgroundImage = Global.DotNet_TWAIN_Demo.My.Resources.main_bg
+        Me.BackgroundImage = Global.DotNet_TWAIN_Demo.main_bg
 		Me.ClientSize = New System.Drawing.Size(898, 698)
 		Me.Controls.Add(Me.picboxFit)
 		Me.Controls.Add(Me.picboxOriginalSize)
@@ -1940,18 +1814,7 @@ Partial Class DotNetTWAINDemo
 	Private picboxOCR As System.Windows.Forms.PictureBox
 	Private panelOCR As System.Windows.Forms.Panel
 	Private label6 As System.Windows.Forms.Label
-	Private label7 As System.Windows.Forms.Label
-	Private tbxMaxBarcodeReads As System.Windows.Forms.TextBox
-	Private label12 As System.Windows.Forms.Label
-	Private label11 As System.Windows.Forms.Label
-	Private label10 As System.Windows.Forms.Label
-	Private label9 As System.Windows.Forms.Label
-	Private label8 As System.Windows.Forms.Label
 	Private cbxBarcodeFormat As System.Windows.Forms.ComboBox
-	Private tbxBottom As System.Windows.Forms.TextBox
-	Private tbxTop As System.Windows.Forms.TextBox
-	Private tbxRight As System.Windows.Forms.TextBox
-	Private tbxLeft As System.Windows.Forms.TextBox
 	Private picboxReadBarcode As System.Windows.Forms.PictureBox
 	Private panelReadBarcode As System.Windows.Forms.Panel
 	Private panelAddBarcode As System.Windows.Forms.Panel

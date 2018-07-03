@@ -17,7 +17,7 @@ namespace BarcodeGenerator
 {
     public partial class Form1 : Form,ISave,IConvertCallback
     {
-        private string m_StrProductKey = "t0068MgAAAENENwNWc7+efmkY+t7se6XaRPFZkvfB7QWiTjHiLykxngQdY09pzVtOvrefXBbVvYFbJSluECHlyxaOvHwUADk=";
+        private string m_StrProductKey = "t0068UwAAAEQABDxqjGfgEzhVYureL0kGxugcsvIqCDGTPTsR5nLaQsNupIc17Y5vpMZAWBDsd6Xw3NMYzdHlHwiKUrfe/cU=";
         private ImageCore m_ImageCore = null;
         Dynamsoft.Barcode.Enums.EnumBarcodeFormat barcodeformat;
         private Dynamsoft.Barcode.BarcodeGenerator m_Generator = null;
@@ -138,6 +138,40 @@ namespace BarcodeGenerator
                     this.labMsg.ForeColor = Color.Red;
                     this.labMsg.Text = "Please load an image first";
                     this.labMsg.Location = new Point(this.groupBox2.Size.Width / 2 - this.labMsg.Size.Width / 2, this.labMsg.Location.Y);
+                }
+            }
+            catch
+            {
+            }
+        }
+        private void btnCreateBarcode_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.labMsg.Text = "";
+                this.labmsg2.Text = "";
+
+                if (txtBarcodeContent.Text != "" && txtBarcodeScale.Text != "")
+                {
+                    Bitmap barcodeBit = m_Generator.CreateBarcode(barcodeformat, txtBarcodeContent.Text, txtHumanReadableTxt.Text, float.Parse(txtBarcodeScale.Text));
+                    m_ImageCore.IO.LoadImage(barcodeBit);
+                }
+                else
+                {
+                    if (txtBarcodeContent.Text == "")
+                    {
+                        txtBarcodeContent.Focus();
+                        this.labMsg.ForeColor = Color.Red;
+                        this.labMsg.Text = "BarcodeContent can not be empty";
+                        this.labMsg.Location = new Point(this.groupBox2.Size.Width / 2 - this.labMsg.Size.Width / 2, this.labMsg.Location.Y);
+                    }
+                    else if (txtBarcodeScale.Text == "")
+                    {
+                        txtBarcodeScale.Focus();
+                        this.labMsg.ForeColor = Color.Red;
+                        this.labMsg.Text = "BarcodeScale can not be empty";
+                        this.labMsg.Location = new Point(this.groupBox2.Size.Width / 2 - this.labMsg.Size.Width / 2, this.labMsg.Location.Y);
+                    }
                 }
             }
             catch
@@ -382,5 +416,7 @@ namespace BarcodeGenerator
             }
         }
         #endregion
+
+        
     }
 }
