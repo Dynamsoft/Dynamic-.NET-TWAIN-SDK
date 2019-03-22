@@ -43,6 +43,9 @@ Samples
 -----------
 http://www.dynamsoft.com/Downloads/.Net-TWAIN-Sample-Download.aspx
 
+## License Agreement
+https://www.dynamsoft.com/Products/.Net-TWAIN-Scanner-License.aspx
+
 [1]:http://www.dynamsoft.com/Products/.Net-TWAIN-Scanner.aspx
 [2]:http://www.dynamsoft.com/Downloads/.Net-TWAIN-Scanner-Download.aspx
 [9]:http://www.dynamsoft.com/Products/.Net-TWAIN-Scanner-Features.aspx
